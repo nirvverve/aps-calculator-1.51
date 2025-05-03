@@ -88,7 +88,7 @@ button[type="submit"]:hover {
 .field-fac input { background: #fffde7; border-left: 5px solid #fbc02d; }    /* Yellow */
 .field-cya input { background: #f3e5f5; border-left: 5px solid #8e24aa; }    /* Purple */
 .field-salt input { background: #fff3e0; border-left: 5px solid #ef6c00; }    /* Orange */
-
+.field-temp input { background: #ececec; border-left: 5px solid #757575; }    /* Gray */
 /* Chemical dosage cards */
 .chem-card {
     margin: 1em 0;

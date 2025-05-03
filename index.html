@@ -33,11 +33,7 @@
             </section>
             <section class="section">
                 <h2>Balance to Protect the Pool</h2>
-                <label>
-                    Water Temperature (°F):
-                    <input type="number" id="temperature" min="32" max="120" required inputmode="numeric" value="86">
-                    <div class="note"><em>Note: 86 degrees F is a default value. Change it as needed (spas, fresh fills, etc.)</em></div>
-                </label>
+            
                 <label class="field-ph">
                     pH:
                     <input type="number" id="ph" min="6.0" max="9.0" step="0.01" required inputmode="decimal">
@@ -54,6 +50,11 @@
                     Total Dissolved Solids (ppm):
                     <input type="number" id="tds" min="0" step="1" required inputmode="numeric" value="1600">
                     <div class="note"><em>Note: 1,600 ppm is used as a default value. Change this as needed if you are using a TDS meter.</em></div>
+                </label>
+                <label class="field-temp">
+                    Water Temperature (°F):
+                    <input type="number" id="temperature" min="32" max="120" required inputmode="numeric" value="86">
+                    <div class="note"><em>Note: 86 degrees F is a default value. Change it as needed (spas, fresh fills, etc.)</em></div>
                 </label>
             </section>
             <section class="section">
