@@ -407,11 +407,7 @@ function calculateLSI() {
         `;
     }
 
- // [Previous JavaScript remains the same until the results HTML generation]
-
-// In the calculateLSI function, replace the results HTML generation with:
-
-resultsElement.innerHTML = `
+    resultsElement.innerHTML = `
 <h3>Summary of Chemicals to Add at Today's Visit</h3>
 ${acidList.length > 0 ? `
     <div class="chem-card acid">
@@ -447,7 +443,18 @@ ${chlorineHTML}
 </ul>`;
 }
 
+// Set default values for temperature and TDS on load
 document.addEventListener('DOMContentLoaded', function() {
+    // Set default values for temperature and TDS if empty
+    const tempInput = document.getElementById('temperature');
+    if (tempInput && (tempInput.value === "" || tempInput.value === undefined)) {
+        tempInput.value = 86;
+    }
+    const tdsInput = document.getElementById('tds');
+    if (tdsInput && (tdsInput.value === "" || tdsInput.value === undefined)) {
+        tdsInput.value = 1600;
+    }
+
     const form = document.getElementById('pool-form');
     if (form) {
         form.addEventListener('submit', function(e) {
