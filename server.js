@@ -260,14 +260,68 @@ app.post('/api/calculate', (req, res) => {
             }
         }
 
-        // Return all results needed for display
+        // Chem cards
+        const chemCards = [
+            {
+                title: "pH",
+                value: ph,
+                advice: dosing.ph || "No adjustment needed."
+            },
+            {
+                title: "Alkalinity",
+                value: alkalinity,
+                advice: dosing.alkalinity || "No adjustment needed."
+            },
+            {
+                title: "Calcium",
+                value: calcium,
+                advice: dosing.calcium || "No adjustment needed."
+            },
+            {
+                title: "CYA",
+                value: cyanuric,
+                advice: dosing.cya || "No adjustment needed."
+            },
+            {
+                title: "Salt",
+                value: saltCurrent,
+                advice: saltDose
+                    ? `Add ${saltDose.lbsNeeded.toFixed(2)} lbs of pool salt (${saltDose.bags} x 40 lb bags) to reach your desired salt level.`
+                    : "No adjustment needed."
+            },
+            {
+                title: "Sanitizer",
+                value: freeChlorine,
+                advice: sanitizer || "No adjustment needed."
+            }
+        ];
+
+        // Detailed table data
+        const detailedTable = [
+            { label: "LSI", value: lsi.toFixed(2) },
+            { label: "LSI Status", value: lsiStatus },
+            { label: "pH", value: ph },
+            { label: "Alkalinity (corrected)", value: correctedAlkalinity.toFixed(1) },
+            { label: "Calcium", value: calcium },
+            { label: "CYA", value: cyanuric },
+            { label: "Salt", value: saltCurrent },
+            { label: "TDS", value: tds },
+            { label: "Temperature", value: temperature }
+        ];
+
+        // Summary
+        const summary = `
+            <strong>LSI:</strong> ${lsi.toFixed(2)} (${lsiStatus})<br>
+            <strong>Summary of Chemicals to Dose Today:</strong><br>
+            ${chemCards.map(card => `<div><strong>${card.title}:</strong> ${card.advice}</div>`).join('')}
+        `;
+
         res.json({
             lsi: lsi.toFixed(2),
             lsiStatus,
-            dosing,
-            saltDose,
-            sanitizer,
-            summary: `LSI: ${lsi.toFixed(2)} (${lsiStatus})`
+            summary,
+            chemCards,
+            detailedTable
         });
     } catch (err) {
         res.status(500).json({ error: 'Calculation error', details: err.message });

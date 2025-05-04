@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const form = document.getElementById('pool-form');
     const resultsDiv = document.getElementById('results');
+    const chemCardsDiv = document.getElementById('chem-cards');
+    const detailedTableDiv = document.getElementById('detailed-table');
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -40,25 +42,41 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(result => {
             if (result.error) {
                 resultsDiv.innerHTML = `<p class="error">Error: ${result.error}</p>`;
+                chemCardsDiv.innerHTML = '';
+                detailedTableDiv.innerHTML = '';
                 return;
             }
-            // Display result (customize as needed)
-            resultsDiv.innerHTML = `
-                <h3>Results</h3>
-                <p><strong>LSI:</strong> ${result.lsi} (${result.lsiStatus})</p>
-                <ul>
-                    <li><strong>pH Dosing:</strong> ${result.dosing.ph || 'No adjustment needed.'}</li>
-                    <li><strong>Alkalinity Dosing:</strong> ${result.dosing.alkalinity || 'No adjustment needed.'}</li>
-                    <li><strong>Calcium Dosing:</strong> ${result.dosing.calcium || 'No adjustment needed.'}</li>
-                    <li><strong>CYA Dosing:</strong> ${result.dosing.cya || 'No adjustment needed.'}</li>
-                    <li><strong>Salt Dosing:</strong> ${result.saltDose ? 
-                        `Add ${result.saltDose.lbsNeeded.toFixed(2)} lbs of pool salt (${result.saltDose.bags} x 40 lb bags) to reach your desired salt level.` : 'No adjustment needed.'}</li>
-                    <li><strong>Sanitizer Dosing:</strong> ${result.sanitizer || 'No adjustment needed.'}</li>
-                </ul>
+
+            // Summary
+            resultsDiv.innerHTML = result.summary;
+
+            // Chem Cards
+            chemCardsDiv.innerHTML = result.chemCards.map(card => `
+                <div class="chem-card">
+                    <div class="chem-title">${card.title}</div>
+                    <div class="chem-value">${card.value}</div>
+                    <div class="chem-advice">${card.advice}</div>
+                </div>
+            `).join('');
+
+            // Detailed Table
+            detailedTableDiv.innerHTML = `
+                <table>
+                    <tbody>
+                        ${result.detailedTable.map(row => `
+                            <tr>
+                                <td>${row.label}</td>
+                                <td>${row.value}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
             `;
         })
         .catch(err => {
             resultsDiv.innerHTML = `<p class="error">Error: ${err.message}</p>`;
+            chemCardsDiv.innerHTML = '';
+            detailedTableDiv.innerHTML = '';
         });
     });
 });
