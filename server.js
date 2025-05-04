@@ -1,44 +1,65 @@
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
+const session = require('express-session');
 const path = require('path');
 
+const app = express();
 const PORT = 3000;
 
-const server = http.createServer((req, res) => {
-    let filePath = '.' + req.url;
-    if (filePath === './') filePath = './index.html';
+// Change these to your own secure credentials!
+const USERNAME = 'seanjohnson';
+const PASSWORD = 'seanjohnson123';
 
-    const extname = String(path.extname(filePath)).toLowerCase();
-    const mimeTypes = {
-        '.html': 'text/html',
-        '.js': 'text/javascript',
-        '.css': 'text/css',
-        '.png': 'image/png',
-        '.jpg': 'image/jpg',
-        '.gif': 'image/gif',
-        '.svg': 'image/svg+xml'
-    };
+app.use(express.urlencoded({ extended: true }));
 
-    const contentType = mimeTypes[extname] || 'application/octet-stream';
+app.use(session({
+    secret: 'Lizzo',
+    resave: false,
+    saveUninitialized: false
+}));
 
-    fs.readFile(filePath, (error, content) => {
-        if (error) {
-            if(error.code == 'ENOENT'){
-                res.writeHead(404, { 'Content-Type': 'text/html' });
-                res.end('404 Not Found', 'utf-8');
-            }
-            else {
-                res.writeHead(500);
-                res.end('Sorry, check with the site admin for error: '+error.code+' ..\n');
-            }
-        }
-        else {
-            res.writeHead(200, { 'Content-Type': contentType });
-            res.end(content, 'utf-8');
-        }
+// Login page
+app.get('/login', (req, res) => {
+    res.send(`
+        <h2>Login</h2>
+        <form method="POST" action="/login">
+            <input name="username" placeholder="Username" required><br>
+            <input name="password" type="password" placeholder="Password" required><br>
+            <button type="submit">Login</button>
+        </form>
+        ${req.query.error ? '<p style="color:red;">Invalid login</p>' : ''}
+    `);
+});
+
+// Handle login
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+    if (username === USERNAME && password === PASSWORD) {
+        req.session.loggedIn = true;
+        res.redirect('/');
+    } else {
+        res.redirect('/login?error=1');
+    }
+});
+
+// Logout
+app.get('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/login');
     });
 });
 
-server.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}/`);
+// Middleware to protect all routes except /login
+app.use((req, res, next) => {
+    if (req.session.loggedIn || req.path === '/login') {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+});
+
+// Serve static files (your calculator)
+app.use(express.static(path.join(__dirname)));
+
+app.listen(PORT, () => {
+    console.log(`Secure server running at http://localhost:${PORT}/`);
 });
