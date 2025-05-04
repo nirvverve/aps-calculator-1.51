@@ -1,8 +1,8 @@
 // State-specific "golden numbers"
 const GOLDEN_NUMBERS = {
-    arizona: { alkalinity: 120, calcium: 400, ph: 7.5, cya: 80, salt: 3200 },
-    texas:   { alkalinity: 120, calcium: 400, ph: 7.5, cya: 80, salt: 3200 },
-    florida: { alkalinity: 80, calcium: 300, ph: 7.6, cya: 50, salt: 3200 }
+    arizona: { alkalinity: 120, calcium: 400, ph: 7.5, cya: 80},
+    texas:   { alkalinity: 120, calcium: 400, ph: 7.5, cya: 80},
+    florida: { alkalinity: 80, calcium: 300, ph: 7.6, cya: 50},
 };
 
 const FL_THRESHOLDS = { alkalinity: 60, calcium: 200, cya: 30 };
@@ -72,9 +72,9 @@ function acidDoseFlOzGallons(currentPh, targetPh, poolGallons, alkalinity) {
     const acidFlOz = (currentPh - targetPh) * poolFactor * alkFactor;
     if (acidFlOz <= 0) return null;
     if (acidFlOz < 128) {
-        return `${acidFlOz.toFixed(1)} fl oz of 31.45% muriatic acid`;
+        return `${acidFlOz.toFixed(1)} fl oz of muriatic acid (31.45%)`;
     } else {
-        return `${(acidFlOz / 128).toFixed(2)} gallons (${acidFlOz.toFixed(1)} fl oz) of 31.45% muriatic acid`;
+        return `${(acidFlOz / 128).toFixed(2)} gallons (${acidFlOz.toFixed(1)} fl oz) of muriatic acid (31.45%)`;
     }
 }
 
@@ -341,14 +341,14 @@ function calculateLSI() {
         const liquidChlorine = getLiquidChlorineDose(chlorineInfo.toBeDosed, poolGallons);
         if (chlorineInfo.toBeDosed > 0.01) {
             otherList.push(
-                boldQuantity(`Add ${liquidChlorine.gallons.toFixed(2)} gal (${liquidChlorine.flOz.toFixed(0)} fl oz) of 12.5% liquid chlorine.`)
+                boldQuantity(`Add ${liquidChlorine.gallons.toFixed(2)} gal (${liquidChlorine.flOz.toFixed(0)} fl oz) of liquid chlorine (12.5%).`)
             );
         }
     } else {
         const calHypoOunces = getCalHypoOunces(chlorineInfo.toBeDosed, poolGallons);
         if (chlorineInfo.toBeDosed > 0.01) {
             otherList.push(
-                boldQuantity(`Add ${formatLbsOz(calHypoOunces)} of calcium hypochlorite (73%).`)
+                boldQuantity(`Add ${formatLbsOz(calHypoOunces)} of granular calcium hypochlorite (73%).`)
             );
         }
     }
@@ -371,7 +371,6 @@ function calculateLSI() {
                 ${chartRow("Alkalinity (ppm)", alkalinity, golden.alkalinity)}
                 ${chartRow("Calcium Hardness (ppm)", calcium, golden.calcium)}
                 ${chartRow("Cyanuric Acid (ppm)", cyanuric, golden.cya)}
-                ${chartRow("Salt (ppm)", saltCurrent, golden.salt)}
             </tbody>
         </table>
     `;
@@ -380,7 +379,7 @@ function calculateLSI() {
     if (state === "florida") {
         const liquidChlorine = getLiquidChlorineDose(chlorineInfo.toBeDosed, poolGallons);
         chlorineHTML = `
-            <h4>Sanitizer Dosing Recommendation (Florida)</h4>
+            <h4>Chlorine Dosing Recommendation Details (Florida)</h4>
             <ul>
                 <li>Minimum Free Chlorine Required: ${chlorineInfo.minFC.toFixed(2)} ppm</li>
                 <li>UV Loss Factor: ${chlorineInfo.lossFactor} ppm/day</li>
@@ -394,14 +393,14 @@ function calculateLSI() {
     } else {
         const calHypoOunces = getCalHypoOunces(chlorineInfo.toBeDosed, poolGallons);
         chlorineHTML = `
-            <h4>Sanitizer Dosing Recommendation</h4>
+            <h4>Chlorine Dosing Recommendation Detail (Arizona / Texas)</h4>
             <ul>
-                <li>Minimum Free Chlorine Required: ${chlorineInfo.minFC.toFixed(2)} ppm</li>
+                <li>Min. Free Chlorine Reqd for Pool's CYA Level: ${chlorineInfo.minFC.toFixed(2)} ppm</li>
                 <li>UV Loss Factor: ${chlorineInfo.lossFactor} ppm/day</li>
                 <li>UV Loss for Week: ${chlorineInfo.uvLoss.toFixed(2)} ppm</li>
                 <li>Calculated Chlorine Dose: ${chlorineInfo.calculatedDose.toFixed(2)} ppm</li>
-                <li>Tested Free Chlorine: ${freeChlorine.toFixed(2)} ppm</li>
-                <li><strong>Chlorine to Be Dosed: ${chlorineInfo.toBeDosed.toFixed(2)} ppm</strong></li>
+                <li>Free Chlorine as Tested: ${freeChlorine.toFixed(2)} ppm</li>
+                <li><strong>Amount of Chlorine to Be Dosed: ${chlorineInfo.toBeDosed.toFixed(2)} ppm</strong></li>
                 <li><strong>Calcium Hypochlorite (73%) to Add: ${formatLbsOz(calHypoOunces)}</strong></li>
             </ul>
         `;
@@ -430,10 +429,10 @@ ${otherList.map(item => {
 ${comparisonTable}
 ${chlorineHTML}
 
-<h3>Pool Water Assessment</h3>
+<h3>Is Pool Water Balanced, Corrosive or Scale Forming ?</h3>
 <p>${lsiStatus}</p>
 
-<h3>LSI Value</h3>
+<h3>Saturation Index (LSI) Value</h3>
 <p>${lsi.toFixed(2)}</p>
 
 <h3>Water Balance Adjustment Plan</h3>
