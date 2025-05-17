@@ -9,7 +9,29 @@ document.addEventListener('DOMContentLoaded', function() {
     if (tdsInput && (tdsInput.value === "" || tdsInput.value === undefined)) {
         tdsInput.value = 1600;
     }
-
+    const stateButtons = document.querySelectorAll('#state-buttons button');
+    const stateInput = document.getElementById('state');
+    const savedState = localStorage.getItem('selectedState');
+  
+    // Restore previous selection if available
+    if (savedState) {
+      stateInput.value = savedState;
+      stateButtons.forEach(btn => {
+        if (btn.dataset.state === savedState) {
+          btn.classList.add('active');
+        }
+      });
+    }
+  
+    stateButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        stateButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        stateInput.value = btn.dataset.state;
+        localStorage.setItem('selectedState', btn.dataset.state);
+      });
+    });
+    
     const form = document.getElementById('pool-form');
     if (form) {
         form.addEventListener('submit', async function(e) {
