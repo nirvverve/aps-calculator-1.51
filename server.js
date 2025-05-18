@@ -15,10 +15,12 @@ const PORT = 3000; // or whatever port you use
 app.use(express.static(path.join(__dirname))); // serves your HTML, JS, CSS
 app.use(bodyParser.json()); // lets Express read JSON sent from the browser
 app.post('/api/calculate', (req, res) => {
+    console.log("Received request body:", req.body);
     try {
         const result = calculateLSIAndAdvice(req.body);
         res.json(result);
     } catch (err) {
+        console.error("Calculation error:", err);
         res.status(500).json({ error: 'Calculation error.' });
     }
 });

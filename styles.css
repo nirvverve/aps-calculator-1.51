@@ -233,6 +233,24 @@ button[type="submit"]:hover {
     color: #fff;
     border-color: #007bff;
 }
+#language-buttons button {
+    font-size: 1.08em;
+    padding: 0.7em 1.5em;
+    border-radius: 5px;
+    border: 1px solid #bdbdbd;
+    background: #f3f6fa;
+    color: #1a237e;
+    font-weight: 500;
+    margin: 0.3em 0.7em 0.3em 0;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+#language-buttons button.active {
+    background: #007bff;
+    color: #fff;
+    border-color: #007bff;
+}
 /* Responsive */
 @media (max-width: 600px) {
     header {
