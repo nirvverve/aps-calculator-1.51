@@ -13,18 +13,18 @@ The APS Pool Chemistry Calculator is a specialized tool designed to help pool se
 **PRIORITIZED CHEMICAL DOSING FOR WATER BALANCE**
 When multiple water balance parameters are out of balance, the calculator prioritizes corrections in a specific order to ensure safe and effective treatment:
 
-        pH and Total Alkalinity: These are addressed first as they affect sanitizer efficiency and water comfort
-        Calcium Hardness: Adjusted to prevent scaling or corrosion
-        Cyanuric Acid (Stabilizer): Adjusted to protect chlorine from UV degradation
+pH and Total Alkalinity: These are addressed first as they affect sanitizer efficiency and water comfort
+Calcium Hardness: Adjusted to prevent scaling or corrosion
+Cyanuric Acid (Stabilizer): Adjusted to protect chlorine from UV degradation
 
 If multiple parameters need correction, the calculator will recommend addressing the most critical ones immediately and schedule others for subsequent visits, preventing chemical conflicts and over-correction.
 
 **STATE DEFINED TARGETS**
-Parameter	    Florida	   Arizona/Texas
-pH	              7.6	     7.5
-Total Alkalinity  80 ppm	 120 ppm
-Calcium Hardness  300 ppm	400 ppm
-Cyanuric Acid	  50 ppm	80 ppm
+Parameter	    	   
+pH  7.6 (Fla) 7.5 (Tx and Az)
+Total Alkalinity 80 ppm (Fla) 120 ppm (Tx and Az)
+Calcium Hardness 300 ppm (Fla) 400 ppm (Tx and Az)
+Cyanuric Acid	  50 ppm (Fla) 80 ppm (Tx and Az)
 
 These targets were carefully selected to provide the best balance between water comfort, equipment protection, and sanitizer efficiency in each region's specific climate conditions.
 
