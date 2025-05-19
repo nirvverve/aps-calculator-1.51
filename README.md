@@ -1,3 +1,7 @@
+v1.2.1
+
+In results - water balance plan - the wording in italics "These changes need to be made at the next visit....." now appears only once when multiple balance chems are selected. 
+
 v1.2.0
 
 Multilingual Support: Now available in English, Spanish, and Italian
