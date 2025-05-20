@@ -435,14 +435,16 @@ function getSaltDose(current, desired, poolGallons) {
     return { lbsNeeded, bags };
 }
 
+// ... rest of code remains same
+
 function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalinity, state, t) {
     console.log(`State: ${state}, ChemType: ${chemType}, Alkalinity: ${alkalinity}, UserValue: ${userValue}, TargetValue: ${targetValue}`);
     let advice = "";
     let amount = 0;
     let diff = targetValue - userValue;
 
-     // Handle high alkalinity for all states
-     if (chemType === "alkalinity") {
+    // Handle high alkalinity for all states
+    if (chemType === "alkalinity") {
         if (alkalinity > 150) {
             // Recommend lowering to 120 ppm
             const targetAlk = 120;
@@ -463,10 +465,25 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
                     .replace("{target}", targetAlk);
             }
             return advice;
-        } else {
-            // No alkalinity adjustment below 150 ppm
-            return "";
         }
+        // For Florida: recommend sodium bicarb if raw alkalinity <= 60
+        if (state === "florida" && alkalinity <= 60) {
+            amount = ((80 - alkalinity) / 10) * 1.5 * (poolGallons / 10000);
+            advice = t.dosing.alkRaise
+                .replace("{amount}", amount.toFixed(2))
+                .replace("{target}", 80);
+            return advice;
+        }
+        // For AZ/TX: recommend sodium bicarb if raw alkalinity < 100
+        if ((state === "arizona" || state === "texas") && alkalinity < 100) {
+            amount = ((120 - alkalinity) / 10) * 1.5 * (poolGallons / 10000);
+            advice = t.dosing.alkRaise
+                .replace("{amount}", amount.toFixed(2))
+                .replace("{target}", 120);
+            return advice;
+        }
+        // Otherwise, no alkalinity adjustment
+        return "";
     }
 
     // Skip pH adjustment if we're already lowering alkalinity
@@ -477,12 +494,6 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
 
     // Florida-specific logic
     if (state === "florida") {
-        if (chemType === "alkalinity" && userValue < FL_THRESHOLDS.alkalinity) {
-            amount = ((targetValue - userValue) / 10) * 1.5 * (poolGallons / 10000);
-            advice = t.dosing.alkRaise
-                .replace("{amount}", amount.toFixed(2))
-                .replace("{target}", targetValue);
-        }
         if (chemType === "calcium" && userValue < FL_THRESHOLDS.calcium) {
             amount = ((targetValue - userValue) / 10) * 1.25 * (poolGallons / 10000);
             advice = t.dosing.calciumRaise
@@ -548,8 +559,9 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
             .replace("{target}", targetValue);
     }
     return advice;
-
 }
+
+// ... rest of code remains same
 // Main backend calculation function
 
     // Parse all values from formData (all should be numbers except state)
