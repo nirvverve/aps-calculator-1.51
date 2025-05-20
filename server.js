@@ -21,7 +21,12 @@ app.post('/api/calculate', (req, res) => {
         res.json(result);
     } catch (err) {
         console.error("Calculation error:", err);
-        res.status(500).json({ error: 'Calculation error.' });
+        const lang = req.body.lang || 'en';
+        res.status(500).json({ 
+            error: 'Calculation error.',
+            lang: lang
+            
+         });
     }
 });
 

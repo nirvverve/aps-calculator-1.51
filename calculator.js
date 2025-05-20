@@ -48,6 +48,14 @@ const translations = {
         errorRequired: "Please fill in all required fields.",
         serverError: "Server error. Please try again later.",
         addAfterTesting: "(Add immediately after testing.)",
+        errorRangeCapacity: "Pool capacity must be between 100 and 50,000 gallons.",
+        errorRangePh: "pH must be between 6.5 and 8.5.",
+        errorRangeAlkalinity: "Alkalinity must be between 0 and 300 ppm.",
+        errorRangeCalcium: "Calcium hardness must be between 0 and 1,000 ppm.",
+        errorRangeCyanuric: "Cyanuric acid must be between 0 and 300 ppm.",
+        errorRangeTds: "TDS must be between 0 and 10,000 ppm.",
+        errorRangeSalt: "Salt levels must be between 0 and 10,000 ppm.",
+        errorRangeTemperature: "Temperature must be between 32°F and 104°F.",
         units: {
             lbs: "lbs",
             oz: "oz",
@@ -62,7 +70,9 @@ const translations = {
             phRaise: "Add {amount} of soda ash to raise pH to {target}.",
             phLower: "Add {amount} to lower pH to {target}.",
             cyaRaise: "Add {amount} of cyanuric acid (stabilizer) to raise CYA to {target} ppm.",
-            salt: "Add {amount} lbs of pool salt ({bags} x 40 lb bags) to reach your desired salt level."
+            salt: "Add {amount} lbs of pool salt ({bags} x 40 lb bags) to reach your desired salt level.",
+            alkLower: "Add {amount} of muriatic acid to lower alkalinity from {current} ppm to {target} ppm.",
+            alkNoAction: "Alkalinity at {current} ppm is within acceptable range (120-140 ppm). No adjustment needed."
         },
         lsiStatus: {
             veryCorrosive: "Very Corrosive",
@@ -126,6 +136,14 @@ const translations = {
         errorRequired: "Por favor, complete todos los campos obligatorios.",
         serverError: "Error del servidor. Por favor, inténtelo de nuevo más tarde.",
         addAfterTesting: "(Agregue inmediatamente después de la prueba.)",
+        errorRangeCapacity: "La capacidad de la piscina debe estar entre 100 y 50,000 galones.",
+        errorRangePh: "El pH debe estar entre 6.5 y 8.5.",
+        errorRangeAlkalinity: "La alcalinidad debe estar entre 0 y 300 ppm.",
+        errorRangeCalcium: "La dureza de calcio debe estar entre 0 y 1,000 ppm.",
+        errorRangeCyanuric: "El ácido cianúrico debe estar entre 0 y 300 ppm.",
+        errorRangeTds: "Los TDS deben estar entre 0 y 10,000 ppm.",
+        errorRangeSalt: "Los niveles de sal deben estar entre 0 y 10,000 ppm.",
+        errorRangeTemperature: "La temperatura debe estar entre 32°F y 104°F.",
         units: {
             lbs: "libras",
             oz: "oz",
@@ -152,7 +170,9 @@ const translations = {
             phRaise: "Agregue {amount} de carbonato de sodio para aumentar el pH a {target}.",
             phLower: "Agregue {amount} para bajar el pH a {target}.",
             cyaRaise: "Agregue {amount} de ácido cianúrico (estabilizador) para aumentar el CYA a {target} ppm.",
-            salt: "Agregue {amount} libras de sal para piscina ({bags} bolsas de 40 lb) para alcanzar el nivel de sal deseado."
+            salt: "Agregue {amount} libras de sal para piscina ({bags} bolsas de 40 lb) para alcanzar el nivel de sal deseado.",
+            alkLower: "Agregue {amount} de ácido muriático para bajar la alcalinidad de {current} ppm a {target} ppm.",
+            alkNoAction: "La alcalinidad a {current} ppm está dentro del rango aceptable (120-140 ppm). No se necesita ajuste."
         }
     },
     it: {
@@ -204,6 +224,14 @@ const translations = {
         errorRequired: "Si prega di compilare tutti i campi obbligatori.",
         serverError: "Errore del server. Riprova più tardi.",
         addAfterTesting: "(Aggiungere immediatamente dopo il test.)",
+        errorRangeCapacity: "La capacità della piscina deve essere compresa tra 100 e 50.000 galloni.",
+        errorRangePh: "Il pH deve essere compreso tra 6,5 e 8,5.",
+        errorRangeAlkalinity: "L'alcalinità deve essere compresa tra 0 e 300 ppm.",
+        errorRangeCalcium: "La durezza del calcio deve essere compresa tra 0 e 1.000 ppm.",
+        errorRangeCyanuric: "L'acido cianurico deve essere compreso tra 0 e 300 ppm.",
+        errorRangeTds: "I TDS devono essere compresi tra 0 e 10.000 ppm.",
+        errorRangeSalt: "I livelli di sale devono essere compresi tra 0 e 10.000 ppm.",
+        errorRangeTemperature: "La temperatura deve essere compresa tra 32°F e 104°F.",
         units: {
             lbs: "libbre",
             oz: "oz",
@@ -230,7 +258,9 @@ const translations = {
             phRaise: "Aggiungi {amount} di carbonato di sodio per aumentare il pH a {target}.",
             phLower: "Aggiungi {amount} per abbassare il pH a {target}.",
             cyaRaise: "Aggiungi {amount} di acido cianurico (stabilizzatore) per aumentare il CYA a {target} ppm.",
-            salt: "Aggiungi {amount} libbre di sale per piscina ({bags} sacchi da 40 lb) per raggiungere il livello di sale desiderato."
+            salt: "Aggiungi {amount} libbre di sale per piscina ({bags} sacchi da 40 lb) per raggiungere il livello di sale desiderato.",
+            alkLower: "Aggiungi {amount} di acido muriatico per abbassare l'alcalinità da {current} ppm a {target} ppm.",
+            alkNoAction: "L'alcalinità a {current} ppm è nel range accettabile (120-140 ppm). Non è necessaria alcuna regolazione."
         }
     }
 };
@@ -338,7 +368,7 @@ function formatLbsOz(ounces, t) {
 
 function acidDoseFlOzGallons(currentPh, targetPh, poolGallons, alkalinity, t) {
     if (currentPh <= targetPh) return null;
-    const poolFactor = 76 * (poolGallons / 10000);
+    const poolFactor = 30 * (poolGallons / 10000);
     const alkFactor = alkalinity / 100;
     const acidFlOz = (currentPh - targetPh) * poolFactor * alkFactor;
     if (acidFlOz <= 0) return null;
@@ -409,6 +439,48 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
     let advice = "";
     let amount = 0;
     let diff = targetValue - userValue;
+
+     // Handle high alkalinity for all states
+     if (chemType === "alkalinity") {
+        if (alkalinity >= 150) {  // Use alkalinity (not userValue which is corrected)
+            // Calculate acid needed to lower alkalinity from current to 120 ppm
+            const targetAlk = 120; // Target alkalinity
+            const alkDiff = alkalinity - targetAlk; // How many ppm to lower
+            
+            // 25.64 oz per 10 ppm per 10,000 gallons
+            const acidOz = (alkDiff / 10) * 25.64 * (poolGallons / 10000);
+            
+            // Convert to gallons if needed
+            let acidDoseText;
+            if (acidOz < 128) {
+                acidDoseText = t.acidDoseFlOz.replace("{amount}", acidOz.toFixed(1));
+            } else {
+                acidDoseText = t.acidDoseGallons
+                    .replace("{gallons}", (acidOz / 128).toFixed(2))
+                    .replace("{flOz}", acidOz.toFixed(1));
+            }
+            
+            if (acidDoseText) {
+                advice = t.dosing.alkLower
+                    .replace("{amount}", acidDoseText)
+                    .replace("{current}", alkalinity)
+                    .replace("{target}", targetAlk);
+            }
+            return advice;
+        } else if ((state === "florida" && alkalinity >= 80 && alkalinity < 150) || 
+                  (state !== "florida" && alkalinity >= 120 && alkalinity < 150)) {
+            // No message for alkalinity in the acceptable range, just return empty string
+            // For Florida: 80-150 ppm
+            // For Arizona/Texas: 120-150 ppm
+            return "";
+        }
+    }
+
+    // Skip pH adjustment if we're already lowering alkalinity
+    // (since that will also lower pH)
+    if (chemType === "ph" && alkalinity > 150) {
+        return "";
+    }
 
     // Florida-specific logic
     if (state === "florida") {
@@ -483,6 +555,7 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
             .replace("{target}", targetValue);
     }
     return advice;
+
 }
 // Main backend calculation function
 
@@ -496,10 +569,40 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
     const tds = parseFloat(formData.tds) || 0;
     const cyanuric = parseFloat(formData.cyanuric) || 0;
     const freeChlorine = parseFloat(formData.freechlorine);
-
-    // Salt generator fields
     const saltCurrent = parseFloat(formData['salt-current']) || 0;
     const saltDesired = parseFloat(formData['salt-desired']) || 0;
+
+    if (poolGallons < 500 || poolGallons > 50000) {
+        return { html: `<p class="error">${t.errorRangeCapacity}</p>` };
+    }
+    
+    if (ph < 6.5 || ph > 8.5) {
+        return { html: `<p class="error">${t.errorRangePh}</p>` };
+    }
+    
+    if (alkalinity < 0 || alkalinity > 300) {
+        return { html: `<p class="error">${t.errorRangeAlkalinity}</p>` };
+    }
+    
+    if (calcium < 0 || calcium > 1000) {
+        return { html: `<p class="error">${t.errorRangeCalcium}</p>` };
+    }
+    
+    if (cyanuric < 0 || cyanuric > 300) {
+        return { html: `<p class="error">${t.errorRangeCyanuric}</p>` };
+    }
+    
+    if (tds < 0 || tds > 10000) {
+        return { html: `<p class="error">${t.errorRangeTds}</p>` };
+    }
+    
+    if (saltCurrent < 0 || saltCurrent > 10000 || saltDesired < 0 || saltDesired > 10000) {
+        return { html: `<p class="error">${t.errorRangeSalt}</p>` };
+    }
+
+    if (temperature < 50 || temperature > 104) {
+        return { html: `<p class="error">${t.errorRangeTemperature}</p>` };
+    }
 
     // Input validation
     if (
@@ -743,7 +846,7 @@ ${adjustNow.length > 0
     : `<li>${t.noImmediate}</li>`
   }
   ${nextVisit.length > 0
-    ? `<li><strong>${t.notesNextVisit}</strong><ul>${nextVisit.map(item => `<li>${item} <br><em>${t.nextVisitNote}</em></li>`).join('')}</ul></li>`
+    ? `<li><strong>${t.notesNextVisit}</strong><ul>${nextVisit.map(item => `<li>${item}</li>`).join('')}<li><em>${t.nextVisitNote}</em></li></ul></li>`
     : ''
   }
 </ul>

@@ -46,7 +46,15 @@ const translations = {
         noImmediate: "No immediate adjustments needed.",
         nextVisitNote: "These changes should be made at the next service visit. Retest the water before making adjustments.",
         errorRequired: "Please fill in all required fields.",
-        serverError: "Server error. Please try again later."
+        serverError: "Server error. Please try again later.",
+        errorRangeCapacity: "Pool capacity must be between 100 and 50,000 gallons.",
+        errorRangePh: "pH must be between 6.5 and 8.5.",
+        errorRangeAlkalinity: "Alkalinity must be between 0 and 300 ppm.",
+        errorRangeCalcium: "Calcium hardness must be between 0 and 1,000 ppm.",
+        errorRangeCyanuric: "Cyanuric acid must be between 0 and 300 ppm.",
+        errorRangeTds: "TDS must be between 0 and 10,000 ppm.",
+        errorRangeSalt: "Salt levels must be between 0 and 10,000 ppm.",
+        errorRangeTemperature: "Temperature must be between 32°F and 104°F."
     },
     es: {
         title: "Calculadora de Química para Piscinas Residenciales",
@@ -95,7 +103,15 @@ const translations = {
         noImmediate: "No se necesitan ajustes inmediatos.",
         nextVisitNote: "Estos cambios deben realizarse en la próxima visita de servicio. Vuelva a analizar el agua antes de hacer ajustes.",
         errorRequired: "Por favor, complete todos los campos obligatorios.",
-        serverError: "Error del servidor. Por favor, inténtelo de nuevo más tarde."
+        serverError: "Error del servidor. Por favor, inténtelo de nuevo más tarde.",
+        errorRangeCapacity: "La capacidad de la piscina debe estar entre 100 y 50,000 galones.",
+        errorRangePh: "El pH debe estar entre 6.5 y 8.5.",
+        errorRangeAlkalinity: "La alcalinidad debe estar entre 0 y 300 ppm.",
+        errorRangeCalcium: "La dureza de calcio debe estar entre 0 y 1,000 ppm.",
+        errorRangeCyanuric: "El ácido cianúrico debe estar entre 0 y 300 ppm.",
+        errorRangeTds: "Los TDS deben estar entre 0 y 10,000 ppm.",
+        errorRangeSalt: "Los niveles de sal deben estar entre 0 y 10,000 ppm.",
+        errorRangeTemperature: "La temperatura debe estar entre 32°F y 104°F."
     },
     it: {
         title: "Calcolatrice Chimica per Piscine Residenziali",
@@ -144,31 +160,39 @@ const translations = {
         noImmediate: "Nessuna regolazione immediata necessaria.",
         nextVisitNote: "Queste modifiche dovrebbero essere apportate alla prossima visita di servizio. Ritestare l'acqua prima di effettuare regolazioni.",
         errorRequired: "Si prega di compilare tutti i campi obbligatori.",
-        serverError: "Errore del server. Riprova più tardi."
+        serverError: "Errore del server. Riprova più tardi.",
+        errorRangeCapacity: "La capacità della piscina deve essere compresa tra 100 e 50.000 galloni.",
+        errorRangePh: "Il pH deve essere compreso tra 6,5 e 8,5.",
+        errorRangeAlkalinity: "L'alcalinità deve essere compresa tra 0 e 300 ppm.",
+        errorRangeCalcium: "La durezza del calcio deve essere compresa tra 0 e 1.000 ppm.",
+        errorRangeCyanuric: "L'acido cianurico deve essere compreso tra 0 e 300 ppm.",
+        errorRangeTds: "I TDS devono essere compresi tra 0 e 10.000 ppm.",
+        errorRangeSalt: "I livelli di sale devono essere compresi tra 0 e 10.000 ppm.",
+        errorRangeTemperature: "La temperatura deve essere compresa tra 32°F e 104°F."
     }
 };
 // Set default values for temperature and TDS on load
 document.addEventListener('DOMContentLoaded', function() {
-    // Language selection logic
-const languageButtons = document.querySelectorAll('#language-buttons button');
-const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+  // Language selection logic
+  const languageButtons = document.querySelectorAll('#language-buttons button');
+  const savedLang = localStorage.getItem('selectedLanguage') || 'en';
 
-// Set initial language button state
-languageButtons.forEach(btn => {
-    if (btn.dataset.lang === savedLang) {
-        btn.classList.add('active');
-    }
-});
+  // Set initial language button state
+  languageButtons.forEach(btn => {
+      if (btn.dataset.lang === savedLang) {
+          btn.classList.add('active');
+      }
+  });
 
-// Handle language button clicks
-languageButtons.forEach(btn => {
-    btn.addEventListener('click', function() {
-        languageButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        localStorage.setItem('selectedLanguage', btn.dataset.lang);
-        setLanguage(btn.dataset.lang);
+  // Handle language button clicks
+  languageButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+          languageButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          localStorage.setItem('selectedLanguage', btn.dataset.lang);
+          setLanguage(btn.dataset.lang);
+      });
     });
-});
 
 // Function to update UI text (stub for now)
 function setLanguage(lang) {
@@ -258,6 +282,59 @@ function setLanguage(lang) {
             };
 
             const resultsElement = document.getElementById('results');
+            const lang = localStorage.getItem('selectedLanguage') || 'en';
+            const t = translations[lang];
+            
+            // Parse values for validation
+            const capacity = parseFloat(formData.capacity);
+            const ph = parseFloat(formData.ph);
+            const alkalinity = parseFloat(formData.alkalinity);
+            const calcium = parseFloat(formData.calcium);
+            const cyanuric = parseFloat(formData.cyanuric);
+            const tds = parseFloat(formData.tds);
+            const saltCurrent = parseFloat(formData['salt-current']);
+            const temperature = parseFloat(formData.temperature);
+            
+            // Validate ranges
+            if (capacity < 100 || capacity > 50000) {
+                resultsElement.innerHTML = `<p class="error">${t.errorRangeCapacity}</p>`;
+                return;
+            }
+            
+            if (ph < 6.5 || ph > 8.5) {
+                resultsElement.innerHTML = `<p class="error">${t.errorRangePh}</p>`;
+                return;
+            }
+            
+            if (alkalinity < 0 || alkalinity > 300) {
+                resultsElement.innerHTML = `<p class="error">${t.errorRangeAlkalinity}</p>`;
+                return;
+            }
+            
+            if (calcium < 0 || calcium > 1000) {
+                resultsElement.innerHTML = `<p class="error">${t.errorRangeCalcium}</p>`;
+                return;
+            }
+            
+            if (cyanuric < 0 || cyanuric > 300) {
+                resultsElement.innerHTML = `<p class="error">${t.errorRangeCyanuric}</p>`;
+                return;
+            }
+            
+            if (tds < 0 || tds > 10000) {
+                resultsElement.innerHTML = `<p class="error">${t.errorRangeTds}</p>`;
+                return;
+            }
+            
+            if (saltCurrent < 0 || saltCurrent > 10000) {
+                resultsElement.innerHTML = `<p class="error">${t.errorRangeSalt}</p>`;
+                return;
+            }
+            
+            if (temperature < 50 || temperature > 104) {
+                resultsElement.innerHTML = `<p class="error">${t.errorRangeTemperature}</p>`;
+                return;
+            }
             resultsElement.innerHTML = 'Calculating...';
 
             try {
@@ -270,10 +347,14 @@ function setLanguage(lang) {
                 if (data.html) {
                     resultsElement.innerHTML = data.html;
                 } else if (data.error) {
-                    resultsElement.innerHTML = `<p class="error">${data.error}</p>`;
+                    const errorLang = data.lang || localStorage.getItem('selectedLanguage') || 'en';
+                    const t = translations[errorLang];
+                    resultsElement.innerHTML = `<p class="error">${t.serverError}</p>`; 
                 }
             } catch (err) {
-                resultsElement.innerHTML = '<p class="error">Server error. Please try again later.</p>';
+                const lang = localStorage.getItem('selectedLanguage') || 'en';
+                const t = translations[lang];
+                resultsElement.innerHTML = `<p class="error">${t.serverError}</p>`;
             }
         });
     }
