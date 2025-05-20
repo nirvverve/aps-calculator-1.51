@@ -436,21 +436,18 @@ function getSaltDose(current, desired, poolGallons) {
 }
 
 function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalinity, state, t) {
+    console.log(`State: ${state}, ChemType: ${chemType}, Alkalinity: ${alkalinity}, UserValue: ${userValue}, TargetValue: ${targetValue}`);
     let advice = "";
     let amount = 0;
     let diff = targetValue - userValue;
 
      // Handle high alkalinity for all states
      if (chemType === "alkalinity") {
-        if (alkalinity >= 150) {  // Use alkalinity (not userValue which is corrected)
-            // Calculate acid needed to lower alkalinity from current to 120 ppm
-            const targetAlk = 120; // Target alkalinity
-            const alkDiff = alkalinity - targetAlk; // How many ppm to lower
-            
-            // 25.64 oz per 10 ppm per 10,000 gallons
+        if (alkalinity > 150) {
+            // Recommend lowering to 120 ppm
+            const targetAlk = 120;
+            const alkDiff = alkalinity - targetAlk;
             const acidOz = (alkDiff / 10) * 25.64 * (poolGallons / 10000);
-            
-            // Convert to gallons if needed
             let acidDoseText;
             if (acidOz < 128) {
                 acidDoseText = t.acidDoseFlOz.replace("{amount}", acidOz.toFixed(1));
@@ -459,7 +456,6 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
                     .replace("{gallons}", (acidOz / 128).toFixed(2))
                     .replace("{flOz}", acidOz.toFixed(1));
             }
-            
             if (acidDoseText) {
                 advice = t.dosing.alkLower
                     .replace("{amount}", acidDoseText)
@@ -467,11 +463,8 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
                     .replace("{target}", targetAlk);
             }
             return advice;
-        } else if ((state === "florida" && alkalinity >= 80 && alkalinity < 150) || 
-                  (state !== "florida" && alkalinity >= 120 && alkalinity < 150)) {
-            // No message for alkalinity in the acceptable range, just return empty string
-            // For Florida: 80-150 ppm
-            // For Arizona/Texas: 120-150 ppm
+        } else {
+            // No alkalinity adjustment below 150 ppm
             return "";
         }
     }
@@ -632,6 +625,9 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
     };
 
     let weeks = [[], [], []];
+    if (alkalinity > 150) {
+        weeks[0].push('alkalinity');
+    }
     if (ph < 7.5 && correctedAlkalinity <= 80 && dosing.alkalinity) {
         weeks[0].push('alkalinity');
         let nc = [];
