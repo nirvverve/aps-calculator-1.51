@@ -42,15 +42,15 @@ const translations = {
         lsiValue: "Saturation Index (LSI) Value",
         adjustmentPlan: "Water Balance Adjustment Plan",
         adjustNow: "Adjust Now:",
-        notesNextVisit: "Notes for Next Visit:",
+        notesNextVisit: "Remaining Steps to Balance Water:",
         noImmediate: "No immediate adjustments needed.",
-        nextVisitNote: "These changes should be made at the next service visit. Retest the water before making adjustments.",
+        nextVisitNote: "These changes should be made at the next service visit(s). Retest the water before making adjustments.",
         errorRequired: "Please fill in all required fields.",
         serverError: "Server error. Please try again later.",
         addAfterTesting: "(Add immediately after testing.)",
         errorRangeCapacity: "Pool capacity must be between 100 and 50,000 gallons.",
         errorRangePh: "pH must be between 6.5 and 8.5.",
-        errorRangeAlkalinity: "Alkalinity must be between 0 and 300 ppm.",
+        errorRangeAlkalinity: "Alkalinity must be between 10 and 300 ppm.  If tested alkalinity is zero, enter 10 ppm.",
         errorRangeCalcium: "Calcium hardness must be between 0 and 1,000 ppm.",
         errorRangeCyanuric: "Cyanuric acid must be between 0 and 300 ppm.",
         errorRangeTds: "TDS must be between 0 and 10,000 ppm.",
@@ -62,8 +62,8 @@ const translations = {
             gallons: "gallons",
             flOz: "fl oz"
         },
-        acidDoseFlOz: "{amount} fl oz of muriatic acid (31.45%)",
-        acidDoseGallons: "{gallons} gallons ({flOz} fl oz) of muriatic acid (31.45%)",
+        acidDoseFlOz: "{amount} fl oz of muriatic acid.",
+        acidDoseGallons: "{gallons} gallons ({flOz} fl oz) of muriatic acid.",
         dosing: {
             alkRaise: "Add {amount} lbs of sodium bicarbonate to raise alkalinity to {target} ppm.",
             calciumRaise: "Add {amount} lbs of calcium chloride to raise calcium hardness to {target} ppm.",
@@ -138,7 +138,7 @@ const translations = {
         addAfterTesting: "(Agregue inmediatamente después de la prueba.)",
         errorRangeCapacity: "La capacidad de la piscina debe estar entre 100 y 50,000 galones.",
         errorRangePh: "El pH debe estar entre 6.5 y 8.5.",
-        errorRangeAlkalinity: "La alcalinidad debe estar entre 0 y 300 ppm.",
+        errorRangeAlkalinity: "La alcalinidad debe estar entre 10 y 300 ppm. Si la alcalinidad medida es cero, ingrese 10 ppm.",
         errorRangeCalcium: "La dureza de calcio debe estar entre 0 y 1,000 ppm.",
         errorRangeCyanuric: "El ácido cianúrico debe estar entre 0 y 300 ppm.",
         errorRangeTds: "Los TDS deben estar entre 0 y 10,000 ppm.",
@@ -150,8 +150,8 @@ const translations = {
             gallons: "galones",
             flOz: "fl oz"
         },
-        acidDoseFlOz: "{amount} fl oz de ácido muriático (31.45%)",
-        acidDoseGallons: "{gallons} galones ({flOz} fl oz) de ácido muriático (31.45%)",
+        acidDoseFlOz: "{amount} fl oz de ácido muriático.",
+        acidDoseGallons: "{gallons} galones ({flOz} fl oz) de ácido muriático.",
         lsiStatus: {
             veryCorrosive: "Muy corrosivo",
             corrosive: "Corrosivo",
@@ -226,7 +226,7 @@ const translations = {
         addAfterTesting: "(Aggiungere immediatamente dopo il test.)",
         errorRangeCapacity: "La capacità della piscina deve essere compresa tra 100 e 50.000 galloni.",
         errorRangePh: "Il pH deve essere compreso tra 6,5 e 8,5.",
-        errorRangeAlkalinity: "L'alcalinità deve essere compresa tra 0 e 300 ppm.",
+        errorRangeAlkalinity: "L'alcalinità deve essere compresa tra 10 e 300 ppm.  Se l'alcalinità misurata è zero, inserire 10 ppm.",
         errorRangeCalcium: "La durezza del calcio deve essere compresa tra 0 e 1.000 ppm.",
         errorRangeCyanuric: "L'acido cianurico deve essere compreso tra 0 e 300 ppm.",
         errorRangeTds: "I TDS devono essere compresi tra 0 e 10.000 ppm.",
@@ -238,8 +238,8 @@ const translations = {
             gallons: "galloni",
             flOz: "fl oz"
         },
-        acidDoseFlOz: "{amount} fl oz di acido muriatico (31,45%)",
-        acidDoseGallons: "{gallons} galloni ({flOz} fl oz) di acido muriatico (31,45%)",
+        acidDoseFlOz: "{amount} fl oz di acido muriatico.",
+        acidDoseGallons: "{gallons} galloni ({flOz} fl oz) di acido muriatico.",
         lsiStatus: {
             veryCorrosive: "Molto corrosivo",
             corrosive: "Corrosivo",
@@ -424,6 +424,20 @@ function boldQuantity(sentence) {
         return p1 + '<strong>' + p2.trim() + '</strong>' + p3;
     });
 }
+// ... existing code remains unchanged ...
+
+/**
+ * Estimate new pH after raising alkalinity using the Henderson-Hasselbalch equation.
+ * @param {number} currentPh - The current pH of the pool.
+ * @param {number} currentAlk - The current alkalinity (ppm as CaCO3).
+ * @param {number} targetAlk - The target alkalinity after bicarb addition (ppm as CaCO3).
+ * @returns {number} The estimated new pH after bicarb addition.
+ */
+function estimatePhAfterBicarb(currentPh, currentAlk, targetAlk) {
+    if (currentAlk <= 0 || targetAlk <= 0) return currentPh; // avoid division by zero
+    // ΔpH = log10(targetAlk / currentAlk)
+    return currentPh + Math.log10(targetAlk / currentAlk);
+}
 
 // Salt dosing calculation (183 lbs raises 1,000 ppm in 10,000 gallons)
 function getSaltDose(current, desired, poolGallons) {
@@ -437,8 +451,7 @@ function getSaltDose(current, desired, poolGallons) {
 
 // ... rest of code remains same
 
-function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalinity, state, t) {
-    console.log(`State: ${state}, ChemType: ${chemType}, Alkalinity: ${alkalinity}, UserValue: ${userValue}, TargetValue: ${targetValue}`);
+function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalinity, state, t, ph) {
     let advice = "";
     let amount = 0;
     let diff = targetValue - userValue;
@@ -468,19 +481,51 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
         }
         // For Florida: recommend sodium bicarb if raw alkalinity <= 60
         if (state === "florida" && alkalinity <= 60) {
-            amount = ((80 - alkalinity) / 10) * 1.5 * (poolGallons / 10000);
-            advice = t.dosing.alkRaise
+            const targetAlk = 80;
+            amount = ((targetAlk - alkalinity) / 10) * 1.5 * (poolGallons / 10000);
+            const bicarbText = t.dosing.alkRaise
                 .replace("{amount}", amount.toFixed(2))
-                .replace("{target}", 80);
-            return advice;
+                .replace("{target}", targetAlk);
+
+            // Advanced: Estimate pH rise and recommend acid if needed
+            let acidText = null;
+            if (ph !== undefined && alkalinity > 0) {
+                const estimatedPh = estimatePhAfterBicarb(ph, alkalinity, targetAlk);
+                if (estimatedPh > 7.6) {
+                    const acidDose = acidDoseFlOzGallons(estimatedPh, 7.6, poolGallons, targetAlk, t);
+                    if (acidDose) {
+                        acidText = t.dosing.phLower
+                            .replace("{amount}", acidDose)
+                            .replace("{target}", 7.6);
+                    }
+                }
+            }
+            // Return both doses for summary logic
+            return { bicarb: bicarbText, acid: acidText };
         }
         // For AZ/TX: recommend sodium bicarb if raw alkalinity < 100
         if ((state === "arizona" || state === "texas") && alkalinity < 100) {
-            amount = ((120 - alkalinity) / 10) * 1.5 * (poolGallons / 10000);
-            advice = t.dosing.alkRaise
+            const targetAlk = 120;
+            amount = ((targetAlk - alkalinity) / 10) * 1.5 * (poolGallons / 10000);
+            const bicarbText = t.dosing.alkRaise
                 .replace("{amount}", amount.toFixed(2))
-                .replace("{target}", 120);
-            return advice;
+                .replace("{target}", targetAlk);
+
+            // Advanced: Estimate pH rise and recommend acid if needed
+            let acidText = null;
+            if (ph !== undefined && alkalinity > 0) {
+                const estimatedPh = estimatePhAfterBicarb(ph, alkalinity, targetAlk);
+                if (estimatedPh > 7.5) {
+                    const acidDose = acidDoseFlOzGallons(estimatedPh, 7.5, poolGallons, targetAlk, t);
+                    if (acidDose) {
+                        acidText = t.dosing.phLower
+                            .replace("{amount}", acidDose)
+                            .replace("{target}", 7.5);
+                    }
+                }
+            }
+            // Return both doses for summary logic
+            return { bicarb: bicarbText, acid: acidText };
         }
         // Otherwise, no alkalinity adjustment
         return "";
@@ -561,11 +606,13 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
     return advice;
 }
 
+
 // ... rest of code remains same
 // Main backend calculation function
 
     // Parse all values from formData (all should be numbers except state)
     const state = formData.state;
+    let golden = GOLDEN_NUMBERS[state];
     const poolGallons = parseFloat(formData.capacity);
     const ph = parseFloat(formData.ph);
     const alkalinity = parseFloat(formData.alkalinity);
@@ -627,143 +674,141 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
 
     const lsi = ph + calciumFactor + alkalinityFactor + tempFactor - tdsFactor;
 
-    let golden = GOLDEN_NUMBERS[state];
-
     const dosing = {
         ph: getDosingAdvice(ph, golden.ph, poolGallons, "ph", alkalinity, state, t),
-        alkalinity: getDosingAdvice(correctedAlkalinity, golden.alkalinity, poolGallons, "alkalinity", alkalinity, state, t),
+        alkalinity: getDosingAdvice(correctedAlkalinity, golden.alkalinity, poolGallons, "alkalinity", alkalinity, state, t, ph),
         cya: getDosingAdvice(cyanuric, golden.cya, poolGallons, "cya", alkalinity, state, t),
         calcium: getDosingAdvice(calcium, golden.calcium, poolGallons, "calcium", alkalinity, state, t)
     };
 
-    let weeks = [[], [], []];
-    if (alkalinity > 150) {
-        weeks[0].push('alkalinity');
-    }
-    if (ph < 7.5 && correctedAlkalinity <= 80 && dosing.alkalinity) {
-        weeks[0].push('alkalinity');
-        let nc = [];
-        if (
-            (state === "florida" && cyanuric <= FL_THRESHOLDS.cya) ||
-            (state !== "florida" && cyanuric < golden.cya - 10)
-        ) nc.push('cya');
-        if (
-            (state === "florida" && calcium < FL_THRESHOLDS.calcium) ||
-            (state !== "florida" && calcium < 200)
-        ) nc.push('calcium');
-        if (nc[0]) weeks[1].push(nc[0]);
-        if (nc[1]) weeks[2].push(nc[1]);
-    } else {
-        let nonCritical = [];
-        if (
-            (state === "florida" && correctedAlkalinity < FL_THRESHOLDS.alkalinity) ||
-            (state !== "florida" && (correctedAlkalinity < 80 || correctedAlkalinity > 140))
-        ) nonCritical.push('alkalinity');
-        if (
-            (state === "florida" && cyanuric <= FL_THRESHOLDS.cya) ||
-            (state !== "florida" && cyanuric < golden.cya - 10)
-        ) nonCritical.push('cya');
-        if (
-            (state === "florida" && calcium < FL_THRESHOLDS.calcium) ||
-            (state !== "florida" && calcium < 200)
-        ) nonCritical.push('calcium');
-        if (ph < 7.2 || ph > 7.8) weeks[0].push('ph');
-        if (nonCritical[0]) weeks[0].push(nonCritical[0]);
-        if (nonCritical[1]) weeks[1].push(nonCritical[1]);
-        if (nonCritical[2]) weeks[2].push(nonCritical[2]);
-    }
+    // --- Priority logic for balancing chems ---
+    let balancingToAddNow = null;
+    let balancingToAddNext = [];
 
-    let adjustNow = [];
-    let nextVisit = [];
-
-    weeks.forEach((params, idx) => {
-        if (idx === 0 && params.length > 0) {
-            params.forEach(param => {
-                if (dosing[param]) adjustNow.push(dosing[param]);
-            });
+    // Helper to check if a dose is needed (returns true if a string or object with a non-empty property)
+    function isDoseNeeded(dose) {
+        if (!dose) return false;
+        if (typeof dose === "string") return dose.trim() !== "";
+        if (typeof dose === "object" && dose !== null) {
+            return (dose.bicarb && dose.bicarb.trim() !== "") || (dose.acid && dose.acid.trim() !== "");
         }
-        if (idx > 0 && params.length > 0) {
-            params.forEach(param => {
-                if (dosing[param]) nextVisit.push(dosing[param]);
-            });
-        }
-    });
-
-    let lsiStatus;
-    if (lsi < -0.5) {
-        lsiStatus = t.lsiStatus.veryCorrosive;
-    } else if (lsi >= -0.5 && lsi < -0.2) {
-        lsiStatus = t.lsiStatus.corrosive;
-    } else if (lsi >= -0.2 && lsi < -0.05) {
-        lsiStatus = t.lsiStatus.slightlyCorrosive;
-    } else if (lsi >= -0.05 && lsi <= 0.3) {
-        lsiStatus = t.lsiStatus.balanced;
-    } else if (lsi > 0.3 && lsi <= 0.5) {
-        lsiStatus = t.lsiStatus.slightlyScaleForming;
-    } else {
-        lsiStatus = t.lsiStatus.scaleForming;
+        return false;
     }
 
-    const chlorineInfo = getChlorinePPMDose(freeChlorine, cyanuric);
+    // Priority: alkalinity > cya > calcium
+    if (isDoseNeeded(dosing.alkalinity)) {
+        balancingToAddNow = { type: "alkalinity", dose: dosing.alkalinity };
+        if (isDoseNeeded(dosing.cya)) balancingToAddNext.push({ type: "cya", dose: dosing.cya });
+        if (isDoseNeeded(dosing.calcium)) balancingToAddNext.push({ type: "calcium", dose: dosing.calcium });
+    } else if (isDoseNeeded(dosing.cya)) {
+        balancingToAddNow = { type: "cya", dose: dosing.cya };
+        if (isDoseNeeded(dosing.calcium)) balancingToAddNext.push({ type: "calcium", dose: dosing.calcium });
+    } else if (isDoseNeeded(dosing.calcium)) {
+        balancingToAddNow = { type: "calcium", dose: dosing.calcium };
+    }
 
-    // Salt dosing
+// --- Build summary of chemicals to add now ---
+let acidList = [];
+let otherList = [];
+
+// Handle balancing chemical for this visit
+if (balancingToAddNow) {
+    if (balancingToAddNow.type === "alkalinity") {
+        let bicarbDose = null;
+        let acidDose = null;
+        if (typeof balancingToAddNow.dose === "object" && balancingToAddNow.dose !== null) {
+            bicarbDose = balancingToAddNow.dose.bicarb;
+            acidDose = balancingToAddNow.dose.acid;
+        } else if (typeof balancingToAddNow.dose === "string" && balancingToAddNow.dose) {
+            if (balancingToAddNow.dose.toLowerCase().includes("muriatic acid")) {
+                acidList.push(`<div class="chem-card acid">${boldQuantity(balancingToAddNow.dose)} <em>${t.addAfterTesting}</em></div>`);
+            } else {
+                otherList.push(boldQuantity(balancingToAddNow.dose));
+            }
+        }
+        if (bicarbDose) {
+            otherList.push(`<div class="chem-card alk">${boldQuantity(bicarbDose)}</div>`);
+        }
+        if (acidDose) {
+            acidList.push(`<div class="chem-card acid">${boldQuantity(acidDose)} <em>${t.addAfterTesting}</em></div>`);
+        }
+    
+        // 3. Do NOT show initial pH adjustment if alkalinity is being dosed
+    } else if (balancingToAddNow.type === "cya") {
+        if (typeof balancingToAddNow.dose === "string" && balancingToAddNow.dose) {
+            otherList.push(`<div class="chem-card cya">${boldQuantity(balancingToAddNow.dose)}</div>`);
+        }
+        // Allow pH adjustment for CYA
+        if (dosing.ph && typeof dosing.ph === "string" && dosing.ph.trim() !== "" && !dosing.ph.toLowerCase().includes("muriatic acid")) {
+            otherList.push(`<div class="chem-card ph">${boldQuantity(dosing.ph)}</div>`);
+        } else if (dosing.ph && typeof dosing.ph === "string" && dosing.ph.toLowerCase().includes("muriatic acid")) {
+            acidList.push(`<div class="chem-card acid">${boldQuantity(dosing.ph)} <em>${t.addAfterTesting}</em></div>`);
+        }
+    } else if (balancingToAddNow.type === "calcium") {
+        if (typeof balancingToAddNow.dose === "string" && balancingToAddNow.dose) {
+            if (balancingToAddNow.type === "calcium") {
+                otherList.push(`<div class="chem-card ch">${boldQuantity(balancingToAddNow.dose)}</div>`);
+            } else if (balancingToAddNow.dose.toLowerCase().includes("muriatic acid")) {
+                acidList.push(`<div class="chem-card acid">${boldQuantity(balancingToAddNow.dose)} <em>${t.addAfterTesting}</em></div>`);
+            } else {
+                otherList.push(boldQuantity(balancingToAddNow.dose));
+            }
+        }
+        // Allow pH adjustment for calcium
+        if (dosing.ph && typeof dosing.ph === "string" && dosing.ph.trim() !== "" && !dosing.ph.toLowerCase().includes("muriatic acid")) {
+            otherList.push(`<div class="chem-card ph">${boldQuantity(dosing.ph)}</div>`);
+        } else if (dosing.ph && typeof dosing.ph === "string" && dosing.ph.toLowerCase().includes("muriatic acid")) {
+            acidList.push(`<div class="chem-card acid">${boldQuantity(dosing.ph)} <em>${t.addAfterTesting}</em></div>`);
+        }
+    }
+} else {
+    // If no balancing chemical is being dosed, allow pH adjustment as usual
+    if (dosing.ph && typeof dosing.ph === "string" && dosing.ph.trim() !== "" && !dosing.ph.toLowerCase().includes("muriatic acid")) {
+        otherList.push(`<div class="chem-card ph">${boldQuantity(dosing.ph)}</div>`);
+    } else if (dosing.ph && typeof dosing.ph === "string" && dosing.ph.toLowerCase().includes("muriatic acid")) {
+        acidList.push(`<div class="chem-card acid">${boldQuantity(dosing.ph)} <em>${t.addAfterTesting}</em></div>`);
+    }
+}
+
+    // Salt dosing (can always be added)
     let saltDose = null;
     if (saltDesired > 0 && saltCurrent >= 0 && saltDesired > saltCurrent) {
         saltDose = getSaltDose(saltCurrent, saltDesired, poolGallons);
-    }
-
-    // --- Build summary of chemicals to add now ---
-    let summaryList = [];
-    let acidList = [];
-    let otherList = [];
-
-    // Add muriatic acid (for lowering pH) first, if present
-    adjustNow.forEach(item => {
-        if (item && item.toLowerCase().includes("muriatic acid")) {
-            acidList.push(boldQuantity(item) + ` <em>${t.addAfterTesting}</em>`);
+        if (saltDose && saltDose.lbsNeeded > 0.01) {
+            otherList.push(
+                `<div class="chem-card salt">${boldQuantity(
+                    t.dosing.salt
+                        .replace("{amount}", saltDose.lbsNeeded.toFixed(2))
+                        .replace("{bags}", saltDose.bags)
+                )}</div>`
+            );
         }
-    });
-
-    // Add salt if needed
-    if (saltDose && saltDose.lbsNeeded > 0.01) {
-        otherList.push(
-            boldQuantity(
-                t.dosing.salt
-                    .replace("{amount}", saltDose.lbsNeeded.toFixed(2))
-                    .replace("{bags}", saltDose.bags)
-            )
-        );
     }
-
-    // Add other balancing chems and sanitizer, but do not mix acid and chlorine
-    adjustNow.forEach(item => {
-        if (item && !item.toLowerCase().includes("muriatic acid")) {
-            otherList.push(boldQuantity(item));
-        }
-    });
 
     // Add sanitizer (chlorine) if needed, but not in same group as acid
+    const chlorineInfo = getChlorinePPMDose(freeChlorine, cyanuric);
     if (state === "florida") {
         const liquidChlorine = getLiquidChlorineDose(chlorineInfo.toBeDosed, poolGallons);
         if (chlorineInfo.toBeDosed > 0.01) {
             otherList.push(
-                boldQuantity(
+                `<div class="chem-card fac">${boldQuantity(
                     t.sanitizer.liquidChlorineDose
                         .replace("{gallons}", liquidChlorine.gallons.toFixed(2))
                         .replace("{flOz}", liquidChlorine.flOz.toFixed(0))
-                )
+                )}</div>`
             );
         }
     } else {
         const calHypoOunces = getCalHypoOunces(chlorineInfo.toBeDosed, poolGallons);
         if (chlorineInfo.toBeDosed > 0.01) {
             otherList.push(
-                boldQuantity(
+                `<div class="chem-card fac">${boldQuantity(
                     t.sanitizer.calHypoDose.replace("{amount}", formatLbsOz(calHypoOunces, t))
-                )
+                )}</div>`
             );
         }
     }
+
     // --- Build comparison chart ---
     function chartRow(label, current, golden) {
         return `<tr><td>${label}</td><td>${current}</td><td>${golden}</td></tr>`;
@@ -784,81 +829,88 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
     ${chartRow(t.cyanuric, cyanuric, golden.cya)}
     </tbody>
     </table>
-  `;
+    `;
 
-  let chlorineHTML = "";
-  if (state === "florida") {
-      const liquidChlorine = getLiquidChlorineDose(chlorineInfo.toBeDosed, poolGallons);
-      chlorineHTML = `
-      <h4>${t.chlorineDetailsFL}</h4>
-      <ul>
-          <li>${t.minFC}: ${chlorineInfo.minFC.toFixed(2)} ppm</li>
-          <li>${t.uvLossFactor}: ${chlorineInfo.lossFactor} ppm/day</li>
-          <li>${t.uvLossForWeek}: ${chlorineInfo.uvLoss.toFixed(2)} ppm</li>
-          <li>${t.calculatedChlorineDose}: ${chlorineInfo.calculatedDose.toFixed(2)} ppm</li>
-          <li>${t.testedFreeChlorine}: ${freeChlorine.toFixed(2)} ppm</li>
-          <li><strong>${t.chlorineToBeDosed}: ${chlorineInfo.toBeDosed.toFixed(2)} ppm</strong></li>
-          <li><strong>${t.liquidChlorineToAdd}: ${liquidChlorine.gallons.toFixed(2)} gal (${liquidChlorine.flOz.toFixed(0)} fl oz)</strong></li>
-      </ul>
-      `;
-  } else {
-      const calHypoOunces = getCalHypoOunces(chlorineInfo.toBeDosed, poolGallons);
-      chlorineHTML = `
-      <h4>${t.chlorineDetailsAZTX}</h4>
-      <ul>
-          <li>${t.minFC}: ${chlorineInfo.minFC.toFixed(2)} ppm</li>
-          <li>${t.uvLossFactor}: ${chlorineInfo.lossFactor} ppm/day</li>
-          <li>${t.uvLossForWeek}: ${chlorineInfo.uvLoss.toFixed(2)} ppm</li>
-          <li>${t.calculatedChlorineDose}: ${chlorineInfo.calculatedDose.toFixed(2)} ppm</li>
-          <li>${t.testedFreeChlorine}: ${freeChlorine.toFixed(2)} ppm</li>
-          <li><strong>${t.chlorineToBeDosed}: ${chlorineInfo.toBeDosed.toFixed(2)} ppm</strong></li>
-          <li><strong>${t.calHypoToAdd}: ${formatLbsOz(calHypoOunces, t)}</strong></li>
-      </ul>
-      `;
+    // --- Chlorine details ---
+    let chlorineHTML = "";
+    if (state === "florida") {
+        const liquidChlorine = getLiquidChlorineDose(chlorineInfo.toBeDosed, poolGallons);
+        chlorineHTML = `
+        <h4>${t.chlorineDetailsFL}</h4>
+        <ul>
+        <li>${t.minFC}: ${chlorineInfo.minFC.toFixed(2)} ppm</li>
+        <li>${t.uvLossFactor}: ${chlorineInfo.lossFactor} ppm/day</li>
+        <li>${t.uvLossForWeek}: ${chlorineInfo.uvLoss.toFixed(2)} ppm</li>
+        <li>${t.calculatedChlorineDose}: ${chlorineInfo.calculatedDose.toFixed(2)} ppm</li>
+        <li>${t.testedFreeChlorine}: ${freeChlorine.toFixed(2)} ppm</li>
+        <li><strong>${t.chlorineToBeDosed}: ${chlorineInfo.toBeDosed.toFixed(2)} ppm</strong></li>
+        <li><strong>${t.liquidChlorineToAdd}: ${liquidChlorine.gallons.toFixed(2)} gal (${liquidChlorine.flOz.toFixed(0)} fl oz)</strong></li>
+        </ul>
+        `;
+    } else {
+        const calHypoOunces = getCalHypoOunces(chlorineInfo.toBeDosed, poolGallons);
+        chlorineHTML = `
+        <h4>${t.chlorineDetailsAZTX}</h4>
+        <ul>
+        <li>${t.minFC}: ${chlorineInfo.minFC.toFixed(2)} ppm</li>
+        <li>${t.uvLossFactor}: ${chlorineInfo.lossFactor} ppm/day</li>
+        <li>${t.uvLossForWeek}: ${chlorineInfo.uvLoss.toFixed(2)} ppm</li>
+        <li>${t.calculatedChlorineDose}: ${chlorineInfo.calculatedDose.toFixed(2)} ppm</li>
+        <li>${t.testedFreeChlorine}: ${freeChlorine.toFixed(2)} ppm</li>
+        <li><strong>${t.chlorineToBeDosed}: ${chlorineInfo.toBeDosed.toFixed(2)} ppm</strong></li>
+        <li><strong>${t.calHypoToAdd}: ${formatLbsOz(calHypoOunces, t)}</strong></li>
+        </ul>
+        `;
+    }
+
+    // --- LSI status ---
+    let lsiStatus;
+    if (lsi < -0.5) {
+        lsiStatus = t.lsiStatus.veryCorrosive;
+    } else if (lsi >= -0.5 && lsi < -0.2) {
+        lsiStatus = t.lsiStatus.corrosive;
+    } else if (lsi >= -0.2 && lsi < -0.05) {
+        lsiStatus = t.lsiStatus.slightlyCorrosive;
+    } else if (lsi >= -0.05 && lsi <= 0.3) {
+        lsiStatus = t.lsiStatus.balanced;
+    } else if (lsi > 0.3 && lsi <= 0.5) {
+        lsiStatus = t.lsiStatus.slightlyScaleForming;
+    } else {
+        lsiStatus = t.lsiStatus.scaleForming;
     }
 
     // --- Build the final HTML string ---
     const html = `
     <h3>${t.summaryTitle}</h3>
-    ${acidList.length > 0 ? `
-      <div class="chem-card acid">
-      ${acidList.map(item => `<div>${item}</div>`).join('')}
-      </div>
-      <div style="margin-bottom:0.5em;"><em>${t.waitNote}</em></div>
-    ` : ''}
-${otherList.map(item => {
-    let cardClass = '';
-    if (item.toLowerCase().includes(keywords.ph)) cardClass = 'ph';
-    else if (item.toLowerCase().includes(keywords.alkalinity)) cardClass = 'alk';
-    else if (item.toLowerCase().includes(keywords.calcium)) cardClass = 'ch';
-    else if (item.toLowerCase().includes(keywords.chlorine)) cardClass = 'fac';
-    else if (item.toLowerCase().includes(keywords.cyanuric)) cardClass = 'cya';
-    else if (item.toLowerCase().includes(keywords.salt)) cardClass = 'salt';
-    return `<div class="chem-card ${cardClass}">${item}</div>`;
-}).join('')}
-
-<h3>${t.detailsTitle}</h3>
-${comparisonTable}
-${chlorineHTML}
-
-<h3>${t.isBalanced}</h3>
-<p>${lsiStatus}</p>
-
-<h3>${t.lsiValue}</h3>
-<p>${lsi.toFixed(2)}</p>
-
-<h3>${t.adjustmentPlan}</h3>
-<ul>
-${adjustNow.length > 0
-    ? `<li><strong>${t.adjustNow}</strong><ul>${adjustNow.map(item => `<li>${item}</li>`).join('')}</ul></li>`
-    : `<li>${t.noImmediate}</li>`
-  }
-  ${nextVisit.length > 0
-    ? `<li><strong>${t.notesNextVisit}</strong><ul>${nextVisit.map(item => `<li>${item}</li>`).join('')}<li><em>${t.nextVisitNote}</em></li></ul></li>`
-    : ''
-  }
-</ul>
-`;
+    ${acidList.join('')}
+    ${acidList.length > 0 ? `<div style="margin-bottom:0.5em;"><em>${t.waitNote}</em></div>` : ''}
+    ${otherList.join('')}
+    <h3>${t.detailsTitle}</h3>
+    ${comparisonTable}
+    ${chlorineHTML}
+    <h3>${t.isBalanced}</h3>
+    <p>${lsiStatus}</p>
+    <h3>${t.lsiValue}</h3>
+    <p>${lsi.toFixed(2)}</p>
+    ${balancingToAddNext.length > 0 ? `
+        <h3>${t.notesNextVisit}</h3>
+        <h4>${t.nextVisitNote}</h4>
+        <ul>
+            ${balancingToAddNext.map(item => {
+                if (typeof item.dose === "string") {
+                    return `<li>${boldQuantity(item.dose)}</li>`;
+                } else if (typeof item.dose === "object" && item.dose !== null) {
+                    // For alkalinity, show both bicarb and acid if present
+                    let out = "";
+                    if (item.dose.bicarb) out += `<li>${boldQuantity(item.dose.bicarb)}</li>`;
+                    if (item.dose.acid) out += `<li>${boldQuantity(item.dose.acid)}</li>`;
+                    return out;
+                }
+                return "";
+            }).join('')}
+        </ul>
+    ` : ""}
+    `;
 
     return { html };
 }
