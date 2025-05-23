@@ -62,8 +62,8 @@ const translations = {
             gallons: "gallons",
             flOz: "fl oz"
         },
-        acidDoseFlOz: "{amount} fl oz of muriatic acid.",
-        acidDoseGallons: "{gallons} gallons ({flOz} fl oz) of muriatic acid.",
+        acidDoseFlOz: "{amount} fl oz of muriatic acid ",
+        acidDoseGallons: "{gallons} gallons ({flOz} fl oz) of muriatic acid ",
         dosing: {
             alkRaise: "Add {amount} lbs of sodium bicarbonate to raise alkalinity to {target} ppm.",
             calciumRaise: "Add {amount} lbs of calcium chloride to raise calcium hardness to {target} ppm.",
@@ -150,8 +150,8 @@ const translations = {
             gallons: "galones",
             flOz: "fl oz"
         },
-        acidDoseFlOz: "{amount} fl oz de ácido muriático.",
-        acidDoseGallons: "{gallons} galones ({flOz} fl oz) de ácido muriático.",
+        acidDoseFlOz: "{amount} fl oz de ácido muriático",
+        acidDoseGallons: "{gallons} galones ({flOz} fl oz) de ácido muriático",
         lsiStatus: {
             veryCorrosive: "Muy corrosivo",
             corrosive: "Corrosivo",
@@ -238,8 +238,8 @@ const translations = {
             gallons: "galloni",
             flOz: "fl oz"
         },
-        acidDoseFlOz: "{amount} fl oz di acido muriatico.",
-        acidDoseGallons: "{gallons} galloni ({flOz} fl oz) di acido muriatico.",
+        acidDoseFlOz: "{amount} fl oz di acido muriatico",
+        acidDoseGallons: "{gallons} galloni ({flOz} fl oz) di acido muriatico",
         lsiStatus: {
             veryCorrosive: "Molto corrosivo",
             corrosive: "Corrosivo",

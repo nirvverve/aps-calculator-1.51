@@ -1,3 +1,34 @@
+v1.6.0
+
+Implemented advanced Henderson-Hasselbalch equation for accurate pH prediction after sodium bicarbonate dosing.
+Acid dosing logic now combines all acid recommendations into a single, post-bicarb dose when raising alkalinity, eliminating double acid dosing.
+Introduced balancing chemical priority: only one balancing chemical (alkalinity, then CYA, then calcium) is dosed per visit; others are deferred to the "Next Service Appointment" section.
+Improved summary card order: sodium bicarbonate, then acid, then sanitizer, then other chems.
+Fixed color coding for acid (pink) and calcium (blue) cards in the summary.
+Enhanced UI clarity and reduced user confusion by preventing simultaneous recommendations for multiple balancing chems.
+Various bug fixes and code refactoring for maintainability.
+
+v1.4.2
+
+Fat finger protection 
+min / max values for all parameters 
+50k max on capacity
+30.0 ppm on FAC
+300.0 ppm on CYA
+300.0 ppm on TA
+1000.0 ppm on CH
+10000 ppm on TDS
+10000 ppm on Salt
+
+Will now only accept values in 10 ppm increments
+Will throw an error in results area if these numbers are exceeded, in the language selected.  
+
+Acid / Alkalinity - 
+There is a correction for alkalinity when it comes to lowering pH that was incorrect, showing higher acid doses than normal for pH adjustment.  This has been corrected.
+
+Added handling for super high alkalinity (above 160 ppm).  25.64 oz of acid per 10k gallons @ 10 ppm.  
+Removed duplicate acid dosing when lowering alkalinity and pH at same visit.  
+
 v1.2.1
 
 In results - water balance plan - the wording in italics "These changes need to be made at the next visit....." now appears only once when multiple balance chems are selected. 

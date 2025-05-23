@@ -251,6 +251,19 @@ button[type="submit"]:hover {
     color: #fff;
     border-color: #007bff;
 }
+.footer-powered {
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 0.75em 0;
+    background: transparent;
+    color: #555;
+    font-size: 1em;
+    z-index: 100;
+    pointer-events: none;
+  }
+  
 /* Responsive */
 @media (max-width: 600px) {
     header {
@@ -273,6 +286,7 @@ button[type="submit"]:hover {
         margin-bottom: 1.2em;
         padding-bottom: 0.7em;
     }
+
     label {
         font-size: 1.08em;
         margin-bottom: 1.2em;
@@ -293,4 +307,7 @@ button[type="submit"]:hover {
         padding: 1em 0.3em;
         font-size: 1em;
     }
+    .footer-powered {
+        font-size: 0.9em;
+      }
 }
