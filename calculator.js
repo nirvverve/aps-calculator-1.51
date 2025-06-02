@@ -708,6 +708,7 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
     }
 
 // --- Build summary of chemicals to add now ---
+let bicarbList = [];  // New: separate list for sodium bicarbonate
 let acidList = [];
 let otherList = [];
 
@@ -723,17 +724,21 @@ if (balancingToAddNow) {
             if (balancingToAddNow.dose.toLowerCase().includes("muriatic acid")) {
                 acidList.push(`<div class="chem-card acid">${boldQuantity(balancingToAddNow.dose)} <em>${t.addAfterTesting}</em></div>`);
             } else {
-                otherList.push(boldQuantity(balancingToAddNow.dose));
+                // Check if it's sodium bicarbonate
+                if (balancingToAddNow.dose.toLowerCase().includes("sodium bicarbonate")) {
+                    bicarbList.push(`<div class="chem-card alk">${boldQuantity(balancingToAddNow.dose)}</div>`);
+                } else {
+                    otherList.push(boldQuantity(balancingToAddNow.dose));
+                }
             }
         }
         if (bicarbDose) {
-            otherList.push(`<div class="chem-card alk">${boldQuantity(bicarbDose)}</div>`);
+            bicarbList.push(`<div class="chem-card alk">${boldQuantity(bicarbDose)}</div>`);
         }
         if (acidDose) {
             acidList.push(`<div class="chem-card acid">${boldQuantity(acidDose)} <em>${t.addAfterTesting}</em></div>`);
         }
-    
-        // 3. Do NOT show initial pH adjustment if alkalinity is being dosed
+        
     } else if (balancingToAddNow.type === "cya") {
         if (typeof balancingToAddNow.dose === "string" && balancingToAddNow.dose) {
             otherList.push(`<div class="chem-card cya">${boldQuantity(balancingToAddNow.dose)}</div>`);
@@ -770,44 +775,45 @@ if (balancingToAddNow) {
     }
 }
 
-    // Salt dosing (can always be added)
-    let saltDose = null;
-    if (saltDesired > 0 && saltCurrent >= 0 && saltDesired > saltCurrent) {
-        saltDose = getSaltDose(saltCurrent, saltDesired, poolGallons);
-        if (saltDose && saltDose.lbsNeeded > 0.01) {
-            otherList.push(
-                `<div class="chem-card salt">${boldQuantity(
-                    t.dosing.salt
-                        .replace("{amount}", saltDose.lbsNeeded.toFixed(2))
-                        .replace("{bags}", saltDose.bags)
-                )}</div>`
-            );
-        }
+// Salt dosing (can always be added)
+let saltDose = null;
+if (saltDesired > 0 && saltCurrent >= 0 && saltDesired > saltCurrent) {
+    saltDose = getSaltDose(saltCurrent, saltDesired, poolGallons);
+    if (saltDose && saltDose.lbsNeeded > 0.01) {
+        otherList.push(
+            `<div class="chem-card salt">${boldQuantity(
+                t.dosing.salt
+                    .replace("{amount}", saltDose.lbsNeeded.toFixed(2))
+                    .replace("{bags}", saltDose.bags)
+            )}</div>`
+        );
     }
+}
 
-    // Add sanitizer (chlorine) if needed, but not in same group as acid
-    const chlorineInfo = getChlorinePPMDose(freeChlorine, cyanuric);
-    if (state === "florida") {
-        const liquidChlorine = getLiquidChlorineDose(chlorineInfo.toBeDosed, poolGallons);
-        if (chlorineInfo.toBeDosed > 0.01) {
-            otherList.push(
-                `<div class="chem-card fac">${boldQuantity(
-                    t.sanitizer.liquidChlorineDose
-                        .replace("{gallons}", liquidChlorine.gallons.toFixed(2))
-                        .replace("{flOz}", liquidChlorine.flOz.toFixed(0))
-                )}</div>`
-            );
-        }
-    } else {
-        const calHypoOunces = getCalHypoOunces(chlorineInfo.toBeDosed, poolGallons);
-        if (chlorineInfo.toBeDosed > 0.01) {
-            otherList.push(
-                `<div class="chem-card fac">${boldQuantity(
-                    t.sanitizer.calHypoDose.replace("{amount}", formatLbsOz(calHypoOunces, t))
-                )}</div>`
-            );
-        }
+// Add sanitizer (chlorine) - this will be added after the wait period
+let chlorineList = [];
+const chlorineInfo = getChlorinePPMDose(freeChlorine, cyanuric);
+if (state === "florida") {
+    const liquidChlorine = getLiquidChlorineDose(chlorineInfo.toBeDosed, poolGallons);
+    if (chlorineInfo.toBeDosed > 0.01) {
+        chlorineList.push(
+            `<div class="chem-card fac">${boldQuantity(
+                t.sanitizer.liquidChlorineDose
+                    .replace("{gallons}", liquidChlorine.gallons.toFixed(2))
+                    .replace("{flOz}", liquidChlorine.flOz.toFixed(0))
+            )}</div>`
+        );
     }
+} else {
+    const calHypoOunces = getCalHypoOunces(chlorineInfo.toBeDosed, poolGallons);
+    if (chlorineInfo.toBeDosed > 0.01) {
+        chlorineList.push(
+            `<div class="chem-card fac">${boldQuantity(
+                t.sanitizer.calHypoDose.replace("{amount}", formatLbsOz(calHypoOunces, t))
+            )}</div>`
+        );
+    }
+}
 
     // --- Build comparison chart ---
     function chartRow(label, current, golden) {
@@ -882,8 +888,10 @@ if (balancingToAddNow) {
     // --- Build the final HTML string ---
     const html = `
     <h3>${t.summaryTitle}</h3>
+    ${bicarbList.join('')}
     ${acidList.join('')}
-    ${acidList.length > 0 ? `<div style="margin-bottom:0.5em;"><em>${t.waitNote}</em></div>` : ''}
+    ${(acidList.length > 0 || bicarbList.length > 0) ? `<div style="margin-bottom:0.5em;"><em>${t.waitNote}</em></div>` : ''}
+    ${chlorineList.join('')}
     ${otherList.join('')}
     <h3>${t.detailsTitle}</h3>
     ${comparisonTable}
@@ -893,25 +901,25 @@ if (balancingToAddNow) {
     <h3>${t.lsiValue}</h3>
     <p>${lsi.toFixed(2)}</p>
     ${balancingToAddNext.length > 0 ? `
-        <h3>${t.notesNextVisit}</h3>
-        <h4>${t.nextVisitNote}</h4>
-        <ul>
-            ${balancingToAddNext.map(item => {
-                if (typeof item.dose === "string") {
-                    return `<li>${boldQuantity(item.dose)}</li>`;
-                } else if (typeof item.dose === "object" && item.dose !== null) {
-                    // For alkalinity, show both bicarb and acid if present
-                    let out = "";
-                    if (item.dose.bicarb) out += `<li>${boldQuantity(item.dose.bicarb)}</li>`;
-                    if (item.dose.acid) out += `<li>${boldQuantity(item.dose.acid)}</li>`;
-                    return out;
-                }
-                return "";
-            }).join('')}
-        </ul>
+    <h3>${t.notesNextVisit}</h3>
+    <h4>${t.nextVisitNote}</h4>
+    <ul>
+    ${balancingToAddNext.map(item => {
+        if (typeof item.dose === "string") {
+            return `<li>${boldQuantity(item.dose)}</li>`;
+        } else if (typeof item.dose === "object" && item.dose !== null) {
+            // For alkalinity, show both bicarb and acid if present
+            let out = "";
+            if (item.dose.bicarb) out += `<li>${boldQuantity(item.dose.bicarb)}</li>`;
+            if (item.dose.acid) out += `<li>${boldQuantity(item.dose.acid)}</li>`;
+            return out;
+        }
+        return "";
+    }).join('')}
+    </ul>
     ` : ""}
     `;
-
+    
     return { html };
 }
 module.exports = { calculateLSIAndAdvice };
