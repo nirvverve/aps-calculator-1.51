@@ -815,60 +815,73 @@ if (state === "florida") {
     }
 }
 
-    // --- Build comparison chart ---
-    function chartRow(label, current, golden) {
-        return `<tr><td>${label}</td><td>${current}</td><td>${golden}</td></tr>`;
-    }
-    let comparisonTable = `
-    <table style="width:100%;max-width:500px;margin:1em auto;border-collapse:collapse;">
-    <thead>
-    <tr>
-    <th style="border-bottom:1px solid #ccc;">${t.parameter}</th>
-    <th style="border-bottom:1px solid #ccc;">${t.testResult}</th>
-    <th style="border-bottom:1px solid #ccc;">${t.goldenNumber}</th>
-    </tr>
-    </thead>
-    <tbody>
-    ${chartRow(t.ph, ph, golden.ph)}
-    ${chartRow(t.alkalinity, alkalinity, golden.alkalinity)}
-    ${chartRow(t.calcium, calcium, golden.calcium)}
-    ${chartRow(t.cyanuric, cyanuric, golden.cya)}
-    </tbody>
-    </table>
+    // --- Build comparison chart as styled cards ---
+function createParameterCard(label, current, golden, isInRange, cardClass) {
+    const statusClass = isInRange ? 'in-range' : 'out-of-range';
+    return `
+        <div class="param-card ${cardClass} ${statusClass}">
+            <div class="param-header">${label}</div>
+            <div class="param-values">
+                <div class="current-value">
+                    <span class="label">Current:</span>
+                    <span class="value">${current}</span>
+                </div>
+                <div class="target-value">
+                    <span class="label">Target:</span>
+                    <span class="value">${golden}</span>
+                </div>
+            </div>
+        </div>
     `;
+}
+
+// Check if parameters are in acceptable ranges
+const phInRange = Math.abs(ph - golden.ph) <= 0.1;
+const alkInRange = Math.abs(alkalinity - golden.alkalinity) <= 20;
+const calciumInRange = Math.abs(calcium - golden.calcium) <= 50;
+const cyaInRange = Math.abs(cyanuric - golden.cya) <= 10;
+
+let comparisonCards = `
+    <div class="parameters-grid">
+        ${createParameterCard(t.ph, ph, golden.ph, phInRange, 'ph')}
+        ${createParameterCard(t.alkalinity, alkalinity, golden.alkalinity, alkInRange, 'alk')}
+        ${createParameterCard(t.calcium, calcium, golden.calcium, calciumInRange, 'ch')}
+        ${createParameterCard(t.cyanuric, cyanuric, golden.cya, cyaInRange, 'cya')}
+    </div>
+`;
 
     // --- Chlorine details ---
-    let chlorineHTML = "";
-    if (state === "florida") {
-        const liquidChlorine = getLiquidChlorineDose(chlorineInfo.toBeDosed, poolGallons);
-        chlorineHTML = `
-        <h4>${t.chlorineDetailsFL}</h4>
-        <ul>
-        <li>${t.minFC}: ${chlorineInfo.minFC.toFixed(2)} ppm</li>
-        <li>${t.uvLossFactor}: ${chlorineInfo.lossFactor} ppm/day</li>
-        <li>${t.uvLossForWeek}: ${chlorineInfo.uvLoss.toFixed(2)} ppm</li>
-        <li>${t.calculatedChlorineDose}: ${chlorineInfo.calculatedDose.toFixed(2)} ppm</li>
-        <li>${t.testedFreeChlorine}: ${freeChlorine.toFixed(2)} ppm</li>
-        <li><strong>${t.chlorineToBeDosed}: ${chlorineInfo.toBeDosed.toFixed(2)} ppm</strong></li>
-        <li><strong>${t.liquidChlorineToAdd}: ${liquidChlorine.gallons.toFixed(2)} gal (${liquidChlorine.flOz.toFixed(0)} fl oz)</strong></li>
-        </ul>
-        `;
-    } else {
-        const calHypoOunces = getCalHypoOunces(chlorineInfo.toBeDosed, poolGallons);
-        chlorineHTML = `
-        <h4>${t.chlorineDetailsAZTX}</h4>
-        <ul>
-        <li>${t.minFC}: ${chlorineInfo.minFC.toFixed(2)} ppm</li>
-        <li>${t.uvLossFactor}: ${chlorineInfo.lossFactor} ppm/day</li>
-        <li>${t.uvLossForWeek}: ${chlorineInfo.uvLoss.toFixed(2)} ppm</li>
-        <li>${t.calculatedChlorineDose}: ${chlorineInfo.calculatedDose.toFixed(2)} ppm</li>
-        <li>${t.testedFreeChlorine}: ${freeChlorine.toFixed(2)} ppm</li>
-        <li><strong>${t.chlorineToBeDosed}: ${chlorineInfo.toBeDosed.toFixed(2)} ppm</strong></li>
-        <li><strong>${t.calHypoToAdd}: ${formatLbsOz(calHypoOunces, t)}</strong></li>
-        </ul>
-        `;
-    }
-
+    let chlorineHTML = `
+    <div class="info-card chlorine-details">
+        <h4>${state === "florida" ? t.chlorineDetailsFL : t.chlorineDetailsAZTX}</h4>
+        <div class="chlorine-grid">
+            <div class="chlorine-item">
+                <span class="chlorine-label">${t.minFC}:</span>
+                <span class="chlorine-value">${chlorineInfo.minFC.toFixed(2)} ppm</span>
+            </div>
+            <div class="chlorine-item">
+                <span class="chlorine-label">${t.uvLossFactor}:</span>
+                <span class="chlorine-value">${chlorineInfo.lossFactor} ppm/day</span>
+            </div>
+            <div class="chlorine-item">
+                <span class="chlorine-label">${t.uvLossForWeek}:</span>
+                <span class="chlorine-value">${chlorineInfo.uvLoss.toFixed(2)} ppm</span>
+            </div>
+            <div class="chlorine-item">
+                <span class="chlorine-label">${t.calculatedChlorineDose}:</span>
+                <span class="chlorine-value">${chlorineInfo.calculatedDose.toFixed(2)} ppm</span>
+            </div>
+            <div class="chlorine-item">
+                <span class="chlorine-label">${t.testedFreeChlorine}:</span>
+                <span class="chlorine-value">${freeChlorine.toFixed(2)} ppm</span>
+            </div>
+            <div class="chlorine-item highlight">
+                <span class="chlorine-label">${t.chlorineToBeDosed}:</span>
+                <span class="chlorine-value">${chlorineInfo.toBeDosed.toFixed(2)} ppm</span>
+            </div>
+        </div>
+    </div>
+`;
     // --- LSI status ---
     let lsiStatus;
     if (lsi < -0.5) {
@@ -885,30 +898,43 @@ if (state === "florida") {
         lsiStatus = t.lsiStatus.scaleForming;
     }
 
+    let lsiHTML = `
+<div class="info-card lsi-card ${lsi >= -0.05 && lsi <= 0.3 ? 'balanced' : (lsi < -0.05 ? 'corrosive' : 'scale-forming')}">
+    <h4>${t.isBalanced}</h4>
+    <div class="lsi-status">
+        <div class="lsi-value">${lsi.toFixed(2)}</div>
+        <div class="lsi-description">${lsiStatus}</div>
+    </div>
+</div>
+`;
     // --- Build the final HTML string ---
-    const html = `
-    <h3>${t.summaryTitle}</h3>
-    ${bicarbList.join('')}
-    ${acidList.join('')}
-    ${(acidList.length > 0 || bicarbList.length > 0) ? `<div style="margin-bottom:0.5em;"><em>${t.waitNote}</em></div>` : ''}
-    ${chlorineList.join('')}
-    ${otherList.join('')}
-    <h3>${t.detailsTitle}</h3>
-    ${comparisonTable}
-    ${chlorineHTML}
-    <h3>${t.isBalanced}</h3>
-    <p>${lsiStatus}</p>
-    <h3>${t.lsiValue}</h3>
-    <p>${lsi.toFixed(2)}</p>
-    ${balancingToAddNext.length > 0 ? `
-    <h3>${t.notesNextVisit}</h3>
-    <h4>${t.nextVisitNote}</h4>
+   
+const html = `
+<h3>${t.summaryTitle}</h3>
+${bicarbList.join('')}
+${acidList.join('')}
+${(acidList.length > 0 || bicarbList.length > 0) ? `<div style="margin-bottom:0.5em;"><em>${t.waitNote}</em></div>` : ''}
+${chlorineList.join('')}
+${otherList.join('')}
+
+<h3>${t.detailsTitle}</h3>
+
+<h4>Water Chemistry Parameters</h4>
+${comparisonCards}
+
+${chlorineHTML}
+
+${lsiHTML}
+
+${balancingToAddNext.length > 0 ? `
+<div class="info-card next-visit">
+    <h4>${t.notesNextVisit}</h4>
+    <p><em>${t.nextVisitNote}</em></p>
     <ul>
     ${balancingToAddNext.map(item => {
         if (typeof item.dose === "string") {
             return `<li>${boldQuantity(item.dose)}</li>`;
         } else if (typeof item.dose === "object" && item.dose !== null) {
-            // For alkalinity, show both bicarb and acid if present
             let out = "";
             if (item.dose.bicarb) out += `<li>${boldQuantity(item.dose.bicarb)}</li>`;
             if (item.dose.acid) out += `<li>${boldQuantity(item.dose.acid)}</li>`;
@@ -917,9 +943,10 @@ if (state === "florida") {
         return "";
     }).join('')}
     </ul>
-    ` : ""}
-    `;
-    
-    return { html };
+</div>
+` : ""}
+`;
+return {html};
 }
+
 module.exports = { calculateLSIAndAdvice };

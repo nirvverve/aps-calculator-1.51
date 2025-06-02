@@ -2,6 +2,7 @@ const translations = {
     en: {
         title: "Pool Chemistry Calculator for Residential Pools",
         selectLanguage: "Select a Language",
+        clearForm: "🔄 Clear Form for New Pool",
         selectState: "Select Your State",
         poolCapacity: "Pool Capacity",
         poolCapacityLabel: "Pool Capacity (in gallons):",
@@ -59,6 +60,7 @@ const translations = {
     es: {
         title: "Calculadora de Química para Piscinas Residenciales",
         selectLanguage: "Seleccione un Idioma",
+        clearForm: "🔄 Borrar Formulario para Nueva Piscina",
         selectState: "Seleccione su Estado",
         poolCapacity: "Capacidad de la Piscina",
         poolCapacityLabel: "Capacidad de la piscina (en galones):",
@@ -116,6 +118,7 @@ const translations = {
     it: {
         title: "Calcolatrice Chimica per Piscine Residenziali",
         selectLanguage: "Seleziona una Lingua",
+        clearForm: "🔄 Cancella Modulo per Nuova Piscina",
         selectState: "Seleziona il tuo Stato",
         poolCapacity: "Capacità della Piscina",
         poolCapacityLabel: "Capacità della piscina (in galloni):",
@@ -171,63 +174,161 @@ const translations = {
         errorRangeTemperature: "La temperatura deve essere compresa tra 32°F e 104°F."
     }
 };
-// Set default values for temperature and TDS on load
 document.addEventListener('DOMContentLoaded', function() {
-  // Language selection logic
-  const languageButtons = document.querySelectorAll('#language-buttons button');
-  const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+    // Language selection logic
+    const languageButtons = document.querySelectorAll('#language-buttons button');
+    const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+    
+    // Clear form functionality
+    const clearFormBtn = document.getElementById('clear-form-btn');
+    if (clearFormBtn) {
+        clearFormBtn.addEventListener('click', function() {
+            clearAllFormData();
+        });
+    }
 
-  // Set initial language button state
-  languageButtons.forEach(btn => {
-      if (btn.dataset.lang === savedLang) {
-          btn.classList.add('active');
-      }
-  });
-
-  // Handle language button clicks
-  languageButtons.forEach(btn => {
-      btn.addEventListener('click', function() {
-          languageButtons.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          localStorage.setItem('selectedLanguage', btn.dataset.lang);
-          setLanguage(btn.dataset.lang);
-      });
+    // Set initial language button state
+    languageButtons.forEach(btn => {
+        if (btn.dataset.lang === savedLang) {
+            btn.classList.add('active');
+        }
     });
 
-// Function to update UI text (stub for now)
-function setLanguage(lang) {
-   // Header
-   document.querySelector('h1').textContent = translations[lang].title;
-   // Language section
-   document.querySelector('#language-section h2').textContent = translations[lang].selectLanguage;
-   // State section
-   document.querySelector('#state-buttons').previousElementSibling.textContent = translations[lang].selectState;
-   // Pool capacity
-   document.querySelectorAll('.section')[1].querySelector('h2').textContent = translations[lang].poolCapacity;
-   document.querySelector('#capacity').parentElement.childNodes[0].textContent = translations[lang].poolCapacityLabel;
-   // Sanitize section
-   document.querySelectorAll('.section')[2].querySelector('h2').textContent = translations[lang].sanitize;
-   document.querySelector('#freechlorine').parentElement.childNodes[0].textContent = translations[lang].freeChlorine;
-   document.querySelector('#cyanuric').parentElement.childNodes[0].textContent = translations[lang].cyanuric;
-   // Balance section
-   document.querySelectorAll('.section')[3].querySelector('h2').textContent = translations[lang].balance;
-   document.querySelector('#ph').parentElement.childNodes[0].textContent = translations[lang].ph;
-   document.querySelector('#alkalinity').parentElement.childNodes[0].textContent = translations[lang].alkalinity;
-   document.querySelector('#calcium').parentElement.childNodes[0].textContent = translations[lang].calcium;
-   // Optional section
-   document.querySelectorAll('.section')[4].querySelector('h2').textContent = translations[lang].optional;
-   document.querySelector('#tds').parentElement.childNodes[0].textContent = translations[lang].tds;
-   document.querySelector('#tds').parentElement.querySelector('.note em').textContent = translations[lang].tdsNote;
-   document.querySelector('#temperature').parentElement.childNodes[0].textContent = translations[lang].temperature;
-   document.querySelector('#temperature').parentElement.querySelector('.note em').textContent = translations[lang].tempNote;
-   // Salt section
-   document.querySelectorAll('.section')[5].querySelector('h2').textContent = translations[lang].salt;
-   document.querySelector('#salt-current').parentElement.childNodes[0].textContent = translations[lang].saltCurrent;
-   document.querySelector('#salt-current').parentElement.querySelector('.note em').textContent = translations[lang].saltCurrentNote;
-   document.querySelector('#salt-desired').parentElement.childNodes[0].textContent = translations[lang].saltDesired;
-   // Calculate button
-   document.querySelector('button[type="submit"]').textContent = translations[lang].calculate;
-}
+    // Handle language button clicks
+    languageButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            languageButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            localStorage.setItem('selectedLanguage', btn.dataset.lang);
+            setLanguage(btn.dataset.lang);
+        });
+    });
+
+    // Function to update UI text - FIXED VERSION
+    function setLanguage(lang) {
+        const t = translations[lang];
+        
+        // Header
+        const headerTitle = document.querySelector('h1');
+        if (headerTitle) headerTitle.textContent = t.title;
+        
+        // Language section
+        const langSectionH2 = document.querySelector('#language-section h2');
+        if (langSectionH2) langSectionH2.textContent = t.selectLanguage;
+        
+        // Clear button
+        const clearBtn = document.getElementById('clear-form-btn');
+        if (clearBtn) clearBtn.textContent = t.clearForm;
+        
+        // Find sections by looking for specific elements instead of relying on order
+        const sections = document.querySelectorAll('.section');
+        
+        // Pool capacity section
+        const capacitySection = document.querySelector('#capacity').closest('.section');
+        if (capacitySection) {
+            const h2 = capacitySection.querySelector('h2');
+            if (h2) h2.textContent = t.poolCapacity;
+            
+            const label = document.querySelector('label[for="capacity"], #capacity').closest('label');
+            if (label && label.childNodes[0]) {
+                label.childNodes[0].textContent = t.poolCapacityLabel;
+            }
+        }
+        
+        // Sanitize section
+        const sanitizeSection = document.querySelector('#freechlorine').closest('.section');
+        if (sanitizeSection) {
+            const h2 = sanitizeSection.querySelector('h2');
+            if (h2) h2.textContent = t.sanitize;
+            
+            const fcLabel = document.querySelector('#freechlorine').closest('label');
+            if (fcLabel && fcLabel.childNodes[0]) {
+                fcLabel.childNodes[0].textContent = t.freeChlorine;
+            }
+            
+            const cyaLabel = document.querySelector('#cyanuric').closest('label');
+            if (cyaLabel && cyaLabel.childNodes[0]) {
+                cyaLabel.childNodes[0].textContent = t.cyanuric;
+            }
+        }
+        
+        // Balance section
+        const balanceSection = document.querySelector('#ph').closest('.section');
+        if (balanceSection) {
+            const h2 = balanceSection.querySelector('h2');
+            if (h2) h2.textContent = t.balance;
+            
+            const phLabel = document.querySelector('#ph').closest('label');
+            if (phLabel && phLabel.childNodes[0]) {
+                phLabel.childNodes[0].textContent = t.ph;
+            }
+            
+            const alkLabel = document.querySelector('#alkalinity').closest('label');
+            if (alkLabel && alkLabel.childNodes[0]) {
+                alkLabel.childNodes[0].textContent = t.alkalinity;
+            }
+            
+            const caLabel = document.querySelector('#calcium').closest('label');
+            if (caLabel && caLabel.childNodes[0]) {
+                caLabel.childNodes[0].textContent = t.calcium;
+            }
+        }
+        
+        // Optional section
+        const optionalSection = document.querySelector('#tds').closest('.section');
+        if (optionalSection) {
+            const h2 = optionalSection.querySelector('h2');
+            if (h2) h2.textContent = t.optional;
+            
+            const tdsLabel = document.querySelector('#tds').closest('label');
+            if (tdsLabel && tdsLabel.childNodes[0]) {
+                tdsLabel.childNodes[0].textContent = t.tds;
+            }
+            
+            const tdsNote = document.querySelector('#tds').parentElement.querySelector('.note em');
+            if (tdsNote) tdsNote.textContent = t.tdsNote;
+            
+            const tempLabel = document.querySelector('#temperature').closest('label');
+            if (tempLabel && tempLabel.childNodes[0]) {
+                tempLabel.childNodes[0].textContent = t.temperature;
+            }
+            
+            const tempNote = document.querySelector('#temperature').parentElement.querySelector('.note em');
+            if (tempNote) tempNote.textContent = t.tempNote;
+        }
+        
+        // Salt section
+        const saltSection = document.querySelector('#salt-current').closest('.section');
+        if (saltSection) {
+            const h2 = saltSection.querySelector('h2');
+            if (h2) h2.textContent = t.salt;
+            
+            const saltCurrentLabel = document.querySelector('#salt-current').closest('label');
+            if (saltCurrentLabel && saltCurrentLabel.childNodes[0]) {
+                saltCurrentLabel.childNodes[0].textContent = t.saltCurrent;
+            }
+            
+            const saltCurrentNote = document.querySelector('#salt-current').parentElement.querySelector('.note em');
+            if (saltCurrentNote) saltCurrentNote.textContent = t.saltCurrentNote;
+            
+            const saltDesiredLabel = document.querySelector('#salt-desired').closest('label');
+            if (saltDesiredLabel && saltDesiredLabel.childNodes[0]) {
+                saltDesiredLabel.childNodes[0].textContent = t.saltDesired;
+            }
+        }
+        
+        // State section
+        const stateSection = document.querySelector('#state-buttons').closest('.section');
+        if (stateSection) {
+            const h2 = stateSection.querySelector('h2');
+            if (h2) h2.textContent = t.selectState;
+        }
+        
+        // Calculate button
+        const calculateBtn = document.querySelector('button[type="submit"]');
+        if (calculateBtn) calculateBtn.textContent = t.calculate;
+    }
+
     // Set default values for temperature and TDS if empty
     const tempInput = document.getElementById('temperature');
     if (tempInput && (tempInput.value === "" || tempInput.value === undefined)) {
@@ -235,36 +336,43 @@ function setLanguage(lang) {
     }
     const tdsInput = document.getElementById('tds');
     if (tdsInput && (tdsInput.value === "" || tdsInput.value === undefined)) {
-        tdsInput.value = 1600;
+        tdsInput.value = 1000;
     }
+
     const stateButtons = document.querySelectorAll('#state-buttons button');
     const stateInput = document.getElementById('state');
     const savedState = localStorage.getItem('selectedState');
-  
+
     // Restore previous selection if available
     if (savedState) {
-      stateInput.value = savedState;
-      stateButtons.forEach(btn => {
-        if (btn.dataset.state === savedState) {
-          btn.classList.add('active');
-        }
-      });
+        stateInput.value = savedState;
+        stateButtons.forEach(btn => {
+            if (btn.dataset.state === savedState) {
+                btn.classList.add('active');
+            }
+        });
     }
-  
+
     stateButtons.forEach(btn => {
-      btn.addEventListener('click', function() {
-        stateButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        stateInput.value = btn.dataset.state;
-        localStorage.setItem('selectedState', btn.dataset.state);
-      });
+        btn.addEventListener('click', function() {
+            stateButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            stateInput.value = btn.dataset.state;
+            localStorage.setItem('selectedState', btn.dataset.state);
+        });
     });
+
     setLanguage(savedLang);
+
+    // Form submission handler - KEEP YOUR EXISTING CODE HERE
     const form = document.getElementById('pool-form');
     if (form) {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
-
+            e.stopPropagation();
+            
+            // ... rest of your existing form submission code remains the same ...
+            
             // Gather all form data into an object
             const formData = {
                 state: document.getElementById('state').value,
@@ -280,10 +388,21 @@ function setLanguage(lang) {
                 'salt-desired': document.getElementById('salt-desired').value,
                 lang: localStorage.getItem('selectedLanguage') || 'en'
             };
-
+            
+            console.log('Form data being submitted:', formData);
+            
             const resultsElement = document.getElementById('results');
             const lang = localStorage.getItem('selectedLanguage') || 'en';
             const t = translations[lang];
+            
+            // Check if all required fields are filled
+            if (!formData.state || !formData.capacity || !formData.ph || 
+                !formData.alkalinity || !formData.calcium || !formData.temperature || 
+                !formData.tds || !formData.cyanuric || !formData.freechlorine) {
+                resultsElement.innerHTML = `<p class="error">${t.errorRequired}</p>`;
+                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                return;
+            }
             
             // Parse values for validation
             const capacity = parseFloat(formData.capacity);
@@ -298,64 +417,147 @@ function setLanguage(lang) {
             // Validate ranges
             if (capacity < 100 || capacity > 50000) {
                 resultsElement.innerHTML = `<p class="error">${t.errorRangeCapacity}</p>`;
+                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return;
             }
             
             if (ph < 6.5 || ph > 8.5) {
                 resultsElement.innerHTML = `<p class="error">${t.errorRangePh}</p>`;
+                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return;
             }
             
             if (alkalinity < 0 || alkalinity > 300) {
                 resultsElement.innerHTML = `<p class="error">${t.errorRangeAlkalinity}</p>`;
+                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return;
             }
             
             if (calcium < 0 || calcium > 1000) {
                 resultsElement.innerHTML = `<p class="error">${t.errorRangeCalcium}</p>`;
+                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return;
             }
             
             if (cyanuric < 0 || cyanuric > 300) {
                 resultsElement.innerHTML = `<p class="error">${t.errorRangeCyanuric}</p>`;
+                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return;
             }
             
             if (tds < 0 || tds > 10000) {
                 resultsElement.innerHTML = `<p class="error">${t.errorRangeTds}</p>`;
+                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return;
             }
             
             if (saltCurrent < 0 || saltCurrent > 10000) {
                 resultsElement.innerHTML = `<p class="error">${t.errorRangeSalt}</p>`;
+                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return;
             }
             
             if (temperature < 50 || temperature > 104) {
                 resultsElement.innerHTML = `<p class="error">${t.errorRangeTemperature}</p>`;
+                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 return;
             }
-            resultsElement.innerHTML = 'Calculating...';
-
+            
+            // Show calculating message
+            resultsElement.innerHTML = '<div style="text-align: center; padding: 2em; color: #1a237e; font-size: 1.2em;">Calculating...</div>';
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
             try {
                 const response = await fetch('/api/calculate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
                 });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
+                console.log('Server response received:', data);
+                
                 if (data.html) {
                     resultsElement.innerHTML = data.html;
+                    // Ensure we scroll to results after they're displayed
+                    setTimeout(() => {
+                        resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
                 } else if (data.error) {
                     const errorLang = data.lang || localStorage.getItem('selectedLanguage') || 'en';
                     const t = translations[errorLang];
-                    resultsElement.innerHTML = `<p class="error">${t.serverError}</p>`; 
+                    resultsElement.innerHTML = `<p class="error">${t.serverError}</p>`;
+                    resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    resultsElement.innerHTML = `<p class="error">No results returned from server.</p>`;
+                    resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             } catch (err) {
+                console.error('Fetch error:', err);
                 const lang = localStorage.getItem('selectedLanguage') || 'en';
                 const t = translations[lang];
                 resultsElement.innerHTML = `<p class="error">${t.serverError}</p>`;
+                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         });
     }
 });
+
+// Clear form function - moved outside of DOMContentLoaded
+function clearAllFormData() {
+    // ... your existing clearAllFormData function remains the same ...
+    const form = document.getElementById('pool-form');
+    if (form) {
+        form.reset();
+        
+        setTimeout(() => {
+            document.getElementById('temperature').value = 86;
+            document.getElementById('tds').value = 1000;
+            document.getElementById('salt-current').value = 0;
+            document.getElementById('salt-desired').value = 0;
+            
+            const currentLang = localStorage.getItem('selectedLanguage') || 'en';
+            const languageButtons = document.querySelectorAll('#language-buttons button');
+            languageButtons.forEach(btn => {
+                if (btn.dataset.lang === currentLang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            const currentState = localStorage.getItem('selectedState');
+            if (currentState) {
+                document.getElementById('state').value = currentState;
+                const stateButtons = document.querySelectorAll('#state-buttons button');
+                stateButtons.forEach(btn => {
+                    if (btn.dataset.state === currentState) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            } else {
+                const stateButtons = document.querySelectorAll('#state-buttons button');
+                stateButtons.forEach(btn => btn.classList.remove('active'));
+                document.getElementById('state').value = '';
+            }
+            
+            const resultsElement = document.getElementById('results');
+            if (resultsElement) {
+                resultsElement.innerHTML = '';
+            }
+            
+            const firstInput = document.getElementById('capacity');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        }, 50);
+    }
+}

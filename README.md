@@ -1,3 +1,11 @@
+v1.7.0 
+
+Redesigned the "Detailed Explanation" section with styled parameter cards, chlorine details cards, and LSI status cards that match the visual consistency of dose cards
+Added a "Clear Form for New Pool" button with smart preservation of language and state preferences - perfect for technicians moving between service calls in Salesforce iFrames
+Transformed plain tables and bullet lists into visually attractive, organized card layouts that are much easier to scan and understand
+All new components are designed for use on mobile devices
+Specifically designed to work within iFrame environments without page refresh requirements
+
 v1.6.0
 
 Implemented advanced Henderson-Hasselbalch equation for accurate pH prediction after sodium bicarbonate dosing.
