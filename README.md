@@ -1,3 +1,10 @@
+v1.7.1
+
+Bug fixes - fixed the capacity input formatting issue - now shows comma after the third digit and clarified acid dose instructions
+In display area, all formatting changes.  Border on individual "Water Parameters" is larger on those that are out of range.
+Form overhaul - uses new cleaner mobile friendly layout via Tailwind CSS framework supplied by S. Fickus
+UI improvements - enhanced layout for better readability and usability on mobile and desktop devices
+
 v1.7.0 
 
 Redesigned the "Detailed Explanation" section with styled parameter cards, chlorine details cards, and LSI status cards that match the visual consistency of dose cards

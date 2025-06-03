@@ -24,7 +24,7 @@ const translations = {
         saltDesired: "Desired Salt Level (ppm):",
         calculate: "Calculate Chemical Dose Amounts & LSI",
         summaryTitle: "Summary of Chemicals to Add at Today's Visit",
-        waitNote: "Wait at least 15 minutes and circulate water before adding any other chemicals.",
+        waitNote: "Wait at least 10 minutes and circulate water before adding any other chemicals.",
         detailsTitle: "Detailed Explanation",
         parameter: "Parameter",
         testResult: "Test Result",
@@ -82,7 +82,7 @@ const translations = {
         saltDesired: "Nivel Deseado de Sal (ppm):",
         calculate: "Calcular Dosis Química y LSI",
         summaryTitle: "Resumen de Químicos a Añadir en la Visita de Hoy",
-        waitNote: "Espere al menos 15 minutos y circule el agua antes de añadir otros productos químicos.",
+        waitNote: "Espere al menos 10 minutos y circule el agua antes de añadir otros productos químicos.",
         detailsTitle: "Explicación Detallada",
         parameter: "Parámetro",
         testResult: "Resultado de la Prueba",
@@ -140,7 +140,7 @@ const translations = {
         saltDesired: "Livello di Sale Desiderato (ppm):",
         calculate: "Calcola Dosaggio Chimico e LSI",
         summaryTitle: "Riepilogo dei Prodotti Chimici da Aggiungere Oggi",
-        waitNote: "Attendere almeno 15 minuti e far circolare l'acqua prima di aggiungere altri prodotti chimici.",
+        waitNote: "Attendere almeno 10 minuti e far circolare l'acqua prima di aggiungere altri prodotti chimici.",
         detailsTitle: "Spiegazione Dettagliata",
         parameter: "Parametro",
         testResult: "Risultato del Test",
@@ -174,6 +174,14 @@ const translations = {
         errorRangeTemperature: "La temperatura deve essere compresa tra 32°F e 104°F."
     }
 };
+function formatNumberWithCommas(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// Function to remove commas from string
+function removeCommas(str) {
+    return str.replace(/,/g, "");
+}
 document.addEventListener('DOMContentLoaded', function() {
     // Language selection logic
     const languageButtons = document.querySelectorAll('#language-buttons button');
@@ -186,19 +194,27 @@ document.addEventListener('DOMContentLoaded', function() {
             clearAllFormData();
         });
     }
-
+    
     // Set initial language button state
     languageButtons.forEach(btn => {
         if (btn.dataset.lang === savedLang) {
-            btn.classList.add('active');
+            btn.classList.remove('btn-inactive');
+            btn.classList.add('btn-active');
+        } else {
+            btn.classList.remove('btn-active');
+            btn.classList.add('btn-inactive');
         }
     });
 
     // Handle language button clicks
     languageButtons.forEach(btn => {
         btn.addEventListener('click', function() {
-            languageButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            languageButtons.forEach(b => {
+                b.classList.remove('btn-active');
+                b.classList.add('btn-inactive');
+            });
+            btn.classList.remove('btn-inactive');
+            btn.classList.add('btn-active');
             localStorage.setItem('selectedLanguage', btn.dataset.lang);
             setLanguage(btn.dataset.lang);
         });
@@ -213,122 +229,82 @@ document.addEventListener('DOMContentLoaded', function() {
         if (headerTitle) headerTitle.textContent = t.title;
         
         // Language section
-        const langSectionH2 = document.querySelector('#language-section h2');
+        const langSectionH2 = document.querySelector('section h2');
         if (langSectionH2) langSectionH2.textContent = t.selectLanguage;
         
         // Clear button
         const clearBtn = document.getElementById('clear-form-btn');
         if (clearBtn) clearBtn.textContent = t.clearForm;
         
-        // Find sections by looking for specific elements instead of relying on order
-        const sections = document.querySelectorAll('.section');
-        
-        // Pool capacity section
-        const capacitySection = document.querySelector('#capacity').closest('.section');
-        if (capacitySection) {
-            const h2 = capacitySection.querySelector('h2');
-            if (h2) h2.textContent = t.poolCapacity;
-            
-            const label = document.querySelector('label[for="capacity"], #capacity').closest('label');
-            if (label && label.childNodes[0]) {
-                label.childNodes[0].textContent = t.poolCapacityLabel;
-            }
-        }
+        // Pool capacity
+        const capacityLabel = document.querySelector('label[for="capacity"]');
+        if (capacityLabel) capacityLabel.childNodes[0].textContent = t.poolCapacityLabel;
         
         // Sanitize section
-        const sanitizeSection = document.querySelector('#freechlorine').closest('.section');
-        if (sanitizeSection) {
-            const h2 = sanitizeSection.querySelector('h2');
-            if (h2) h2.textContent = t.sanitize;
-            
-            const fcLabel = document.querySelector('#freechlorine').closest('label');
-            if (fcLabel && fcLabel.childNodes[0]) {
-                fcLabel.childNodes[0].textContent = t.freeChlorine;
-            }
-            
-            const cyaLabel = document.querySelector('#cyanuric').closest('label');
-            if (cyaLabel && cyaLabel.childNodes[0]) {
-                cyaLabel.childNodes[0].textContent = t.cyanuric;
-            }
-        }
+        const sanitizeH3 = document.querySelector('h3');
+        if (sanitizeH3) sanitizeH3.textContent = t.sanitize;
+        
+        const fcLabel = document.querySelector('label[for="freechlorine"]');
+        if (fcLabel) fcLabel.childNodes[0].textContent = t.freeChlorine;
+        
+        const cyaLabel = document.querySelector('label[for="cyanuric"]');
+        if (cyaLabel) cyaLabel.childNodes[0].textContent = t.cyanuric;
         
         // Balance section
-        const balanceSection = document.querySelector('#ph').closest('.section');
-        if (balanceSection) {
-            const h2 = balanceSection.querySelector('h2');
-            if (h2) h2.textContent = t.balance;
-            
-            const phLabel = document.querySelector('#ph').closest('label');
-            if (phLabel && phLabel.childNodes[0]) {
-                phLabel.childNodes[0].textContent = t.ph;
-            }
-            
-            const alkLabel = document.querySelector('#alkalinity').closest('label');
-            if (alkLabel && alkLabel.childNodes[0]) {
-                alkLabel.childNodes[0].textContent = t.alkalinity;
-            }
-            
-            const caLabel = document.querySelector('#calcium').closest('label');
-            if (caLabel && caLabel.childNodes[0]) {
-                caLabel.childNodes[0].textContent = t.calcium;
-            }
-        }
+        const balanceH3 = document.querySelectorAll('h3')[1];
+        if (balanceH3) balanceH3.textContent = t.balance;
+        
+        const phLabel = document.querySelector('label[for="ph"]');
+        if (phLabel) phLabel.childNodes[0].textContent = t.ph;
+        
+        const alkLabel = document.querySelector('label[for="alkalinity"]');
+        if (alkLabel) alkLabel.childNodes[0].textContent = t.alkalinity;
+        
+        const caLabel = document.querySelector('label[for="calcium"]');
+        if (caLabel) caLabel.childNodes[0].textContent = t.calcium;
         
         // Optional section
-        const optionalSection = document.querySelector('#tds').closest('.section');
-        if (optionalSection) {
-            const h2 = optionalSection.querySelector('h2');
-            if (h2) h2.textContent = t.optional;
-            
-            const tdsLabel = document.querySelector('#tds').closest('label');
-            if (tdsLabel && tdsLabel.childNodes[0]) {
-                tdsLabel.childNodes[0].textContent = t.tds;
-            }
-            
-            const tdsNote = document.querySelector('#tds').parentElement.querySelector('.note em');
-            if (tdsNote) tdsNote.textContent = t.tdsNote;
-            
-            const tempLabel = document.querySelector('#temperature').closest('label');
-            if (tempLabel && tempLabel.childNodes[0]) {
-                tempLabel.childNodes[0].textContent = t.temperature;
-            }
-            
-            const tempNote = document.querySelector('#temperature').parentElement.querySelector('.note em');
-            if (tempNote) tempNote.textContent = t.tempNote;
-        }
+        const optionalH3 = document.querySelectorAll('h3')[2];
+        if (optionalH3) optionalH3.textContent = t.optional;
+        
+        const tdsLabel = document.querySelector('label[for="tds"]');
+        if (tdsLabel) tdsLabel.childNodes[0].textContent = t.tds;
+        
+        const tdsNote = document.querySelector('label[for="tds"] + p');
+        if (tdsNote) tdsNote.textContent = t.tdsNote;
+        
+        const tempLabel = document.querySelector('label[for="temperature"]');
+        if (tempLabel) tempLabel.childNodes[0].textContent = t.temperature;
+        
+        const tempNote = document.querySelector('label[for="temperature"]').parentElement.querySelector('p');
+        if (tempNote) tempNote.textContent = t.tempNote;
         
         // Salt section
-        const saltSection = document.querySelector('#salt-current').closest('.section');
-        if (saltSection) {
-            const h2 = saltSection.querySelector('h2');
-            if (h2) h2.textContent = t.salt;
-            
-            const saltCurrentLabel = document.querySelector('#salt-current').closest('label');
-            if (saltCurrentLabel && saltCurrentLabel.childNodes[0]) {
-                saltCurrentLabel.childNodes[0].textContent = t.saltCurrent;
-            }
-            
-            const saltCurrentNote = document.querySelector('#salt-current').parentElement.querySelector('.note em');
-            if (saltCurrentNote) saltCurrentNote.textContent = t.saltCurrentNote;
-            
-            const saltDesiredLabel = document.querySelector('#salt-desired').closest('label');
-            if (saltDesiredLabel && saltDesiredLabel.childNodes[0]) {
-                saltDesiredLabel.childNodes[0].textContent = t.saltDesired;
-            }
-        }
+        const saltH3 = document.querySelectorAll('h3')[3];
+        if (saltH3) saltH3.textContent = t.salt;
+        
+        const saltCurrentLabel = document.querySelector('label[for="salt-current"]');
+        if (saltCurrentLabel) saltCurrentLabel.childNodes[0].textContent = t.saltCurrent;
+        
+        const saltCurrentNote = document.querySelector('label[for="salt-current"] + p');
+        if (saltCurrentNote) saltCurrentNote.textContent = t.saltCurrentNote;
+        
+        const saltDesiredLabel = document.querySelector('label[for="salt-desired"]');
+        if (saltDesiredLabel) saltDesiredLabel.childNodes[0].textContent = t.saltDesired;
         
         // State section
-        const stateSection = document.querySelector('#state-buttons').closest('.section');
-        if (stateSection) {
-            const h2 = stateSection.querySelector('h2');
-            if (h2) h2.textContent = t.selectState;
-        }
+        const stateH2 = document.querySelectorAll('h2')[1];
+        if (stateH2) stateH2.textContent = t.selectState;
         
         // Calculate button
         const calculateBtn = document.querySelector('button[type="submit"]');
-        if (calculateBtn) calculateBtn.textContent = t.calculate;
+        if (calculateBtn) {
+            // Keep the icon and update the text
+            calculateBtn.innerHTML = `<span class="material-icons mr-2">calculate</span> ${t.calculate}`;
+        }
     }
 
+    // Set default values for temperature and TDS if empty
     // Set default values for temperature and TDS if empty
     const tempInput = document.getElementById('temperature');
     if (tempInput && (tempInput.value === "" || tempInput.value === undefined)) {
@@ -339,24 +315,40 @@ document.addEventListener('DOMContentLoaded', function() {
         tdsInput.value = 1000;
     }
 
+    // State button logic
     const stateButtons = document.querySelectorAll('#state-buttons button');
     const stateInput = document.getElementById('state');
     const savedState = localStorage.getItem('selectedState');
+
 
     // Restore previous selection if available
     if (savedState) {
         stateInput.value = savedState;
         stateButtons.forEach(btn => {
             if (btn.dataset.state === savedState) {
-                btn.classList.add('active');
+                btn.classList.remove('btn-inactive');
+                btn.classList.add('btn-active');
+            } else {
+                btn.classList.remove('btn-active');
+                btn.classList.add('btn-inactive');
             }
+        });
+    } else {
+        // Make sure all state buttons start as inactive if no saved state
+        stateButtons.forEach(btn => {
+            btn.classList.remove('btn-active');
+            btn.classList.add('btn-inactive');
         });
     }
 
     stateButtons.forEach(btn => {
         btn.addEventListener('click', function() {
-            stateButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            stateButtons.forEach(b => {
+                b.classList.remove('btn-active');
+                b.classList.add('btn-inactive');
+            });
+            btn.classList.remove('btn-inactive');
+            btn.classList.add('btn-active');
             stateInput.value = btn.dataset.state;
             localStorage.setItem('selectedState', btn.dataset.state);
         });
@@ -364,154 +356,194 @@ document.addEventListener('DOMContentLoaded', function() {
 
     setLanguage(savedLang);
 
-    // Form submission handler - KEEP YOUR EXISTING CODE HERE
+    // Form submission handler - IMPROVED VERSION
+    const capacityInput = document.getElementById('capacity');
+    if (capacityInput) {
+        // Only allow digits during input
+        capacityInput.addEventListener('input', function(e) {
+            let value = e.target.value;
+            // Remove all non-digit characters
+            let cleanValue = value.replace(/[^\d]/g, '');
+            e.target.value = cleanValue;
+        });
+        
+        // Format with commas when user finishes typing (on blur)
+        capacityInput.addEventListener('blur', function(e) {
+            let value = e.target.value;
+            if (value && value.trim() !== '') {
+                const numValue = parseInt(value, 10);
+                if (!isNaN(numValue) && numValue > 0) {
+                    e.target.value = formatNumberWithCommas(numValue);
+                }
+            }
+        });
+        
+        // Remove commas when user starts typing again (on focus)
+        capacityInput.addEventListener('focus', function(e) {
+            let value = e.target.value;
+            if (value) {
+                e.target.value = removeCommas(value);
+            }
+        });
+    }
+
+    // Form submission handler - IMPROVED VERSION
     const form = document.getElementById('pool-form');
     if (form) {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
             e.stopPropagation();
             
-            // ... rest of your existing form submission code remains the same ...
-            
-            // Gather all form data into an object
-            const formData = {
-                state: document.getElementById('state').value,
-                capacity: document.getElementById('capacity').value,
-                ph: document.getElementById('ph').value,
-                alkalinity: document.getElementById('alkalinity').value,
-                calcium: document.getElementById('calcium').value,
-                temperature: document.getElementById('temperature').value,
-                tds: document.getElementById('tds').value,
-                cyanuric: document.getElementById('cyanuric').value,
-                freechlorine: document.getElementById('freechlorine').value,
-                'salt-current': document.getElementById('salt-current').value,
-                'salt-desired': document.getElementById('salt-desired').value,
-                lang: localStorage.getItem('selectedLanguage') || 'en'
-            };
-            
-            console.log('Form data being submitted:', formData);
-            
-            const resultsElement = document.getElementById('results');
-            const lang = localStorage.getItem('selectedLanguage') || 'en';
-            const t = translations[lang];
-            
-            // Check if all required fields are filled
-            if (!formData.state || !formData.capacity || !formData.ph || 
-                !formData.alkalinity || !formData.calcium || !formData.temperature || 
-                !formData.tds || !formData.cyanuric || !formData.freechlorine) {
-                resultsElement.innerHTML = `<p class="error">${t.errorRequired}</p>`;
-                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                return;
+            // CRITICAL: Clean capacity field BEFORE getting its value
+            const capacityField = document.getElementById('capacity');
+            if (capacityField) {
+                capacityField.value = removeCommas(capacityField.value);
             }
-            
-            // Parse values for validation
-            const capacity = parseFloat(formData.capacity);
-            const ph = parseFloat(formData.ph);
-            const alkalinity = parseFloat(formData.alkalinity);
-            const calcium = parseFloat(formData.calcium);
-            const cyanuric = parseFloat(formData.cyanuric);
-            const tds = parseFloat(formData.tds);
-            const saltCurrent = parseFloat(formData['salt-current']);
-            const temperature = parseFloat(formData.temperature);
-            
-            // Validate ranges
-            if (capacity < 100 || capacity > 50000) {
-                resultsElement.innerHTML = `<p class="error">${t.errorRangeCapacity}</p>`;
-                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                return;
-            }
-            
-            if (ph < 6.5 || ph > 8.5) {
-                resultsElement.innerHTML = `<p class="error">${t.errorRangePh}</p>`;
-                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                return;
-            }
-            
-            if (alkalinity < 0 || alkalinity > 300) {
-                resultsElement.innerHTML = `<p class="error">${t.errorRangeAlkalinity}</p>`;
-                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                return;
-            }
-            
-            if (calcium < 0 || calcium > 1000) {
-                resultsElement.innerHTML = `<p class="error">${t.errorRangeCalcium}</p>`;
-                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                return;
-            }
-            
-            if (cyanuric < 0 || cyanuric > 300) {
-                resultsElement.innerHTML = `<p class="error">${t.errorRangeCyanuric}</p>`;
-                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                return;
-            }
-            
-            if (tds < 0 || tds > 10000) {
-                resultsElement.innerHTML = `<p class="error">${t.errorRangeTds}</p>`;
-                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                return;
-            }
-            
-            if (saltCurrent < 0 || saltCurrent > 10000) {
-                resultsElement.innerHTML = `<p class="error">${t.errorRangeSalt}</p>`;
-                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                return;
-            }
-            
-            if (temperature < 50 || temperature > 104) {
-                resultsElement.innerHTML = `<p class="error">${t.errorRangeTemperature}</p>`;
-                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                return;
-            }
-            
-            // Show calculating message
-            resultsElement.innerHTML = '<div style="text-align: center; padding: 2em; color: #1a237e; font-size: 1.2em;">Calculating...</div>';
+        
+        // Now get the cleaned values
+        const formData = {
+            state: document.getElementById('state').value,
+            capacity: document.getElementById('capacity').value, // Now guaranteed to be clean
+            ph: document.getElementById('ph').value,
+            alkalinity: document.getElementById('alkalinity').value,
+            calcium: document.getElementById('calcium').value,
+            temperature: document.getElementById('temperature').value,
+            tds: document.getElementById('tds').value,
+            cyanuric: document.getElementById('cyanuric').value,
+            freechlorine: document.getElementById('freechlorine').value,
+            'salt-current': document.getElementById('salt-current').value,
+            'salt-desired': document.getElementById('salt-desired').value,
+            lang: localStorage.getItem('selectedLanguage') || 'en'
+        };
+        
+        console.log('Form data being submitted:', formData);
+        console.log('Capacity value:', formData.capacity);
+        
+        const resultsElement = document.getElementById('results');
+        const lang = localStorage.getItem('selectedLanguage') || 'en';
+        const t = translations[lang];
+        
+        // Check if all required fields are filled
+        if (!formData.state || !formData.capacity || !formData.ph || 
+            !formData.alkalinity || !formData.calcium || !formData.temperature || 
+            !formData.tds || !formData.cyanuric || !formData.freechlorine) {
+            resultsElement.innerHTML = `<p class="error">${t.errorRequired}</p>`;
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        
+        // Parse values for validation
+        const capacity = parseFloat(formData.capacity);
+        const ph = parseFloat(formData.ph);
+        const alkalinity = parseFloat(formData.alkalinity);
+        const calcium = parseFloat(formData.calcium);
+        const cyanuric = parseFloat(formData.cyanuric);
+        const tds = parseFloat(formData.tds);
+        const saltCurrent = parseFloat(formData['salt-current']);
+        const temperature = parseFloat(formData.temperature);
+        
+        console.log('Parsed capacity:', capacity);
+        
+        // Validate ranges
+        if (isNaN(capacity) || capacity < 100 || capacity > 50000) {
+            console.log('Capacity validation failed:', capacity);
+            resultsElement.innerHTML = `<p class="error">${t.errorRangeCapacity}</p>`;
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        
+        if (ph < 6.5 || ph > 8.5) {
+            resultsElement.innerHTML = `<p class="error">${t.errorRangePh}</p>`;
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        
+        if (alkalinity < 0 || alkalinity > 300) {
+            resultsElement.innerHTML = `<p class="error">${t.errorRangeAlkalinity}</p>`;
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        
+        if (calcium < 0 || calcium > 1000) {
+            resultsElement.innerHTML = `<p class="error">${t.errorRangeCalcium}</p>`;
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        
+        if (cyanuric < 0 || cyanuric > 300) {
+            resultsElement.innerHTML = `<p class="error">${t.errorRangeCyanuric}</p>`;
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        
+        if (tds < 0 || tds > 10000) {
+            resultsElement.innerHTML = `<p class="error">${t.errorRangeTds}</p>`;
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        
+        if (saltCurrent < 0 || saltCurrent > 10000) {
+            resultsElement.innerHTML = `<p class="error">${t.errorRangeSalt}</p>`;
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        
+        if (temperature < 50 || temperature > 104) {
+            resultsElement.innerHTML = `<p class="error">${t.errorRangeTemperature}</p>`;
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        
+        // Show calculating message
+        resultsElement.innerHTML = '<div style="text-align: center; padding: 2em; color: #1a237e; font-size: 1.2em;">Calculating...</div>';
+        resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        try {
+            const response = await fetch('/api/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
             
-            try {
-                const response = await fetch('/api/calculate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-                
-                console.log('Response status:', response.status);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                console.log('Server response received:', data);
-                
-                if (data.html) {
-                    resultsElement.innerHTML = data.html;
-                    // Ensure we scroll to results after they're displayed
-                    setTimeout(() => {
-                        resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
-                } else if (data.error) {
-                    const errorLang = data.lang || localStorage.getItem('selectedLanguage') || 'en';
-                    const t = translations[errorLang];
-                    resultsElement.innerHTML = `<p class="error">${t.serverError}</p>`;
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Server response received:', data);
+            
+            if (data.html) {
+                resultsElement.innerHTML = data.html;
+                // Ensure we scroll to results after they're displayed
+                setTimeout(() => {
                     resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                } else {
-                    resultsElement.innerHTML = `<p class="error">No results returned from server.</p>`;
-                    resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            } catch (err) {
-                console.error('Fetch error:', err);
-                const lang = localStorage.getItem('selectedLanguage') || 'en';
-                const t = translations[lang];
+                }, 100);
+            } else if (data.error) {
+                const errorLang = data.lang || localStorage.getItem('selectedLanguage') || 'en';
+                const t = translations[errorLang];
                 resultsElement.innerHTML = `<p class="error">${t.serverError}</p>`;
                 resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                resultsElement.innerHTML = `<p class="error">No results returned from server.</p>`;
+                resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
-        });
-    }
+        } catch (err) {
+            console.error('Fetch error:', err);
+            const lang = localStorage.getItem('selectedLanguage') || 'en';
+            const t = translations[lang];
+            resultsElement.innerHTML = `<p class="error">${t.serverError}</p>`;
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+}
 });
+
+
 
 // Clear form function - moved outside of DOMContentLoaded
 function clearAllFormData() {
-    // ... your existing clearAllFormData function remains the same ...
     const form = document.getElementById('pool-form');
     if (form) {
         form.reset();
@@ -526,9 +558,11 @@ function clearAllFormData() {
             const languageButtons = document.querySelectorAll('#language-buttons button');
             languageButtons.forEach(btn => {
                 if (btn.dataset.lang === currentLang) {
-                    btn.classList.add('active');
+                    btn.classList.remove('btn-inactive');
+                    btn.classList.add('btn-active');
                 } else {
-                    btn.classList.remove('active');
+                    btn.classList.remove('btn-active');
+                    btn.classList.add('btn-inactive');
                 }
             });
             
@@ -538,14 +572,19 @@ function clearAllFormData() {
                 const stateButtons = document.querySelectorAll('#state-buttons button');
                 stateButtons.forEach(btn => {
                     if (btn.dataset.state === currentState) {
-                        btn.classList.add('active');
+                        btn.classList.remove('btn-inactive');
+                        btn.classList.add('btn-active');
                     } else {
-                        btn.classList.remove('active');
+                        btn.classList.remove('btn-active');
+                        btn.classList.add('btn-inactive');
                     }
                 });
             } else {
                 const stateButtons = document.querySelectorAll('#state-buttons button');
-                stateButtons.forEach(btn => btn.classList.remove('active'));
+                stateButtons.forEach(btn => {
+                    btn.classList.remove('btn-active');
+                    btn.classList.add('btn-inactive');
+                });
                 document.getElementById('state').value = '';
             }
             

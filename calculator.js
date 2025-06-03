@@ -23,7 +23,7 @@ const translations = {
         saltDesired: "Desired Salt Level (ppm):",
         calculate: "Calculate Chemical Dose Amounts & LSI",
         summaryTitle: "Summary of Chemicals to Add at Today's Visit",
-        waitNote: "Wait at least 15 minutes and circulate water before adding any other chemicals.",
+        waitNote: "Wait at least 10 minutes and circulate water before adding any other chemicals.",
         detailsTitle: "Detailed Explanation",
         parameter: "Parameter",
         testResult: "Test Result",
@@ -47,7 +47,7 @@ const translations = {
         nextVisitNote: "These changes should be made at the next service visit(s). Retest the water before making adjustments.",
         errorRequired: "Please fill in all required fields.",
         serverError: "Server error. Please try again later.",
-        addAfterTesting: "(Add immediately after testing.)",
+        addAfterTesting: "Add immediately after adding bicarbonate (if applicable). Otherwise, add after testing.",
         errorRangeCapacity: "Pool capacity must be between 100 and 50,000 gallons.",
         errorRangePh: "pH must be between 6.5 and 8.5.",
         errorRangeAlkalinity: "Alkalinity must be between 10 and 300 ppm.  If tested alkalinity is zero, enter 10 ppm.",
@@ -111,7 +111,7 @@ const translations = {
         saltDesired: "Nivel Deseado de Sal (ppm):",
         calculate: "Calcular Dosis Química y LSI",
         summaryTitle: "Resumen de Químicos a Añadir en la Visita de Hoy",
-        waitNote: "Espere al menos 15 minutos y circule el agua antes de añadir otros productos químicos.",
+        waitNote: "Espere al menos 10 minutos y circule el agua antes de añadir otros productos químicos.",
         detailsTitle: "Explicación Detallada",
         parameter: "Parámetro",
         testResult: "Resultado de la Prueba",
@@ -135,7 +135,7 @@ const translations = {
         nextVisitNote: "Estos cambios deben realizarse en la próxima visita de servicio. Vuelva a analizar el agua antes de hacer ajustes.",
         errorRequired: "Por favor, complete todos los campos obligatorios.",
         serverError: "Error del servidor. Por favor, inténtelo de nuevo más tarde.",
-        addAfterTesting: "(Agregue inmediatamente después de la prueba.)",
+        addAfterTesting: "Agregar inmediatamente después de añadir bicarbonato (si aplica). De lo contrario, agregar después de la prueba.",
         errorRangeCapacity: "La capacidad de la piscina debe estar entre 100 y 50,000 galones.",
         errorRangePh: "El pH debe estar entre 6.5 y 8.5.",
         errorRangeAlkalinity: "La alcalinidad debe estar entre 10 y 300 ppm. Si la alcalinidad medida es cero, ingrese 10 ppm.",
@@ -199,7 +199,7 @@ const translations = {
         saltDesired: "Livello di Sale Desiderato (ppm):",
         calculate: "Calcola Dosaggio Chimico e LSI",
         summaryTitle: "Riepilogo dei Prodotti Chimici da Aggiungere Oggi",
-        waitNote: "Attendere almeno 15 minuti e far circolare l'acqua prima di aggiungere altri prodotti chimici.",
+        waitNote: "Attendere almeno 10 minuti e far circolare l'acqua prima di aggiungere altri prodotti chimici.",
         detailsTitle: "Spiegazione Dettagliata",
         parameter: "Parametro",
         testResult: "Risultato del Test",
@@ -223,7 +223,7 @@ const translations = {
         nextVisitNote: "Queste modifiche dovrebbero essere apportate alla prossima visita di servizio. Ritestare l'acqua prima di effettuare regolazioni.",
         errorRequired: "Si prega di compilare tutti i campi obbligatori.",
         serverError: "Errore del server. Riprova più tardi.",
-        addAfterTesting: "(Aggiungere immediatamente dopo il test.)",
+        addAfterTesting: "Aggiungere immediatamente dopo aver aggiunto bicarbonato (se applicabile). Altrimenti aggiungere dopo il test.",
         errorRangeCapacity: "La capacità della piscina deve essere compresa tra 100 e 50.000 galloni.",
         errorRangePh: "Il pH deve essere compreso tra 6,5 e 8,5.",
         errorRangeAlkalinity: "L'alcalinità deve essere compresa tra 10 e 300 ppm.  Se l'alcalinità misurata è zero, inserire 10 ppm.",
@@ -910,14 +910,14 @@ let comparisonCards = `
     // --- Build the final HTML string ---
    
 const html = `
-<h3>${t.summaryTitle}</h3>
+<h3 class="results-heading">${t.summaryTitle}</h3>
 ${bicarbList.join('')}
 ${acidList.join('')}
 ${(acidList.length > 0 || bicarbList.length > 0) ? `<div style="margin-bottom:0.5em;"><em>${t.waitNote}</em></div>` : ''}
 ${chlorineList.join('')}
 ${otherList.join('')}
-
-<h3>${t.detailsTitle}</h3>
+    
+<h3 class="results-heading">${t.detailsTitle}</h3>
 
 <h4>Water Chemistry Parameters</h4>
 ${comparisonCards}
