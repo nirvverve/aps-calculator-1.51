@@ -71,8 +71,9 @@ const translations = {
             phLower: "Add {amount} to lower pH to {target}.",
             cyaRaise: "Add {amount} of cyanuric acid (stabilizer) to raise CYA to {target} ppm.",
             salt: "Add {amount} lbs of pool salt ({bags} x 40 lb bags) to reach your desired salt level.",
-            alkLower: "Add {amount} of muriatic acid to lower alkalinity from {current} ppm to {target} ppm.",
-            alkNoAction: "Alkalinity at {current} ppm is within acceptable range (120-140 ppm). No adjustment needed."
+            alkLower: "Add {amount} to lower alkalinity from {current} ppm to {target} ppm.",
+            alkNoAction: "Alkalinity at {current} ppm is within acceptable range (120-140 ppm). No adjustment needed.",
+            alkHighWarning: "Alkalinity is unusually high. Please retest to confirm the result, especially if there was a significant change from the previous visit. Report this high alkalinity reading to your area manager or assistant director before dosing."
         },
         lsiStatus: {
             veryCorrosive: "Very Corrosive",
@@ -84,7 +85,14 @@ const translations = {
         },
         sanitizer: {
             liquidChlorineDose: "Add {gallons} gal ({flOz} fl oz) of liquid chlorine (12.5%).",
-            calHypoDose: "Add {amount} of granular calcium hypochlorite (73%)."
+            calHypoDose: "Add {amount} of granular calcium hypochlorite (73%).",
+            lowChlorineSaltWarning: "Free chlorine is very low. Verify the salt system is working properly. Add the supplemental chlorine dose below to prevent algae. This is in addition to any salt that is also needed.",
+            saltChlorineHigh: "No supplemental free chlorine dose is necessary today. Consider reducing salt system output.",
+            saltChlorineInRange: "Tested free chlorine is within target range, no supplemental chlorine dose is necessary today.",
+            chlorineDetailsSalt: "Salt Pools - Supplemental Chlorine",
+            targetFCSalt: "Target Free Chlorine",
+            saltChlorineBelowTarget: "Tested free chlorine is below target. In addition to any required salt dose, turn up the salt generator output to keep the water clear and algae-free.",
+            supplementalDoseSalt: "Chlorine to Add"
         },
     },
     es: {
@@ -162,7 +170,14 @@ const translations = {
         },
         sanitizer: {
             liquidChlorineDose: "Agregue {gallons} gal ({flOz} fl oz) de cloro líquido (12.5%).",
-            calHypoDose: "Agregue {amount} de hipoclorito de calcio granular (73%)."
+            calHypoDose: "Agregue {amount} de hipoclorito de calcio granular (73%).",
+            lowChlorineSaltWarning: "El cloro libre está críticamente bajo. Verifique que el sistema de sal funcione correctamente. Agregue la dosis de cloro suplementaria que se muestra a continuación para prevenir algas. Esto es adicional a cualquier sal que también se necesite.",
+            saltChlorineBelowTarget: "Il cloro è al di sotto dell'obiettivo. Oltre a qualsiasi dose di sale richiesta, aumentare la produzione del generatore di sale per mantenere l'acqua limpida e senza alghe.",
+            saltChlorineHigh: "No es necesaria una dosis suplementaria de cloro libre. Considere reducir la producción del sistema de sal.",
+            saltChlorineInRange: "El cloro libre medido está dentro del rango objetivo, no es necesaria una dosis suplementaria de cloro.",
+            chlorineDetailsSalt: "Recomendación de Cloro para Piscina de Sal",
+            targetFCSalt: "Cloro Libre Objetivo (basado en CYA)",
+            supplementalDoseSalt: "Cloro Suplementario a Añadir (ppm)"
         },
         dosing: {
             alkRaise: "Agregue {amount} libras de bicarbonato de sodio para aumentar la alcalinidad a {target} ppm.",
@@ -171,9 +186,12 @@ const translations = {
             phLower: "Agregue {amount} para bajar el pH a {target}.",
             cyaRaise: "Agregue {amount} de ácido cianúrico (estabilizador) para aumentar el CYA a {target} ppm.",
             salt: "Agregue {amount} libras de sal para piscina ({bags} bolsas de 40 lb) para alcanzar el nivel de sal deseado.",
-            alkLower: "Agregue {amount} de ácido muriático para bajar la alcalinidad de {current} ppm a {target} ppm.",
-            alkNoAction: "La alcalinidad a {current} ppm está dentro del rango aceptable (120-140 ppm). No se necesita ajuste."
-        }
+            alkLower: "Agregue {amount} de para bajar la alcalinidad de {current} ppm a {target} ppm.",
+            alkNoAction: "La alcalinidad a {current} ppm está dentro del rango aceptable (120-140 ppm). No se necesita ajuste.",
+            alkHighWarning: "La alcalinidad es inusualmente alta. Vuelva a realizar la prueba para confirmar el resultado, especialmente si hubo un cambio significativo desde la visita anterior. Informe esta lectura alta de alcalinidad a su gerente de área o director asistente antes de aplicar la dosis."
+    
+        },
+
     },
     it: {
         title: "Calcolatrice Chimica per Piscine Residenziali",
@@ -250,7 +268,14 @@ const translations = {
         },
         sanitizer: {
             liquidChlorineDose: "Aggiungi {gallons} gal ({flOz} fl oz) di cloro liquido (12,5%).",
-            calHypoDose: "Aggiungi {amount} di ipoclorito di calcio granulare (73%)."
+            calHypoDose: "Aggiungi {amount} di ipoclorito di calcio granulare (73%).",
+            lowChlorineSaltWarning: "Il cloro libero è a un livello critico. Verificare che il sistema a sale funzioni correttamente. Aggiungere la dose di cloro supplementare indicata di seguito per prevenire le alghe. Questo in aggiunta a qualsiasi sale che sia anche necessario.",
+            saltChlorineHigh: "Non è necessaria alcuna dose supplementare di cloro libero oggi. Considerare la possibilità di ridurre la produzione del sistema a sale.",
+            saltChlorineInRange: "Il cloro libero testato rientra nell'intervallo target, non è necessaria alcuna dose di cloro supplementare oggi.",
+            chlorineDetailsSalt: "Raccomandazione Cloro per Piscina a Sale",
+            saltChlorineBelowTarget: "Il cloro è al di sotto dell'obiettivo. Oltre a qualsiasi dose di sale richiesta, aumentare la produzione del generatore di sale per mantenere l'acqua limpida e senza alghe.",
+            targetFCSalt: "Cloro Libero Target (in base al CYA)",
+            supplementalDoseSalt: "Cloro Supplementare da Aggiungere (ppm)"
         },
         dosing: {
             alkRaise: "Aggiungi {amount} libbre di bicarbonato di sodio per aumentare l'alcalinità a {target} ppm.",
@@ -259,9 +284,11 @@ const translations = {
             phLower: "Aggiungi {amount} per abbassare il pH a {target}.",
             cyaRaise: "Aggiungi {amount} di acido cianurico (stabilizzatore) per aumentare il CYA a {target} ppm.",
             salt: "Aggiungi {amount} libbre di sale per piscina ({bags} sacchi da 40 lb) per raggiungere il livello di sale desiderato.",
-            alkLower: "Aggiungi {amount} di acido muriatico per abbassare l'alcalinità da {current} ppm a {target} ppm.",
-            alkNoAction: "L'alcalinità a {current} ppm è nel range accettabile (120-140 ppm). Non è necessaria alcuna regolazione."
-        }
+            alkLower: "Aggiungi {amount} per abbassare l'alcalinità da {current} ppm a {target} ppm.",
+            alkNoAction: "L'alcalinità a {current} ppm è nel range accettabile (120-140 ppm). Non è necessaria alcuna regolazione.",
+            alkHighWarning: "L'alcalinità è insolitamente alta. Si prega di ripetere il test per confermare il risultato, specialmente se c'è stato un cambiamento significativo rispetto alla visita precedente. Segnalare questa lettura di alcalinità elevata al proprio responsabile di zona o vicedirettore prima del dosaggio."
+    
+        },
     }
 };
 
@@ -424,8 +451,6 @@ function boldQuantity(sentence) {
         return p1 + '<strong>' + p2.trim() + '</strong>' + p3;
     });
 }
-// ... existing code remains unchanged ...
-
 /**
  * Estimate new pH after raising alkalinity using the Henderson-Hasselbalch equation.
  * @param {number} currentPh - The current pH of the pool.
@@ -459,10 +484,18 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
     // Handle high alkalinity for all states
     if (chemType === "alkalinity") {
         if (alkalinity > 150) {
-            // Recommend lowering to 120 ppm
+            let highAlkAdvice = "";
+            // Add warning if alkalinity is 160 ppm or higher
+            if (alkalinity >= 160) {
+                highAlkAdvice += `<div class="warning-text">${t.dosing.alkHighWarning}</div>`;
+            }
+    
+            // Recommend lowering to 120 ppm, but only display 50% of the required acid dose
             const targetAlk = 120;
             const alkDiff = alkalinity - targetAlk;
-            const acidOz = (alkDiff / 10) * 25.64 * (poolGallons / 10000);
+            const fullAcidOz = (alkDiff / 10) * 25.64 * (poolGallons / 10000);
+            const acidOz = fullAcidOz / 2; // Display 50% of the dose
+    
             let acidDoseText;
             if (acidOz < 128) {
                 acidDoseText = t.acidDoseFlOz.replace("{amount}", acidOz.toFixed(1));
@@ -472,12 +505,12 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
                     .replace("{flOz}", acidOz.toFixed(1));
             }
             if (acidDoseText) {
-                advice = t.dosing.alkLower
+                highAlkAdvice += t.dosing.alkLower
                     .replace("{amount}", acidDoseText)
                     .replace("{current}", alkalinity)
                     .replace("{target}", targetAlk);
             }
-            return advice;
+            return highAlkAdvice;
         }
         // For Florida: recommend sodium bicarb if raw alkalinity <= 60
         if (state === "florida" && alkalinity <= 60) {
@@ -722,7 +755,7 @@ if (balancingToAddNow) {
             acidDose = balancingToAddNow.dose.acid;
         } else if (typeof balancingToAddNow.dose === "string" && balancingToAddNow.dose) {
             if (balancingToAddNow.dose.toLowerCase().includes("muriatic acid")) {
-                acidList.push(`<div class="chem-card acid">${boldQuantity(balancingToAddNow.dose)} <em>${t.addAfterTesting}</em></div>`);
+                acidList.push(`<div class="chem-card acid">${boldQuantity(balancingToAddNow.dose)}</div>`);
             } else {
                 // Check if it's sodium bicarbonate
                 if (balancingToAddNow.dose.toLowerCase().includes("sodium bicarbonate")) {
@@ -777,43 +810,157 @@ if (balancingToAddNow) {
 
 // Salt dosing (can always be added)
 let saltDose = null;
-if (saltDesired > 0 && saltCurrent >= 0 && saltDesired > saltCurrent) {
+if (saltDesired > 0 && saltCurrent >= 0) { // Simplified this condition. The getSaltDose function handles the check for saltDesired > saltCurrent.
     saltDose = getSaltDose(saltCurrent, saltDesired, poolGallons);
     if (saltDose && saltDose.lbsNeeded > 0.01) {
         otherList.push(
-            `<div class="chem-card salt">${boldQuantity(
-                t.dosing.salt
-                    .replace("{amount}", saltDose.lbsNeeded.toFixed(2))
-                    .replace("{bags}", saltDose.bags)
-            )}</div>`
-        );
-    }
-}
-
-// Add sanitizer (chlorine) - this will be added after the wait period
+            `<div class="chem-card salt">${boldQuantity(t.dosing.salt
+                .replace("{amount}", saltDose.lbsNeeded.toFixed(2))
+                .replace("{bags}", saltDose.bags)
+                )}</div>`
+                );
+                }
+            }
 let chlorineList = [];
-const chlorineInfo = getChlorinePPMDose(freeChlorine, cyanuric);
-if (state === "florida") {
-    const liquidChlorine = getLiquidChlorineDose(chlorineInfo.toBeDosed, poolGallons);
-    if (chlorineInfo.toBeDosed > 0.01) {
-        chlorineList.push(
-            `<div class="chem-card fac">${boldQuantity(
-                t.sanitizer.liquidChlorineDose
+let chlorineInfo; // Will hold the chlorine calculation results
+let chlorineHTML = ''; // Initialize HTML string for chlorine details
+
+if (saltDesired > 0) {
+    // --- New Salt Pool Chlorine Logic ---
+    const targetFC = cyanuric * 0.05;
+    let ppmToBeDosed = 0;
+    let saltChlorineMessage = "";
+    let saltChlorineWarning = "";
+    let saltChlorineAdvice = "";
+
+    if (freeChlorine <= 0.6) {
+        // Rule #1: FAC is near zero
+        const doseToLevel = targetFC * 3;
+        ppmToBeDosed = doseToLevel - freeChlorine;
+        saltChlorineWarning = `<div class="warning-text">${t.sanitizer.lowChlorineSaltWarning}</div>`;
+    } else if (freeChlorine > 0.6 && freeChlorine < targetFC) {
+        // Rule #2: FAC is low but not critical
+        const doseToLevel = targetFC * 2;
+        ppmToBeDosed = doseToLevel - freeChlorine;
+        saltChlorineAdvice = `<div class="advice-text">${t.sanitizer.saltChlorineBelowTarget}</em></div>`;
+    } else if (freeChlorine > (targetFC + 2)) {
+        // Rule #3: FAC is too high
+        saltChlorineMessage = `<div class="chem-card fac">${t.sanitizer.saltChlorineHigh}</div>`;
+    } else { // Covers Rule #4: FAC is in range (targetFC to targetFC + 2)
+        saltChlorineMessage = `<div class="chem-card fac">${t.sanitizer.saltChlorineInRange}</div>`;
+    }
+
+    if (ppmToBeDosed < 0) ppmToBeDosed = 0;
+
+    // Build the summary list for chlorine
+    if (saltChlorineWarning) {
+        chlorineList.push(saltChlorineWarning);
+    }
+    if (saltChlorineAdvice) {
+        chlorineList.push(saltChlorineAdvice);
+        }
+
+    if (ppmToBeDosed > 0.01) {
+        if (state === "florida") {
+            const liquidChlorine = getLiquidChlorineDose(ppmToBeDosed, poolGallons);
+            chlorineList.push(
+                `<div class="chem-card fac">${boldQuantity(
+                    t.sanitizer.liquidChlorineDose
                     .replace("{gallons}", liquidChlorine.gallons.toFixed(2))
                     .replace("{flOz}", liquidChlorine.flOz.toFixed(0))
-            )}</div>`
-        );
+                )}</div>`
+            );
+        } else {
+            const calHypoOunces = getCalHypoOunces(ppmToBeDosed, poolGallons);
+            chlorineList.push(
+                `<div class="chem-card fac">${boldQuantity(
+                    t.sanitizer.calHypoDose.replace("{amount}", formatLbsOz(calHypoOunces, t))
+                )}</div>`
+            );
+        }
+    } else if (saltChlorineMessage) {
+        chlorineList.push(saltChlorineMessage);
     }
+
+    // --- Build Salt-Specific Chlorine Details HTML ---
+    chlorineHTML = `
+    <div class="info-card chlorine-details">
+        <h4>${t.sanitizer.chlorineDetailsSalt}</h4>
+        <div class="chlorine-grid">
+            <div class="chlorine-item">
+                <span class="chlorine-label">${t.sanitizer.targetFCSalt}:</span>
+                <span class="chlorine-value">${targetFC.toFixed(2)} ppm</span>
+            </div>
+            <div class="chlorine-item">
+                <span class="chlorine-label">${t.testedFreeChlorine}:</span>
+                <span class="chlorine-value">${freeChlorine.toFixed(2)} ppm</span>
+            </div>
+            <div class="chlorine-item highlight">
+                <span class="chlorine-label">${t.sanitizer.supplementalDoseSalt}:</span>
+                <span class="chlorine-value">${ppmToBeDosed.toFixed(2)} ppm</span>
+            </div>
+        </div>
+    </div>
+    `;
+
 } else {
-    const calHypoOunces = getCalHypoOunces(chlorineInfo.toBeDosed, poolGallons);
-    if (chlorineInfo.toBeDosed > 0.01) {
-        chlorineList.push(
-            `<div class="chem-card fac">${boldQuantity(
-                t.sanitizer.calHypoDose.replace("{amount}", formatLbsOz(calHypoOunces, t))
-            )}</div>`
-        );
+    // --- Existing Non-Salt Pool Logic ---
+    chlorineInfo = getChlorinePPMDose(freeChlorine, cyanuric);
+    if (state === "florida") {
+        const liquidChlorine = getLiquidChlorineDose(chlorineInfo.toBeDosed, poolGallons);
+        if (chlorineInfo.toBeDosed > 0.01) {
+            chlorineList.push(
+                `<div class="chem-card fac">${boldQuantity(
+                    t.sanitizer.liquidChlorineDose
+                    .replace("{gallons}", liquidChlorine.gallons.toFixed(2))
+                    .replace("{flOz}", liquidChlorine.flOz.toFixed(0))
+                )}</div>`
+            );
+        }
+    } else {
+        const calHypoOunces = getCalHypoOunces(chlorineInfo.toBeDosed, poolGallons);
+        if (chlorineInfo.toBeDosed > 0.01) {
+            chlorineList.push(
+                `<div class="chem-card fac">${boldQuantity(
+                    t.sanitizer.calHypoDose.replace("{amount}", formatLbsOz(calHypoOunces, t))
+                )}</div>`
+            );
+        }
     }
-}
+     // --- Build Standard Chlorine Details HTML for non-salt pools ---
+     chlorineHTML = `
+     <div class="info-card chlorine-details">
+     <h4>${state === "florida" ? t.chlorineDetailsFL : t.chlorineDetailsAZTX}</h4>
+     <div class="chlorine-grid">
+     <div class="chlorine-item">
+     <span class="chlorine-label">${t.minFC}:</span>
+     <span class="chlorine-value">${chlorineInfo.minFC.toFixed(2)} ppm</span>
+     </div>
+     <div class="chlorine-item">
+     <span class="chlorine-label">${t.uvLossFactor}:</span>
+     <span class="chlorine-value">${chlorineInfo.lossFactor} ppm/day</span>
+     </div>
+     <div class="chlorine-item">
+     <span class="chlorine-label">${t.uvLossForWeek}:</span>
+     <span class="chlorine-value">${chlorineInfo.uvLoss.toFixed(2)} ppm</span>
+     </div>
+     <div class="chlorine-item">
+     <span class="chlorine-label">${t.calculatedChlorineDose}:</span>
+     <span class="chlorine-value">${chlorineInfo.calculatedDose.toFixed(2)} ppm</span>
+     </div>
+     <div class="chlorine-item">
+     <span class="chlorine-label">${t.testedFreeChlorine}:</span>
+     <span class="chlorine-value">${freeChlorine.toFixed(2)} ppm</span>
+     </div>
+     <div class="chlorine-item highlight">
+     <span class="chlorine-label">${t.chlorineToBeDosed}:</span>
+     <span class="chlorine-value">${chlorineInfo.toBeDosed.toFixed(2)} ppm</span>
+     </div>
+     </div>
+     </div>
+ `;
+ }
+
 
     // --- Build comparison chart as styled cards ---
 function createParameterCard(label, current, golden, isInRange, cardClass) {
@@ -850,38 +997,6 @@ let comparisonCards = `
     </div>
 `;
 
-    // --- Chlorine details ---
-    let chlorineHTML = `
-    <div class="info-card chlorine-details">
-        <h4>${state === "florida" ? t.chlorineDetailsFL : t.chlorineDetailsAZTX}</h4>
-        <div class="chlorine-grid">
-            <div class="chlorine-item">
-                <span class="chlorine-label">${t.minFC}:</span>
-                <span class="chlorine-value">${chlorineInfo.minFC.toFixed(2)} ppm</span>
-            </div>
-            <div class="chlorine-item">
-                <span class="chlorine-label">${t.uvLossFactor}:</span>
-                <span class="chlorine-value">${chlorineInfo.lossFactor} ppm/day</span>
-            </div>
-            <div class="chlorine-item">
-                <span class="chlorine-label">${t.uvLossForWeek}:</span>
-                <span class="chlorine-value">${chlorineInfo.uvLoss.toFixed(2)} ppm</span>
-            </div>
-            <div class="chlorine-item">
-                <span class="chlorine-label">${t.calculatedChlorineDose}:</span>
-                <span class="chlorine-value">${chlorineInfo.calculatedDose.toFixed(2)} ppm</span>
-            </div>
-            <div class="chlorine-item">
-                <span class="chlorine-label">${t.testedFreeChlorine}:</span>
-                <span class="chlorine-value">${freeChlorine.toFixed(2)} ppm</span>
-            </div>
-            <div class="chlorine-item highlight">
-                <span class="chlorine-label">${t.chlorineToBeDosed}:</span>
-                <span class="chlorine-value">${chlorineInfo.toBeDosed.toFixed(2)} ppm</span>
-            </div>
-        </div>
-    </div>
-`;
     // --- LSI status ---
     let lsiStatus;
     if (lsi < -0.5) {
