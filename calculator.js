@@ -9,6 +9,7 @@ const LOG_FILE_PATH = path.join(__dirname, 'user_activity.log');
 function logUserData(dataToLog) {
     const logEntry = {
         timestamp: new Date().toISOString(), // Add a timestamp to the log
+        ip: clientIP,
         data: dataToLog
     };
     const logString = JSON.stringify(logEntry) + '\n'; // Convert to JSON string and add a newline
@@ -343,15 +344,13 @@ const cardKeywords = {
     }
 };
 
-function calculateLSIAndAdvice(formData) {
-    logUserData(formData);
+function calculateLSIAndAdvice(formData, clientIp) {
+    logUserData(formData, clientIp);
 
     const lang = formData.lang || 'en';
     const t = translations[lang];
     const keywords = cardKeywords[lang];
    
-
-
 // State-specific "golden numbers"
 const GOLDEN_NUMBERS = {
     arizona: { alkalinity: 120, calcium: 400, ph: 7.5, cya: 80},
