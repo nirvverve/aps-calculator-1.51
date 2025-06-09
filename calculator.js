@@ -9,7 +9,6 @@ const LOG_FILE_PATH = path.join(__dirname, 'user_activity.log');
 function logUserData(dataToLog) {
     const logEntry = {
         timestamp: new Date().toISOString(), // Add a timestamp to the log
-        ip: clientIP,
         data: dataToLog
     };
     const logString = JSON.stringify(logEntry) + '\n'; // Convert to JSON string and add a newline
@@ -344,8 +343,8 @@ const cardKeywords = {
     }
 };
 
-function calculateLSIAndAdvice(formData, clientIp) {
-    logUserData(formData, clientIp);
+function calculateLSIAndAdvice(formData) {
+    logUserData(formData);
 
     const lang = formData.lang || 'en';
     const t = translations[lang];

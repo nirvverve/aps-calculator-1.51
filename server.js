@@ -12,13 +12,10 @@ const { calculateLSIAndAdvice } = require('./calculator');
 const app = express();
 const PORT = 3000; // or whatever port you use
 
-app.set('trust proxy', true); // Or app.set('trust proxy', 1
 app.use(express.static(path.join(__dirname))); // serves your HTML, JS, CSS
 app.use(bodyParser.json()); // lets Express read JSON sent from the browser
 app.post('/api/calculate', (req, res) => {
     console.log("Received request body:", req.body);
-    const clientIp = req.ip;
-    console.log("Client IP:", clientIp)
     try {
         const result = calculateLSIAndAdvice(req.body);
         res.json(result);
