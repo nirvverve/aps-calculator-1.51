@@ -1,3 +1,27 @@
+// Add the 'fs' module for file system operations and 'path' for constructing file paths
+const fs = require('fs');
+const path = require('path');
+
+// Define the path for the log file
+const LOG_FILE_PATH = path.join(__dirname, 'user_activity.log');
+
+// Function to log data
+function logUserData(dataToLog) {
+    const logEntry = {
+        timestamp: new Date().toISOString(), // Add a timestamp to the log
+        data: dataToLog
+    };
+    const logString = JSON.stringify(logEntry) + '\n'; // Convert to JSON string and add a newline
+
+    // Append to the log file
+    fs.appendFile(LOG_FILE_PATH, logString, (err) => {
+        if (err) {
+            // Log an error to the console if writing to the file fails
+            // In a production app, you might use a more robust error logging mechanism
+            console.error('Failed to write to user activity log:', err);
+        }
+    });
+}
 const translations = {
     en: {
         title: "Pool Chemistry Calculator for Residential Pools",
@@ -320,6 +344,8 @@ const cardKeywords = {
 };
 
 function calculateLSIAndAdvice(formData) {
+    logUserData(formData);
+
     const lang = formData.lang || 'en';
     const t = translations[lang];
     const keywords = cardKeywords[lang];
@@ -1063,5 +1089,6 @@ ${balancingToAddNext.length > 0 ? `
 `;
 return {html};
 }
+
 
 module.exports = { calculateLSIAndAdvice };

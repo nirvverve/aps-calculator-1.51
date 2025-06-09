@@ -1,3 +1,7 @@
+v1.9.0 
+
+Added basic user logging and recording of parameters entered.
+
 v1.8.1
 
 Reworded several sections for clarity in new instructions formulated as part of v1.8.0
@@ -7,7 +11,6 @@ v1.8.0
 Supplemental Chlorine Dosing Updates - new saltwater pool handling, with improved dosing logic and enhanced user guidance
 High Alkalinity Change - Reworked high alkalinity calculation - now only recommends 50% of calculated dose, user guidance to call direct report for guidance
 Other minor bug fixes and performance improvements
-
 
 v1.7.1
 
