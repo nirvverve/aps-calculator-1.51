@@ -1,25 +1,29 @@
-v1.9.0 
+## v1.10.0 
+
+Initial rollout of new test cases for pool volume functions.
+
+## v1.9.0 
 
 Added basic user logging and recording of parameters entered.
 
-v1.8.1
+## v1.8.1
 
 Reworded several sections for clarity in new instructions formulated as part of v1.8.0
 
-v1.8.0  
+## v1.8.0  
 
 Supplemental Chlorine Dosing Updates - new saltwater pool handling, with improved dosing logic and enhanced user guidance
 High Alkalinity Change - Reworked high alkalinity calculation - now only recommends 50% of calculated dose, user guidance to call direct report for guidance
 Other minor bug fixes and performance improvements
 
-v1.7.1
+## v1.7.1
 
 Bug fixes - fixed the capacity input formatting issue - now shows comma after the third digit and clarified acid dose instructions
 In display area, all formatting changes.  Border on individual "Water Parameters" is larger on those that are out of range.
 Form overhaul - uses new cleaner mobile friendly layout via Tailwind CSS framework supplied by S. Fickus
 UI improvements - enhanced layout for better readability and usability on mobile and desktop devices
 
-v1.7.0 
+## v1.7.0 
 
 Redesigned the "Detailed Explanation" section with styled parameter cards, chlorine details cards, and LSI status cards that match the visual consistency of dose cards
 Added a "Clear Form for New Pool" button with smart preservation of language and state preferences - perfect for technicians moving between service calls in Salesforce iFrames
@@ -27,7 +31,7 @@ Transformed plain tables and bullet lists into visually attractive, organized ca
 All new components are designed for use on mobile devices
 Specifically designed to work within iFrame environments without page refresh requirements
 
-v1.6.0
+## v1.6.0
 
 Implemented advanced Henderson-Hasselbalch equation for accurate pH prediction after sodium bicarbonate dosing.
 Acid dosing logic now combines all acid recommendations into a single, post-bicarb dose when raising alkalinity, eliminating double acid dosing.
@@ -37,7 +41,7 @@ Fixed color coding for acid (pink) and calcium (blue) cards in the summary.
 Enhanced UI clarity and reduced user confusion by preventing simultaneous recommendations for multiple balancing chems.
 Various bug fixes and code refactoring for maintainability.
 
-v1.4.2
+## v1.4.2
 
 Fat finger protection 
 min / max values for all parameters 
@@ -58,11 +62,11 @@ There is a correction for alkalinity when it comes to lowering pH that was incor
 Added handling for super high alkalinity (above 160 ppm).  25.64 oz of acid per 10k gallons @ 10 ppm.  
 Removed duplicate acid dosing when lowering alkalinity and pH at same visit.  
 
-v1.2.1
+## v1.2.1
 
 In results - water balance plan - the wording in italics "These changes need to be made at the next visit....." now appears only once when multiple balance chems are selected. 
 
-v1.2.0
+## v1.2.0
 
 Multilingual Support: Now available in English, Spanish, and Italian
 State Selection Memory: state preference is remembered between visits

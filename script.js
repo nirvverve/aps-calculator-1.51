@@ -184,6 +184,15 @@ function removeCommas(str) {
 }
 document.addEventListener('DOMContentLoaded', function() {
     // Language selection logic
+    const autoPopulateVolume = localStorage.getItem('calculatedPoolVolumeGallons');
+    if (autoPopulateVolume) {
+        const capacityInputOnIndexPage = document.getElementById('capacity'); // ID of the capacity input on index.html
+        if (capacityInputOnIndexPage) {
+            capacityInputOnIndexPage.value = autoPopulateVolume;
+        }
+        localStorage.removeItem('calculatedPoolVolumeGallons'); // Important: Clear the item after using it
+    }
+
     const languageButtons = document.querySelectorAll('#language-buttons button');
     const savedLang = localStorage.getItem('selectedLanguage') || 'en';
     

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Pool Chemistry Calculator v1.9.1</title>
+    <title>Pool Chemistry Calculator v1.10.0</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
@@ -262,7 +262,7 @@
     <header class="w-full py-6 px-4 text-center">
         <img src="logo.png" alt="Amenity Pool Services Logo" id="logo" class="mx-auto mb-4">
         <h1 class="text-2xl font-bold text-white">Pool Chemistry Calculator</h1>
-        <p class="text-sm text-blue-100">v1.9.1</p>
+        <p class="text-sm text-blue-100">v1.10.0</p>
     </header>
     
     <main class="bg-white rounded-t-3xl shadow-xl w-full max-w-md p-6 flex-grow">
@@ -277,10 +277,19 @@
             </div>
         </section>
         
-        <!-- Clear Form Button -->
+         <!-- Clear Form Button -->
+    <section class="mb-3"> <!-- Adjusted margin for the new button below -->
+        <div class="grid grid-cols-1 gap-2">
+        <button type="button" id="clear-form-btn" class="py-3 px-4 rounded-lg text-sm font-medium transition-colors btn-inactive">🔄 Clear Form for New Pool</button>
+        </div>
+        </section>
+    
+        <!-- Pool Volume Calculator Link -->
         <section class="mb-6">
             <div class="grid grid-cols-1 gap-2">
-                <button type="button" id="clear-form-btn" class="py-3 px-4 rounded-lg text-sm font-medium transition-colors btn-inactive">🔄 Clear Form for New Pool</button>
+                <a href="volume_calculator.html" class="block w-full text-center py-3 px-4 rounded-lg text-sm font-medium transition-colors bg-green-500 hover:bg-green-600 text-white shadow-sm">
+                    <span class="material-icons inline-block align-middle mr-1" style="font-size: 1.25em; vertical-align: text-bottom;">straighten</span> Calculate Pool Volume
+                </a>
             </div>
         </section>
         
@@ -437,7 +446,7 @@
     
     <!-- Footer -->
     <footer class="footer-powered w-full">
-        Powered by Amenity Pool Services (v1.9.1)
+        Powered by Amenity Pool Services (v1.10.0)
     </footer>
     
     <script src="script.js"></script>
