@@ -1,3 +1,12 @@
+## v1.11.0 
+
+Updated salt based logic for Florida as per Orlando / Jacksonville tech recommendations.  
+
+1 - If "desired salt level" is a number other than zero for Florida, alkalinity target is adjusted to 120 ppm (from normal recommendation of 80 ppm), and low limit cutoff is 90 ppm.
+
+2 - LSI calculated using salt level in substitution of TDS (or TDS directly, if entered value is higher).
+
+
 ## v1.10.0 
 
 Initial rollout of new test cases for pool volume functions.
