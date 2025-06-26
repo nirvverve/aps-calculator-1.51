@@ -182,6 +182,64 @@ function formatNumberWithCommas(num) {
 function removeCommas(str) {
     return str.replace(/,/g, "");
 }
+function applyUrlParameters() {
+    const params = new URLSearchParams(window.location.search);
+
+    // Helper to set value for a standard input/select field
+    const setValue = (paramName, elementId) => {
+        if (params.has(paramName)) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                let value = params.get(paramName);
+                // The capacity input has special formatting logic (commas)
+                if (elementId === 'capacity' && value.trim() !== '') {
+                    const numValue = parseInt(removeCommas(value), 10);
+                    if (!isNaN(numValue)) {
+                        // Use existing formatting function from this script
+                        element.value = formatNumberWithCommas(numValue);
+                    }
+                } else {
+                    element.value = value;
+                }
+            }
+        }
+    };
+
+    // Populate all standard inputs
+    setValue('capacity', 'capacity');
+    setValue('freechlorine', 'freechlorine');
+    setValue('cyanuric', 'cyanuric');
+    setValue('ph', 'ph');
+    setValue('alkalinity', 'alkalinity');
+    setValue('calcium', 'calcium');
+    setValue('tds', 'tds');
+    setValue('temperature', 'temperature');
+    setValue('salt-current', 'salt-current');
+    setValue('salt-desired', 'salt-desired');
+
+    // Handle State button group by simulating a click
+    // This ensures all related logic (UI update, localStorage) is triggered
+    if (params.has('state')) {
+        const stateValue = params.get('state').toLowerCase();
+        const stateButton = document.querySelector(`#state-buttons button[data-state="${stateValue}"]`);
+        if (stateButton) {
+            stateButton.click();
+        }
+    }
+
+    // Handle Language button group similarly
+    if (params.has('lang')) {
+        const langValue = params.get('lang').toLowerCase();
+        const langButton = document.querySelector(`#language-buttons button[data-lang="${langValue}"]`);
+        if (langButton) {
+            langButton.click();
+        }
+    }
+}
+
+
+
+
 document.addEventListener('DOMContentLoaded', function() {
     // Language selection logic
     const autoPopulateVolume = localStorage.getItem('calculatedPoolVolumeGallons');
@@ -547,6 +605,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 }
+applyUrlParameters();
 });
 
 

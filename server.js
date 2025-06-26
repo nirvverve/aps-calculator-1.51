@@ -18,6 +18,7 @@ app.post('/api/calculate', (req, res) => {
     console.log("Received request body:", req.body);
     try {
         const result = calculateLSIAndAdvice(req.body);
+        console.log("Sending API response:", result);
         res.json(result);
     } catch (err) {
         console.error("Calculation error:", err);

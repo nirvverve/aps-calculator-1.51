@@ -176,7 +176,7 @@ const translations = {
         errorRangeTds: "Los TDS deben estar entre 0 y 10,000 ppm.",
         errorRangeSalt: "Los niveles de sal deben estar entre 0 y 10,000 ppm.",
         errorRangeTemperature: "La temperatura debe estar entre 32°F y 104°F.",
-        units: {
+        units: { 
             lbs: "libras",
             oz: "oz",
             gallons: "galones",
