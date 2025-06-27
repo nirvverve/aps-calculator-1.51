@@ -22,7 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
      // Constants for L-shape dynamic scaling (shared by TrueL and LazyL)
      const DEFAULT_L_SHAPE_INPUTS = { lenA: 30, widA: 15, lenB: 20, widB: 12, diagC: 5 }; // Added diagC default
-     const DEFAULT_LAZYL2_INPUTS = { dimA: 18, dimB: 29, dimS: 17, dimT: 18, dimP: 12, dimN: 24 };
+     const DEFAULT_LAZYL2_INPUTS = { length1: 36, width1: 25, length2: 10, width2: 20, length3: 10, length4: 25 };
+     const DEFAULT_ROMAN_INPUTS = { length: 30, width: 15 };
+     const DEFAULT_DOUBLE_GRECIAN_INPUTS = { overallLength: 40, overallWidth: 20, endWidth: 12 };
+     const DEFAULT_OFFSET_RECT_INPUTS = { lenA: 40, widA: 15, lenB: 15, widB: 10, offsetX: 5 };
+     const DEFAULT_MOUNTAIN_LAKE_INPUTS = { length: 35, widthA: 18, widthB: 12 };
      const SVG_L_BASE_X = 20; // Renamed from SVG_BASE_X
      const SVG_L_BASE_Y = 20; // Renamed from SVG_BASE_Y
      const MAX_SVG_L_EXTENT_WIDTH = 180;
@@ -73,6 +77,143 @@ document.addEventListener('DOMContentLoaded', () => {
     <line id="oval-width-line2" x1="5" y1="115" x2="5" y2="145" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="oval-width-cap2" x1="0" y1="145" x2="10" y2="145" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     </svg>`,
+    mountainLake: (dims = {}) => {
+        // This function is now dynamic, responding to user inputs for a more intuitive experience.
+        // The path has been adjusted to be narrower in the middle, as requested.
+        const length = !isNaN(parseFloat(dims.length)) && parseFloat(dims.length) > 0 ? parseFloat(dims.length) : DEFAULT_MOUNTAIN_LAKE_INPUTS.length;
+        const widthA = !isNaN(parseFloat(dims.widthA)) && parseFloat(dims.widthA) > 0 ? parseFloat(dims.widthA) : DEFAULT_MOUNTAIN_LAKE_INPUTS.widthA;
+        const widthB = !isNaN(parseFloat(dims.widthB)) && parseFloat(dims.widthB) > 0 ? parseFloat(dims.widthB) : DEFAULT_MOUNTAIN_LAKE_INPUTS.widthB;
+        const avgWidth = (widthA + widthB) / 2;
+
+        // Define a drawing area for the shape, leaving space for dimension lines
+        const maxShapeWidth = 320;
+        const maxShapeHeight = 180;
+
+        let scale = 1;
+        if (length > 0 && avgWidth > 0) {
+            const scaleX = maxShapeWidth / length;
+            const scaleY = maxShapeHeight / avgWidth;
+            scale = Math.min(scaleX, scaleY);
+        }
+
+        const sL = length * scale;
+        const sW = avgWidth * scale;
+
+        // Center the shape within the viewBox
+        const viewboxWidth = 400;
+        const viewboxHeight = 250;
+        const verticalPaddingForLines = 35;
+
+        const baseX = (viewboxWidth - sL) / 2;
+        const baseY = (viewboxHeight - sW - verticalPaddingForLines) / 2;
+
+        // Define the Bezier curve points relative to the scaled bounding box.
+        // These normalized factors create the "narrower middle" shape.
+        const p_start = { x: baseX + sL * 0.5, y: baseY + sW * 0.15 };
+        const p_end = { x: baseX + sL * 0.5, y: baseY + sW * 0.85 };
+        const c1_p1 = { x: baseX + sL * 0.1, y: baseY };
+        const c1_p2 = { x: baseX + sL * 0.1, y: baseY + sW };
+        const c2_p1 = { x: baseX + sL * 0.9, y: baseY + sW };
+        const c2_p2 = { x: baseX + sL * 0.9, y: baseY };
+
+        const pathData = `M ${p_start.x},${p_start.y} C ${c1_p1.x},${c1_p1.y} ${c1_p2.x},${c1_p2.y} ${p_end.x},${p_end.y} C ${c2_p1.x},${c2_p1.y} ${c2_p2.x},${c2_p2.y} ${p_start.x},${p_start.y} Z`;
+
+        // --- Dimension Lines (now closer to the shape) ---
+        const lenLineY = baseY + sW + 15;
+        const lenCapY1 = lenLineY - 5;
+        const lenCapY2 = lenLineY + 5;
+        const lenTextX = baseX + sL / 2;
+
+        const widthALineX = baseX + sL * 0.25;
+        const widthA_y1 = baseY + sW * 0.1;
+        const widthA_y2 = baseY + sW * 0.9;
+        const widthA_text_y = baseY + sW * 0.5;
+
+        const widthBLineX = baseX + sL * 0.75;
+        const widthB_y1 = baseY + sW * 0.1;
+        const widthB_y2 = baseY + sW * 0.9;
+        const widthB_text_y = baseY + sW * 0.5;
+
+        return `
+        <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+        <!-- Dynamically scaled Mountain Lake shape -->
+        <path d="${pathData}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
+        
+        <!-- Overall Length Dimension (L) -->
+        <line id="mountainLake-length-cap1" x1="${baseX}" y1="${lenCapY1}" x2="${baseX}" y2="${lenCapY2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <line id="mountainLake-length-line1" x1="${baseX}" y1="${lenLineY}" x2="${lenTextX - 20}" y2="${lenLineY}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <text id="mountainLake-length-text" x="${lenTextX}" y="${lenLineY}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Length</text>
+        <line id="mountainLake-length-line2" x1="${lenTextX + 20}" y1="${lenLineY}" x2="${baseX + sL}" y2="${lenLineY}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <line id="mountainLake-length-cap2" x1="${baseX + sL}" y1="${lenCapY1}" x2="${baseX + sL}" y2="${lenCapY2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        
+        <!-- Width A Dimension (Left Lobe) -->
+        <line id="mountainLake-widthA-cap1" x1="${widthALineX - 5}" y1="${widthA_y1}" x2="${widthALineX + 5}" y2="${widthA_y1}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <line id="mountainLake-widthA-line1" x1="${widthALineX}" y1="${widthA_y1}" x2="${widthALineX}" y2="${widthA_text_y - 20}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <text id="mountainLake-widthA-text" x="${widthALineX}" y="${widthA_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-90, ${widthALineX}, ${widthA_text_y})">Width A</text>
+        <line id="mountainLake-widthA-line2" x1="${widthALineX}" y1="${widthA_text_y + 20}" x2="${widthALineX}" y2="${widthA_y2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <line id="mountainLake-widthA-cap2" x1="${widthALineX - 5}" y1="${widthA_y2}" x2="${widthALineX + 5}" y2="${widthA_y2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        
+        <!-- Width B Dimension (Right Lobe) -->
+        <line id="mountainLake-widthB-cap1" x1="${widthBLineX - 5}" y1="${widthB_y1}" x2="${widthBLineX + 5}" y2="${widthB_y1}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <line id="mountainLake-widthB-line1" x1="${widthBLineX}" y1="${widthB_y1}" x2="${widthBLineX}" y2="${widthB_text_y - 20}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <text id="mountainLake-widthB-text" x="${widthBLineX}" y="${widthB_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-90, ${widthBLineX}, ${widthB_text_y})">Width B</text>
+        <line id="mountainLake-widthB-line2" x1="${widthBLineX}" y1="${widthB_text_y + 20}" x2="${widthBLineX}" y2="${widthB_y2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <line id="mountainLake-widthB-cap2" x1="${widthBLineX - 5}" y1="${widthB_y2}" x2="${widthBLineX + 5}" y2="${widthB_y2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        </svg>`;
+    },
+    roman: (dims = {}) => {
+        const length = !isNaN(parseFloat(dims.length)) && parseFloat(dims.length) > 0 ? parseFloat(dims.length) : DEFAULT_ROMAN_INPUTS.length;
+        const width = !isNaN(parseFloat(dims.width)) && parseFloat(dims.width) > 0 ? parseFloat(dims.width) : DEFAULT_ROMAN_INPUTS.width;
+    
+        const totalInputWidth = length + width;
+        const totalInputHeight = width;
+    
+        // Define a drawing area for the shape itself, leaving space for dimension lines
+        const maxShapeWidth = 180;
+        const maxShapeHeight = 100;
+    
+        let scale = 1;
+        if (totalInputWidth > 0 && totalInputHeight > 0) {
+            const scaleX = maxShapeWidth / totalInputWidth;
+            const scaleY = maxShapeHeight / totalInputHeight;
+            scale = Math.min(scaleX, scaleY);
+        }
+    
+        const s_total_w = totalInputWidth * scale;
+        const s_h = totalInputHeight * scale;
+        const s_l = length * scale;
+    
+        // Center the shape within the viewBox="0 0 220 155", accounting for dimension lines
+        const viewboxWidth = 220;
+        const viewboxHeight = 155;
+        const verticalPaddingForLines = 25; // Extra space at the bottom for the length dimension line
+    
+        const baseX = (viewboxWidth - s_total_w) / 2;
+        const baseY = (viewboxHeight - s_h - verticalPaddingForLines) / 2;
+    
+        // A rect with ry = height/2 will create the double-roman end shape
+        const rect_ry = s_h / 2;
+    
+        return `
+        <svg viewBox="0 0 220 155" xmlns="http://www.w3.org/2000/svg">
+            <rect x="${baseX}" y="${baseY}" width="${s_total_w}" height="${s_h}" rx="${rect_ry}" ry="${rect_ry}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
+            <rect x="${baseX + 4}" y="${baseY + 4}" width="${s_total_w - 8}" height="${s_h - 8}" rx="${rect_ry > 4 ? rect_ry - 4 : 0}" ry="${rect_ry > 4 ? rect_ry - 4 : 0}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1"/>
+    
+            {/* Dimension: Length (straight part) */}
+            <line id="roman-length-cap1" x1="${baseX + s_h/2}" y1="${baseY + s_h + 5}" x2="${baseX + s_h/2}" y2="${baseY + s_h + 15}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <line id="roman-length-line1" x1="${baseX + s_h/2}" y1="${baseY + s_h + 10}" x2="${baseX + s_h/2 + s_l/2 - 15}" y2="${baseY + s_h + 10}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <text id="roman-length-text" x="${baseX + s_h/2 + s_l/2}" y="${baseY + s_h + 10}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Length</text>
+            <line id="roman-length-line2" x1="${baseX + s_h/2 + s_l/2 + 15}" y1="${baseY + s_h + 10}" x2="${baseX + s_h/2 + s_l}" y2="${baseY + s_h + 10}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <line id="roman-length-cap2" x1="${baseX + s_h/2 + s_l}" y1="${baseY + s_h + 5}" x2="${baseX + s_h/2 + s_l}" y2="${baseY + s_h + 15}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+    
+            {/* Dimension: Width */}
+            <line id="roman-width-cap1" x1="${baseX + s_total_w + 5}" y1="${baseY}" x2="${baseX + s_total_w + 15}" y2="${baseY}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <line id="roman-width-line1" x1="${baseX + s_total_w + 10}" y1="${baseY}" x2="${baseX + s_total_w + 10}" y2="${baseY + s_h/2 - 15}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <text id="roman-width-text" x="${baseX + s_total_w + 10}" y="${baseY + s_h/2}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(90, ${baseX + s_total_w + 10}, ${baseY + s_h/2})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Width</text>
+            <line id="roman-width-line2" x1="${baseX + s_total_w + 10}" y1="${baseY + s_h/2 + 15}" x2="${baseX + s_total_w + 10}" y2="${baseY + s_h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <line id="roman-width-cap2" x1="${baseX + s_total_w + 5}" y1="${baseY + s_h}" x2="${baseX + s_total_w + 15}" y2="${baseY + s_h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        </svg>`;
+    },
     trueL: (rotation = 0, dims = {}) => { // Renamed from lazyL to trueL
         // Use provided dims or defaults, ensuring they are numbers
         const L_A = !isNaN(parseFloat(dims.lenA)) && parseFloat(dims.lenA) > 0 ? parseFloat(dims.lenA) : DEFAULT_L_SHAPE_INPUTS.lenA;
@@ -275,220 +416,381 @@ document.addEventListener('DOMContentLoaded', () => {
     <line id="lazyL-diagC-line" x1="${diagC_p1.x}" y1="${diagC_p1.y}" x2="${diagC_p2.x}" y2="${diagC_p2.y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     {/* Caps for DiagC line can be tricky due to 45deg angle. Simple line for now. */}
     <text id="lazyL-diagC-text" x="${diagC_text_x}" y="${diagC_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-45, ${diagC_text_x}, ${diagC_text_y})">Diag. C</text>
+    </g> 
+    </svg>`;
+},
+lazyL2: (rotation = 0, dims = {}, orientation = 'right') => {
+    // Use provided dims or defaults. These represent the 6 perimeter sides.
+    const L1 = !isNaN(parseFloat(dims.length1)) ? parseFloat(dims.length1) : DEFAULT_LAZYL2_INPUTS.length1; // Top Width
+    const L2 = !isNaN(parseFloat(dims.width1)) ? parseFloat(dims.width1) : DEFAULT_LAZYL2_INPUTS.width1;   // Right Vertical Side
+    const L3 = !isNaN(parseFloat(dims.length2)) ? parseFloat(dims.length2) : DEFAULT_LAZYL2_INPUTS.length2; // Right Angled Side
+    const L4 = !isNaN(parseFloat(dims.width2)) ? parseFloat(dims.width2) : DEFAULT_LAZYL2_INPUTS.width2;   // Bottom Width
+    const L5 = !isNaN(parseFloat(dims.length3)) ? parseFloat(dims.length3) : DEFAULT_LAZYL2_INPUTS.length3; // Left Angled Side
+    const L6 = !isNaN(parseFloat(dims.length4)) ? parseFloat(dims.length4) : DEFAULT_LAZYL2_INPUTS.length4; // Left Vertical Side
+
+    // --- Geometric Calculation ---
+    // We solve a system of equations to find the coordinates of the vertices based on the 6 side lengths.
+    // The shape is a hexagon with a horizontal top and vertical sides, and an angled bottom section.
+    // Let the construction parameters be:
+    // W: Overall width, H: Overall height
+    // dx_left, dy_left: horizontal and vertical projection of the left angled side
+    // dx_right, dy_right: horizontal and vertical projection of the right angled side
+
+    let W = L1;
+    let dx_left = 0, dy_left = 0, dx_right = 0, dy_right = 0, H = 0;
+
+    // From the geometry, we derive a system of linear and quadratic equations.
+    // (1) dx_left + dx_right = L1 - L4
+    // (2) dy_left - dy_right = L2 - L6
+    // (3) dx_left^2 + dy_left^2 = L5^2
+    // (4) dx_right^2 + dy_right^2 = L3^2
+    // We solve for dx_left, dy_left, dx_right, dy_right.
+
+    const A = L1 - L4;
+    const B = L2 - L6;
+    const C = A * A + B * B + L5 * L5 - L3 * L3;
+
+    // The system simplifies to the intersection of a line and a circle:
+    // 2*A*dx_left + 2*B*dy_left = C
+    // dx_left^2 + dy_left^2 = L5^2
+    
+    let validGeometry = true;
+    if (Math.abs(A) > 1e-6) { // Standard case, solve quadratic for dy_left
+        const qa = 4 * (A * A + B * B);
+        const qb = -4 * B * C;
+        const qc = C * C - 4 * A * A * L5 * L5;
+        const discriminant = qb * qb - 4 * qa * qc;
+
+        if (discriminant >= 0) {
+            // We choose the positive root for dy_left for a convex pool shape.
+            dy_left = (-qb + Math.sqrt(discriminant)) / (2 * qa);
+            dx_left = (C - 2 * B * dy_left) / (2 * A);
+        } else { validGeometry = false; }
+    } else { // Special case: A is zero (L1=L4), the line is horizontal
+        dy_left = C / (2 * B);
+        const dx_left_sq = L5 * L5 - dy_left * dy_left;
+        if (dx_left_sq >= 0) {
+            dx_left = Math.sqrt(dx_left_sq);
+        } else { validGeometry = false; }
+    }
+
+    if (dx_left < 0 || dy_left < 0) validGeometry = false;
+
+    if (validGeometry) {
+        dx_right = A - dx_left;
+        dy_right = dy_left - B;
+        if (dx_right < 0 || dy_right < 0) validGeometry = false;
+    }
+    
+    if (validGeometry) {
+        H = L6 + dy_left;
+    } else {
+        // Fallback to default proportions if inputs are not geometrically possible
+        W = L1; H = L6 + L2; // Approximation
+        dx_left = W / 4; dy_left = W / 4;
+        dx_right = W / 4; dy_right = W / 4;
+    }
+
+    // --- SVG Drawing ---
+    const all_dims = [W, H, dx_left, dy_left, dx_right, dy_right];
+    const scale = Math.min(MAX_SVG_L_EXTENT_WIDTH / W, MAX_SVG_L_EXTENT_HEIGHT / H);
+    const s = { W: W*scale, H: H*scale, dx_l: dx_left*scale, dy_l: dy_left*scale, dx_r: dx_right*scale, dy_r: dy_right*scale };
+
+    const baseX = SVG_L_BASE_X;
+    const baseY = SVG_L_BASE_Y;
+
+    // Define the 6 vertices of the hexagon, starting from top-left and going clockwise.
+    const p = [
+        { x: baseX, y: baseY + s.H }, // P0: Top-left
+        { x: baseX + s.W, y: baseY + s.H }, // P1: Top-right
+        { x: baseX + s.W, y: baseY + s.dy_r }, // P2: Bottom of right vertical edge
+        { x: baseX + s.W - s.dx_r, y: baseY }, // P3: Bottom-right corner
+        { x: baseX + s.dx_l, y: baseY }, // P4: Bottom-left corner
+        { x: baseX, y: baseY + s.dy_l }  // P5: Bottom of left vertical edge
+    ];
+
+    // Flip horizontally for "left" orientation
+    if (orientation === 'left') {
+        p.forEach(pt => { pt.x = baseX + s.W - (pt.x - baseX); });
+    }
+
+    const pathData = `M ${p[0].x},${p[0].y} L ${p[1].x},${p[1].y} L ${p[2].x},${p[2].y} L ${p[3].x},${p[3].y} L ${p[4].x},${p[4].y} L ${p[5].x},${p[5].y} Z`;
+    const rotationCenterX = baseX + s.W / 2;
+    const rotationCenterY = baseY + s.H / 2;
+
+    return `
+    <svg viewBox="-10 -10 240 210" xmlns="http://www.w3.org/2000/svg">
+        <g id="lazyL2-group" transform="rotate(${rotation}, ${rotationCenterX}, ${rotationCenterY})">
+            <path d="${pathData}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
+            <path d="${pathData}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1" transform="scale(0.92, 0.92)" transform-origin="${rotationCenterX} ${rotationCenterY}"/>
+    ${!validGeometry ? `<text x="${rotationCenterX}" y="${rotationCenterY}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="red">Invalid Dimensions</text>` : ''}
+    <!-- Dimension Labels (simplified for clarity) -->
+    <text id="lazyL2-length1-text" x="${baseX + s.W / 2}" y="${baseY + s.H + 15}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Top Width</text>
+    <text id="lazyL2-width2-text" x="${baseX + s.dx_l + (s.W - s.dx_l - s.dx_r)/2}" y="${baseY - 10}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Bottom Width</text>
+    <text id="lazyL2-length4-text" x="${baseX - 15}" y="${baseY + s.dy_l + (s.H - s.dy_l)/2}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(-90, ${baseX-15}, ${baseY + s.dy_l + (s.H - s.dy_l)/2})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Left Side</text>
+    <text id="lazyL2-width1-text" x="${baseX + s.W + 15}" y="${baseY + s.dy_r + (s.H - s.dy_r)/2}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(90, ${baseX + s.W + 15}, ${baseY + s.dy_r + (s.H - s.dy_r)/2})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Right Side</text>
+    
+    <!-- Dimension Label for Left Angled Side (B / length3) -->
+    <text id="lazyL2-length3-text" x="${(p[4].x + p[5].x) / 2 - 15}" y="${(p[4].y + p[5].y) / 2 + 5}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Left Angled</text>
+
+    <!-- Dimension Label for Right Angled Side (C / length2) -->
+    <text id="lazyL2-length2-text" x="${(p[2].x + p[3].x) / 2 + 15}" y="${(p[2].y + p[3].y) / 2 + 5}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Right Angled</text>
     </g>
     </svg>`;
 },
-lazyL2: (rotation = 0, dims = {}) => { // Lazy L (#2) based on Hydra PDF (A,B,S,T,P,N)
-    // Input dimensions or defaults
-    const A_in = !isNaN(parseFloat(dims.dimA)) && parseFloat(dims.dimA) > 0 ? parseFloat(dims.dimA) : DEFAULT_LAZYL2_INPUTS.dimA;
-    const B_in = !isNaN(parseFloat(dims.dimB)) && parseFloat(dims.dimB) > 0 ? parseFloat(dims.dimB) : DEFAULT_LAZYL2_INPUTS.dimB;
-    const S_in = !isNaN(parseFloat(dims.dimS)) && parseFloat(dims.dimS) > 0 ? parseFloat(dims.dimS) : DEFAULT_LAZYL2_INPUTS.dimS;
-    const T_in = !isNaN(parseFloat(dims.dimT)) && parseFloat(dims.dimT) > 0 ? parseFloat(dims.dimT) : DEFAULT_LAZYL2_INPUTS.dimT;
-    const P_in = !isNaN(parseFloat(dims.dimP)) && parseFloat(dims.dimP) >= 0 ? parseFloat(dims.dimP) : DEFAULT_LAZYL2_INPUTS.dimP; // P can be 0
-    const N_in = !isNaN(parseFloat(dims.dimN)) && parseFloat(dims.dimN) >= 0 ? parseFloat(dims.dimN) : DEFAULT_LAZYL2_INPUTS.dimN; // N can be 0
+doubleGrecian: (dims = {}) => {
+    const L = !isNaN(parseFloat(dims.overallLength)) ? parseFloat(dims.overallLength) : DEFAULT_DOUBLE_GRECIAN_INPUTS.overallLength;
+    const W = !isNaN(parseFloat(dims.overallWidth)) ? parseFloat(dims.overallWidth) : DEFAULT_DOUBLE_GRECIAN_INPUTS.overallWidth;
+    const EW = !isNaN(parseFloat(dims.endWidth)) ? parseFloat(dims.endWidth) : DEFAULT_DOUBLE_GRECIAN_INPUTS.endWidth;
 
-    // Ensure B >= S for valid geometry
-    const valid_B = Math.max(B_in, S_in);
-    const valid_S = S_in > B_in ? B_in : S_in;
+    // Define a drawing area for the shape itself
+    const maxShapeWidth = 220;
+    const maxShapeHeight = 140;
 
-    // Calculate effective dimensions for the three rectangles
-    const rect1_w = A_in; // Top rectangle width
-    const rect1_h = Math.max(0, valid_B - valid_S); // Top rectangle height
+    let scale = 1;
+    if (L > 0 && W > 0) {
+        const scaleX = maxShapeWidth / L;
+        const scaleY = maxShapeHeight / W;
+        scale = Math.min(scaleX, scaleY);
+    }
 
-    const rect2_w = T_in; // Middle/Bottom-left rectangle width
-    const rect2_h = valid_S; // Middle/Bottom-left rectangle height
+    const sL = L * scale;
+    const sW = W * scale;
 
-    const rect3_w = P_in; // Foot/Bottom-right rectangle width
-    const rect3_h = N_in; // Foot/Bottom-right rectangle height
+    // Assuming 45-degree angles for the cuts
+    const s_dy = ((W - EW) / 2) * scale;
+    const s_dx = s_dy; // 45-degree angle
 
-    // Determine overall scale factor
-    // Overall width is max(A, T+P)
-    // Overall height is B (if N <= S) or S + (N-S) + (B-S) = B + N - S (if N > S, foot extends lower)
-    const totalInputWidthSpan = Math.max(rect1_w, rect2_w + rect3_w);
-    const y_offset_for_P = Math.max(0, rect3_h - rect2_h); // How much P extends below T's bottom
-    const totalInputHeightSpan = rect1_h + rect2_h + y_offset_for_P;
+    // Center the shape within the viewBox="0 0 260 180"
+    const viewboxWidth = 260;
+    const viewboxHeight = 180;
+    
+    const baseX = (viewboxWidth - sL) / 2;
+    const baseY = (viewboxHeight - sW) / 2;
 
+    // Define the 8 vertices of the octagon, starting from top-left of the shape's bounding box and going clockwise
+    const p = [
+        { x: baseX + s_dx,         y: baseY + sW }, // P0: Top-left corner
+        { x: baseX + sL - s_dx,     y: baseY + sW }, // P1: Top-right corner
+        { x: baseX + sL,           y: baseY + sW - s_dy }, // P2: Right-top corner
+        { x: baseX + sL,           y: baseY + s_dy }, // P3: Right-bottom corner
+        { x: baseX + sL - s_dx,     y: baseY },      // P4: Bottom-right corner
+        { x: baseX + s_dx,         y: baseY },      // P5: Bottom-left corner
+        { x: baseX,                y: baseY + s_dy }, // P6: Left-bottom corner
+        { x: baseX,                y: baseY + sW - s_dy }  // P7: Left-top corner
+    ];
+
+    const pathData = `M ${p[0].x},${p[0].y} L ${p[1].x},${p[1].y} L ${p[2].x},${p[2].y} L ${p[3].x},${p[3].y} L ${p[4].x},${p[4].y} L ${p[5].x},${p[5].y} L ${p[6].x},${p[6].y} L ${p[7].x},${p[7].y} Z`;
+
+    return `
+    <svg viewBox="0 0 260 180" xmlns="http://www.w3.org/2000/svg">
+        <path d="${pathData}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
+        <path d="${pathData}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1" transform="scale(0.95, 0.95)" transform-origin="${baseX + sL/2} ${baseY + sW/2}"/>
+
+        <!-- Dimension: Overall Length -->
+        <text id="doubleGrecian-overallLength-text" x="${baseX + sL / 2}" y="${baseY + sW + 15}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Overall Length</text>
+        
+        <!-- Dimension: Overall Width -->
+        <text id="doubleGrecian-overallWidth-text" x="${baseX + sL + 15}" y="${baseY + sW / 2}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(90, ${baseX + sL + 15}, ${baseY + sW / 2})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Overall Width</text>
+
+        <!-- Dimension: End Width -->
+        <text id="doubleGrecian-endWidth-text" x="${baseX - 15}" y="${baseY + sW / 2}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(-90, ${baseX - 15}, ${baseY + sW / 2})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">End Width</text>
+    </svg>`;
+},
+offsetRectangle: (rotation = 0, dims = {}) => {
+    // Using similar dimension names as TrueL/T-Shape
+    const L_A = !isNaN(parseFloat(dims.lenA)) ? parseFloat(dims.lenA) : DEFAULT_OFFSET_RECT_INPUTS.lenA; // Main rect length
+    const W_A = !isNaN(parseFloat(dims.widA)) ? parseFloat(dims.widA) : DEFAULT_OFFSET_RECT_INPUTS.widA; // Main rect width
+    const L_B = !isNaN(parseFloat(dims.lenB)) ? parseFloat(dims.lenB) : DEFAULT_OFFSET_RECT_INPUTS.lenB; // Offset rect length
+    const W_B = !isNaN(parseFloat(dims.widB)) ? parseFloat(dims.widB) : DEFAULT_OFFSET_RECT_INPUTS.widB; // Offset rect width
+    const O_X = !isNaN(parseFloat(dims.offsetX)) ? parseFloat(dims.offsetX) : DEFAULT_OFFSET_RECT_INPUTS.offsetX; // Horizontal offset
+
+    // Overall dimensions for scaling
+    const totalInputWidthSpan = L_A;
+    const totalInputHeightSpan = W_A + L_B;
+
+    const scale = Math.min(MAX_SVG_L_EXTENT_WIDTH / totalInputWidthSpan, MAX_SVG_L_EXTENT_HEIGHT / totalInputHeightSpan);
+
+    // Scaled dimensions
+    const r1w = L_A * scale; // Main rect
+    const r1h = W_A * scale;
+    const r2w = W_B * scale; // Offset rect
+    const r2h = L_B * scale;
+    const r2offsetX = O_X * scale;
+
+    // Positioning
+    const r1x = SVG_L_BASE_X;
+    const r1y = SVG_L_BASE_Y;
+    const r2x = r1x + r2offsetX;
+    const r2y = r1y + r1h;
+
+    const rotationCenterX = SVG_L_BASE_X + r1w / 2;
+    const rotationCenterY = SVG_L_BASE_Y + (r1h + r2h) / 2;
+
+    return `
+    <svg viewBox="-10 -10 240 210" xmlns="http://www.w3.org/2000/svg">
+        <g id="offsetRectangle-group" transform="rotate(${rotation}, ${rotationCenterX}, ${rotationCenterY})">
+            {/* Main Rectangle (A) */}
+            <rect x="${r1x}" y="${r1y}" width="${r1w}" height="${r1h}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
+            {/* Offset Rectangle (B) */}
+            <rect x="${r2x}" y="${r2y}" width="${r2w}" height="${r2h}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
+
+            {/* Dimension: Length A (Main Length) */}
+            <text id="offsetRectangle-lengthA-text" x="${r1x + r1w / 2}" y="${r1y - 10}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Length A</text>
+            {/* Dimension: Width A (Main Width) */}
+            <text id="offsetRectangle-widthA-text" x="${r1x + r1w + 10}" y="${r1y + r1h / 2}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(90, ${r1x + r1w + 10}, ${r1y + r1h / 2})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Width A</text>
+            {/* Dimension: Length B (Offset Length) */}
+            <text id="offsetRectangle-lengthB-text" x="${r2x - 10}" y="${r2y + r2h / 2}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(-90, ${r2x - 10}, ${r2y + r2h / 2})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Length B</text>
+            {/* Dimension: Width B (Offset Width) */}
+            <text id="offsetRectangle-widthB-text" x="${r2x + r2w / 2}" y="${r2y + r2h + 10}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Width B</text>
+            {/* Dimension: Offset X */}
+            <line x1="${r1x}" y1="${r1y + r1h + 5}" x2="${r2x}" y2="${r1y + r1h + 5}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1" stroke-dasharray="2,2"/>
+            <text id="offsetRectangle-offsetX-text" x="${r1x + r2offsetX / 2}" y="${r1y + r1h + 15}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Offset X</text>
+        </g>
+    </svg>`;
+},
+tShape: (rotation = 0, dims = {}) => {
+    // Using same dimension names as TrueL for simplicity (lenA, widA, lenB, widB)
+    const L_A = !isNaN(parseFloat(dims.lenA)) && parseFloat(dims.lenA) > 0 ? parseFloat(dims.lenA) : DEFAULT_L_SHAPE_INPUTS.lenA; // Top bar length
+    const W_A = !isNaN(parseFloat(dims.widA)) && parseFloat(dims.widA) > 0 ? parseFloat(dims.widA) : DEFAULT_L_SHAPE_INPUTS.widA; // Top bar width
+    const L_B = !isNaN(parseFloat(dims.lenB)) && parseFloat(dims.lenB) > 0 ? parseFloat(dims.lenB) : DEFAULT_L_SHAPE_INPUTS.lenB; // Stem length
+    const W_B = !isNaN(parseFloat(dims.widB)) && parseFloat(dims.widB) > 0 ? parseFloat(dims.widB) : DEFAULT_L_SHAPE_INPUTS.widB; // Stem width
+
+    // Overall dimensions for scaling
+    const totalInputWidthSpan = L_A;
+    const totalInputHeightSpan = W_A + L_B;
 
     let scale = 1;
     if (totalInputWidthSpan > 0 && totalInputHeightSpan > 0) {
         const scaleX = MAX_SVG_L_EXTENT_WIDTH / totalInputWidthSpan;
         const scaleY = MAX_SVG_L_EXTENT_HEIGHT / totalInputHeightSpan;
         scale = Math.min(scaleX, scaleY);
-    } else { 
-        const default_total_w = Math.max(DEFAULT_LAZYL2_INPUTS.dimA, DEFAULT_LAZYL2_INPUTS.dimT + DEFAULT_LAZYL2_INPUTS.dimP);
-        const default_y_offset_P = Math.max(0, DEFAULT_LAZYL2_INPUTS.dimN - DEFAULT_LAZYL2_INPUTS.dimS);
-        const default_total_h = (DEFAULT_LAZYL2_INPUTS.dimB - DEFAULT_LAZYL2_INPUTS.dimS) + DEFAULT_LAZYL2_INPUTS.dimS + default_y_offset_P;
-        scale = Math.min(MAX_SVG_L_EXTENT_WIDTH / default_total_w, MAX_SVG_L_EXTENT_HEIGHT / default_total_h);
     }
 
-    // Scaled dimensions for drawing
-    const r1w_s = rect1_w * scale;
-    const r1h_s = rect1_h * scale;
-    const r2w_s = rect2_w * scale;
-    const r2h_s = rect2_h * scale;
-    const r3w_s = rect3_w * scale;
-    const r3h_s = rect3_h * scale;
+    // Scaled dimensions
+    const r1w = L_A * scale; // Top bar
+    const r1h = W_A * scale;
+    const r2w = W_B * scale; // Stem
+    const r2h = L_B * scale;
 
-    const baseX = SVG_L_BASE_X;
-    // Adjust baseY so the lowest point of the shape is at SVG_L_BASE_Y + total_scaled_height
-    // The lowest point is determined by whether N makes the foot extend below T.
-    // If N > S, foot bottom is at y_base_T - (N_s - S_s).
-    // If S >= N, foot bottom is at y_base_T - 0 (aligned with T's bottom).
-    const y_foot_extension_below_T_bottom_s = Math.max(0, r3h_s - r2h_s);
-    const total_scaled_height_drawing = r1h_s + r2h_s + y_foot_extension_below_T_bottom_s;
-    const baseY = SVG_L_BASE_Y + total_scaled_height_drawing; // Start drawing from top
+    // Positioning
+    const r1x = SVG_L_BASE_X;
+    const r1y = SVG_L_BASE_Y;
+    // Center the stem horizontally on the top bar
+    const r2x = r1x + (r1w / 2) - (r2w / 2);
+    const r2y = r1y + r1h;
 
-    // Coordinates for the three rectangles (drawn from their top-left corners)
-    // R2 (Middle/Bottom-Left - T x S)
-    const r2x = baseX;
-    const r2y = baseY - r2h_s - y_foot_extension_below_T_bottom_s; // Align top of R2 with bottom of R1
+    // Inner decorative rectangles
+    const inner_r1w = Math.max(0, r1w - 2 * INNER_L_RECT_PADDING);
+    const inner_r1h = Math.max(0, r1h - 2 * INNER_L_RECT_PADDING);
+    const inner_r2w = Math.max(0, r2w - 2 * INNER_L_RECT_PADDING);
+    const inner_r2h = Math.max(0, r2h - 2 * INNER_L_RECT_PADDING);
 
-    // R1 (Top - A x (B-S))
-    const r1x = baseX;
-    const r1y = r2y - r1h_s;
-
-    // R3 (Foot/Bottom-Right - P x N)
-    const r3x = baseX + r2w_s; // Starts to the right of R2
-    const r3y = baseY - r3h_s - y_foot_extension_below_T_bottom_s; // Align top of R3 with top of R2
-
-    // Path construction using the 8 vertices for a clean outline
-    // V0: Top-left of R1
-    const V0 = { x: r1x, y: r1y };
-    // V1: Top-right of R1
-    const V1 = { x: r1x + r1w_s, y: r1y };
-    // V2: Bottom-right of R1, IF A > T+P. Or top-right of R3 if A <= T+P
-    // This point is where R1 meets R3 vertically, or just end of R1 if R3 is not as wide.
-    const V2_x = Math.max(r1x + r1w_s, r3x + r3w_s); // Furthest right x for top part
-    const V2 = { x: V2_x, y: r1y + r1h_s }; // This should be r3y if A is shorter than T+P
-                                            // This is actually (r3x+r3w_s, r3y) if P extends beyond A
-                                            // Or (r1x+r1w_s, r2y) if A is longer
-
-    // Simplified path from the three rectangles:
-    // Start at top-left of R1
-    // Go to top-right of R1
-    // If R1 is wider than R2+R3: go down right edge of R1 to its bottom, then left to R3's right edge.
-    // Else (R2+R3 is wider): go down to top-right of R3, then along top of R3.
-    // This is complex. Let's draw the 3 rects and their dimension lines.
-    // The path will be formed by the outer perimeter of these 3 rects.
-
-    // For drawing, we need the absolute min/max x/y to set viewBox correctly
-    const min_x_coord = baseX;
-    const max_x_coord = baseX + Math.max(r1w_s, r2w_s + r3w_s);
-    const min_y_coord = r1y; // Topmost y
-    const max_y_coord = baseY - y_foot_extension_below_T_bottom_s; // Bottommost y (bottom of T or P)
-    
-    const svg_width = max_x_coord - min_x_coord + 2 * SVG_L_BASE_X; // Add padding
-    const svg_height = max_y_coord - min_y_coord + 2 * SVG_L_BASE_Y; // Add padding
-
-    const rotationCenterX = min_x_coord + (max_x_coord - min_x_coord) / 2;
-    const rotationCenterY = min_y_coord + (max_y_coord - min_y_coord) / 2;
-    
     // Dimension line positions
-    // A: Top edge of R1
-    const dimA_line_y = r1y - DIM_L_LINE_OFFSET;
-    const dimA_text_x = r1x + r1w_s / 2;
-    // B: Left edge of R1 + R2 (total height from top of R1 to bottom of R2)
-    const dimB_line_x = r1x - DIM_L_LINE_OFFSET;
-    const dimB_text_y = r1y + (r2y + r2h_s - r1y) / 2;
-    // S: Height of R2
-    const dimS_line_x = r2x + r2w_s + DIM_L_LINE_OFFSET; // Right of R2
-    const dimS_text_y = r2y + r2h_s / 2;
-    // T: Width of R2
-    const dimT_line_y = r2y + r2h_s + DIM_L_LINE_OFFSET; // Below R2
-    const dimT_text_x = r2x + r2w_s / 2;
-    // P: Width of R3
-    const dimP_line_y = r3y + r3h_s + DIM_L_LINE_OFFSET; // Below R3
-    const dimP_text_x = r3x + r3w_s / 2;
-    // N: Height of R3
-    const dimN_line_x = r3x + r3w_s + DIM_L_LINE_OFFSET; // Right of R3
-    const dimN_text_y = r3y + r3h_s / 2;
+    const la_line_y = r1y - DIM_L_LINE_OFFSET;
+    const la_text_x = r1x + r1w / 2;
+    const wa_line_x = r1x + r1w + DIM_L_LINE_OFFSET;
+    const wa_text_y = r1y + r1h / 2;
+    const lb_line_x = r2x - DIM_L_LINE_OFFSET;
+    const lb_text_y = r2y + r2h / 2;
+    const wb_line_y = r2y + r2h + DIM_L_LINE_OFFSET;
+    const wb_text_x = r2x + r2w / 2;
 
+    const rotationCenterX = SVG_L_BASE_X + totalInputWidthSpan * scale / 2;
+    const rotationCenterY = SVG_L_BASE_Y + totalInputHeightSpan * scale / 2;
 
-return `
-<svg viewBox="${min_x_coord - SVG_L_BASE_X} ${min_y_coord - SVG_L_BASE_Y} ${svg_width} ${svg_height}" xmlns="http://www.w3.org/2000/svg">
-<g id="lazyL2-group" transform="rotate(${rotation}, ${rotationCenterX}, ${rotationCenterY})">
-{/* Rectangle 1 (Top: A x (B-S)) */}
-<rect x="${r1x}" y="${r1y}" width="${r1w_s}" height="${r1h_s}" fill="#a5f3fc" stroke="#0284c7" stroke-width="1.5"/>
-{/* Rectangle 2 (Middle/Bottom-Left: T x S) */}
-<rect x="${r2x}" y="${r2y}" width="${r2w_s}" height="${r2h_s}" fill="#a5f3fc" stroke="#0284c7" stroke-width="1.5"/>
-{/* Rectangle 3 (Foot/Bottom-Right: P x N) */}
-<rect x="${r3x}" y="${r3y}" width="${r3w_s}" height="${r3h_s}" fill="#a5f3fc" stroke="#0284c7" stroke-width="1.5"/>
+    return `
+    <svg viewBox="-10 -10 240 210" xmlns="http://www.w3.org/2000/svg">
+        <g id="tShape-group" transform="rotate(${rotation}, ${rotationCenterX}, ${rotationCenterY})">
+            {/* Top Bar Rectangle (Section A) */}
+            <rect x="${r1x}" y="${r1y}" width="${r1w}" height="${r1h}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
+            <rect x="${r1x + INNER_L_RECT_PADDING}" y="${r1y + INNER_L_RECT_PADDING}" width="${inner_r1w}" height="${inner_r1h}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1"/>
 
-{/* Dimension A */}
-<line id="lazyL2-dimA-cap1" x1="${r1x}" y1="${dimA_line_y - DIM_L_CAP_SIZE}" x2="${r1x}" y2="${dimA_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<line id="lazyL2-dimA-line1" x1="${r1x}" y1="${dimA_line_y}" x2="${dimA_text_x - DIM_L_TEXT_APPROX_HALF_WIDTH}" y2="${dimA_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<text id="lazyL2-dimA-text" x="${dimA_text_x}" y="${dimA_line_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">A</text>
-<line id="lazyL2-dimA-line2" x1="${dimA_text_x + DIM_L_TEXT_APPROX_HALF_WIDTH}" y1="${dimA_line_y}" x2="${r1x + r1w_s}" y2="${dimA_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<line id="lazyL2-dimA-cap2" x1="${r1x + r1w_s}" y1="${dimA_line_y - DIM_L_CAP_SIZE}" x2="${r1x + r1w_s}" y2="${dimA_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            {/* Stem Rectangle (Section B) */}
+            <rect x="${r2x}" y="${r2y}" width="${r2w}" height="${r2h}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
+            <rect x="${r2x + INNER_L_RECT_PADDING}" y="${r2y + INNER_L_RECT_PADDING}" width="${inner_r2w}" height="${inner_r2h}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1"/>
 
-{/* Dimension B (Overall left height) */}
-<line id="lazyL2-dimB-cap1" x1="${dimB_line_x - DIM_L_CAP_SIZE}" y1="${r1y}" x2="${dimB_line_x + DIM_L_CAP_SIZE}" y2="${r1y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<line id="lazyL2-dimB-line1" x1="${dimB_line_x}" y1="${r1y}" x2="${dimB_line_x}" y2="${dimB_text_y - DIM_L_TEXT_APPROX_HALF_WIDTH}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<text id="lazyL2-dimB-text" x="${dimB_line_x}" y="${dimB_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-90, ${dimB_line_x}, ${dimB_text_y})">B</text>
-<line id="lazyL2-dimB-line2" x1="${dimB_line_x}" y1="${dimB_text_y + DIM_L_TEXT_APPROX_HALF_WIDTH}" x2="${dimB_line_x}" y2="${r2y + r2h_s}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<line id="lazyL2-dimB-cap2" x1="${dimB_line_x - DIM_L_CAP_SIZE}" y1="${r2y + r2h_s}" x2="${dimB_line_x + DIM_L_CAP_SIZE}" y2="${r2y + r2h_s}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            {/* Dimension: Length A (Top Bar Length) */}
+            <line id="tShape-lengthA-cap1" x1="${r1x}" y1="${la_line_y - DIM_L_CAP_SIZE}" x2="${r1x}" y2="${la_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <line id="tShape-lengthA-line1" x1="${r1x}" y1="${la_line_y}" x2="${la_text_x - DIM_L_TEXT_APPROX_HALF_WIDTH}" y2="${la_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <text id="tShape-lengthA-text" x="${la_text_x}" y="${la_line_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Top Bar Length</text>
+            <line id="tShape-lengthA-line2" x1="${la_text_x + DIM_L_TEXT_APPROX_HALF_WIDTH}" y1="${la_line_y}" x2="${r1x + r1w}" y2="${la_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <line id="tShape-lengthA-cap2" x1="${r1x + r1w}" y1="${la_line_y - DIM_L_CAP_SIZE}" x2="${r1x + r1w}" y2="${la_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-{/* Dimension S (Height of R2) */}
-<line id="lazyL2-dimS-cap1" x1="${dimS_line_x - DIM_L_CAP_SIZE}" y1="${r2y}" x2="${dimS_line_x + DIM_L_CAP_SIZE}" y2="${r2y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<line id="lazyL2-dimS-line1" x1="${dimS_line_x}" y1="${r2y}" x2="${dimS_line_x}" y2="${dimS_text_y - DIM_L_TEXT_APPROX_HALF_WIDTH}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<text id="lazyL2-dimS-text" x="${dimS_line_x}" y="${dimS_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(90, ${dimS_line_x}, ${dimS_text_y})">S</text>
-<line id="lazyL2-dimS-line2" x1="${dimS_line_x}" y1="${dimS_text_y + DIM_L_TEXT_APPROX_HALF_WIDTH}" x2="${dimS_line_x}" y2="${r2y + r2h_s}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<line id="lazyL2-dimS-cap2" x1="${dimS_line_x - DIM_L_CAP_SIZE}" y1="${r2y + r2h_s}" x2="${dimS_line_x + DIM_L_CAP_SIZE}" y2="${r2y + r2h_s}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            {/* Dimension: Width A (Top Bar Width) */}
+            <line id="tShape-widthA-cap1" x1="${wa_line_x - DIM_L_CAP_SIZE}" y1="${r1y}" x2="${wa_line_x + DIM_L_CAP_SIZE}" y2="${r1y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <line id="tShape-widthA-line1" x1="${wa_line_x}" y1="${r1y}" x2="${wa_line_x}" y2="${wa_text_y - DIM_L_TEXT_APPROX_HALF_WIDTH}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <text id="tShape-widthA-text" x="${wa_line_x}" y="${wa_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(90, ${wa_line_x}, ${wa_text_y})">Top Bar Width</text>
+            <line id="tShape-widthA-line2" x1="${wa_line_x}" y1="${wa_text_y + DIM_L_TEXT_APPROX_HALF_WIDTH}" x2="${wa_line_x}" y2="${r1y + r1h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <line id="tShape-widthA-cap2" x1="${wa_line_x - DIM_L_CAP_SIZE}" y1="${r1y + r1h}" x2="${wa_line_x + DIM_L_CAP_SIZE}" y2="${r1y + r1h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-{/* Dimension T (Width of R2) */}
-<line id="lazyL2-dimT-cap1" x1="${r2x}" y1="${dimT_line_y - DIM_L_CAP_SIZE}" x2="${r2x}" y2="${dimT_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<line id="lazyL2-dimT-line1" x1="${r2x}" y1="${dimT_line_y}" x2="${dimT_text_x - DIM_L_TEXT_APPROX_HALF_WIDTH}" y2="${dimT_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<text id="lazyL2-dimT-text" x="${dimT_text_x}" y="${dimT_line_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">T</text>
-<line id="lazyL2-dimT-line2" x1="${dimT_text_x + DIM_L_TEXT_APPROX_HALF_WIDTH}" y1="${dimT_line_y}" x2="${r2x + r2w_s}" y2="${dimT_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<line id="lazyL2-dimT-cap2" x1="${r2x + r2w_s}" y1="${dimT_line_y - DIM_L_CAP_SIZE}" x2="${r2x + r2w_s}" y2="${dimT_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            {/* Dimension: Length B (Stem Length) */}
+            <line id="tShape-lengthB-cap1" x1="${lb_line_x - DIM_L_CAP_SIZE}" y1="${r2y}" x2="${lb_line_x + DIM_L_CAP_SIZE}" y2="${r2y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <line id="tShape-lengthB-line1" x1="${lb_line_x}" y1="${r2y}" x2="${lb_line_x}" y2="${lb_text_y - DIM_L_TEXT_APPROX_HALF_WIDTH}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <text id="tShape-lengthB-text" x="${lb_line_x}" y="${lb_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-90, ${lb_line_x}, ${lb_text_y})">Stem Length</text>
+            <line id="tShape-lengthB-line2" x1="${lb_line_x}" y1="${lb_text_y + DIM_L_TEXT_APPROX_HALF_WIDTH}" x2="${lb_line_x}" y2="${r2y + r2h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <line id="tShape-lengthB-cap2" x1="${lb_line_x - DIM_L_CAP_SIZE}" y1="${r2y + r2h}" x2="${lb_line_x + DIM_L_CAP_SIZE}" y2="${r2y + r2h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-{/* Dimension P (Width of R3) */}
-<line id="lazyL2-dimP-cap1" x1="${r3x}" y1="${dimP_line_y - DIM_L_CAP_SIZE}" x2="${r3x}" y2="${dimP_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<line id="lazyL2-dimP-line1" x1="${r3x}" y1="${dimP_line_y}" x2="${dimP_text_x - DIM_L_TEXT_APPROX_HALF_WIDTH}" y2="${dimP_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<text id="lazyL2-dimP-text" x="${dimP_text_x}" y="${dimP_line_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">P</text>
-<line id="lazyL2-dimP-line2" x1="${dimP_text_x + DIM_L_TEXT_APPROX_HALF_WIDTH}" y1="${dimP_line_y}" x2="${r3x + r3w_s}" y2="${dimP_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<line id="lazyL2-dimP-cap2" x1="${r3x + r3w_s}" y1="${dimP_line_y - DIM_L_CAP_SIZE}" x2="${r3x + r3w_s}" y2="${dimP_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-
-{/* Dimension N (Height of R3) */}
-<line id="lazyL2-dimN-cap1" x1="${dimN_line_x - DIM_L_CAP_SIZE}" y1="${r3y}" x2="${dimN_line_x + DIM_L_CAP_SIZE}" y2="${r3y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<line id="lazyL2-dimN-line1" x1="${dimN_line_x}" y1="${r3y}" x2="${dimN_line_x}" y2="${dimN_text_y - DIM_L_TEXT_APPROX_HALF_WIDTH}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<text id="lazyL2-dimN-text" x="${dimN_line_x}" y="${dimN_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(90, ${dimN_line_x}, ${dimN_text_y})">N</text>
-<line id="lazyL2-dimN-line2" x1="${dimN_line_x}" y1="${dimN_text_y + DIM_L_TEXT_APPROX_HALF_WIDTH}" x2="${dimN_line_x}" y2="${r3y + r3h_s}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-<line id="lazyL2-dimN-cap2" x1="${dimN_line_x - DIM_L_CAP_SIZE}" y1="${r3y + r3h_s}" x2="${dimN_line_x + DIM_L_CAP_SIZE}" y2="${r3y + r3h_s}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-</g>
-</svg>`;
+            {/* Dimension: Width B (Stem Width) */}
+            <line id="tShape-widthB-cap1" x1="${r2x}" y1="${wb_line_y - DIM_L_CAP_SIZE}" x2="${r2x}" y2="${wb_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <line id="tShape-widthB-line1" x1="${r2x}" y1="${wb_line_y}" x2="${wb_text_x - DIM_L_TEXT_APPROX_HALF_WIDTH}" y2="${wb_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <text id="tShape-widthB-text" x="${wb_text_x}" y="${wb_line_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Stem Width</text>
+            <line id="tShape-widthB-line2" x1="${wb_text_x + DIM_L_TEXT_APPROX_HALF_WIDTH}" y1="${wb_line_y}" x2="${r2x + r2w}" y2="${wb_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+            <line id="tShape-widthB-cap2" x1="${r2x + r2w}" y1="${wb_line_y - DIM_L_CAP_SIZE}" x2="${r2x + r2w}" y2="${wb_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        </g>
+    </svg>`;
 },
-    kidney: `
-    <svg viewBox="0 0 260 180" xmlns="http://www.w3.org/2000/svg">
-    {/* New Kidney shape path - single color, adapted from reference */}
-    <path d="M65,130 C30,110 35,40 100,35 C165,30 210,60 210,90 C210,120 170,140 140,135 C110,130 100,120 65,130Z" 
-    fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
+kidney: `
+<svg viewBox="0 0 260 180" xmlns="http://www.w3.org/2000/svg">
+{/* Kidney shape path */}
+<path d="M65,130 C30,110 35,40 100,35 C165,30 210,60 210,90 C210,120 170,140 140,135 C110,130 100,120 65,130Z" 
+fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
 
-    {/* Overall Length Dimension (L) */}
-    {/* Path X-range: approx 30 to 210. Length dim X-range: 50 to 210. This should be fine. */}
-    <line id="kidney-length-cap1" x1="50" y1="155" x2="50" y2="165" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-    <line id="kidney-length-line1" x1="50" y1="160" x2="120" y2="160" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-    <text id="kidney-length-text" x="130" y="160" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Length</text>
-    <line id="kidney-length-line2" x1="140" y1="160" x2="210" y2="160" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-    <line id="kidney-length-cap2" x1="210" y1="155" x2="210" y2="165" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+{/* Overall Length Dimension (L) */}
+<line id="kidney-length-cap1" x1="50" y1="155" x2="50" y2="165" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+<line id="kidney-length-line1" x1="50" y1="160" x2="120" y2="160" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+<text id="kidney-length-text" x="130" y="160" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Length</text>
+<line id="kidney-length-line2" x1="140" y1="160" x2="210" y2="160" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+<line id="kidney-length-cap2" x1="210" y1="155" x2="210" y2="165" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-    {/* Width A Dimension - Positioned near the left wider part (approx x=80) */}
-    {/* Path Y-range at x=80: approx 36 to 126. Width A dim Y-range: 15 to 140. */}
-    <line id="kidney-widthA-cap1" x1="75" y1="15" x2="85" y2="15" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-    <line id="kidney-widthA-line1" x1="80" y1="15" x2="80" y2="35" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-    <text id="kidney-widthA-text" x="80" y="80" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-90, 80, 80)">Width A</text>
-    <line id="kidney-widthA-line2" x1="80" y1="125" x2="80" y2="140" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/> 
-    <line id="kidney-widthA-cap2" x1="75" y1="140" x2="85" y2="140" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+{/* --- Width A Dimension (Corrected) --- */}
+{/* Dashed lines to indicate measurement points */}
+<line x1="45" y1="40" x2="80" y2="40" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1" stroke-dasharray="2,2"/>
+<line x1="65" y1="125" x2="80" y2="125" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1" stroke-dasharray="2,2"/>
+{/* Vertical dimension line inside the shape */}
+<line id="kidney-widthA-cap1" x1="75" y1="40" x2="85" y2="40" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+<line id="kidney-widthA-line1" x1="80" y1="40" x2="80" y2="70" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+<text id="kidney-widthA-text" x="80" y="82.5" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-90, 80, 82.5)">Width A</text>
+<line id="kidney-widthA-line2" x1="80" y1="95" x2="80" y2="125" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/> 
+<line id="kidney-widthA-cap2" x1="75" y1="125" x2="85" y2="125" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-    {/* Width B Dimension - Positioned near the right wider part (approx x=180) */}
-    {/* Path Y-range at x=180: approx 50 to 135 (includes indent). Width B dim Y-range: 55 to 140. */}
-    <line id="kidney-widthB-cap1" x1="175" y1="55" x2="185" y2="55" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/> 
-    <line id="kidney-widthB-line1" x1="180" y1="55" x2="180" y2="75" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-    <text id="kidney-widthB-text" x="180" y="95" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-90, 180, 95)">Width B</text>
-    <line id="kidney-widthB-line2" x1="180" y1="115" x2="180" y2="140" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/> 
-    <line id="kidney-widthB-cap2" x1="175" y1="140" x2="185" y2="140" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-    </svg>`
-    };
+{/* --- Width B Dimension (Corrected) --- */}
+{/* Dashed lines to indicate measurement points */}
+<line x1="180" y1="55" x2="205" y2="55" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1" stroke-dasharray="2,2"/>
+<line x1="180" y1="135" x2="195" y2="135" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1" stroke-dasharray="2,2"/>
+{/* Vertical dimension line inside the shape */}
+<line id="kidney-widthB-cap1" x1="175" y1="55" x2="185" y2="55" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/> 
+<line id="kidney-widthB-line1" x1="180" y1="55" x2="180" y2="85" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+<text id="kidney-widthB-text" x="180" y="95" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-90, 180, 95)">Width B</text>
+<line id="kidney-widthB-line2" x1="180" y1="105" x2="180" y2="135" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/> 
+<line id="kidney-widthB-cap2" x1="175" y1="135" x2="185" y2="135" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+</svg>`
+};
+    
+    function collectRomanDimensions() {
+        return {
+            length: document.getElementById('length')?.value,
+            width: document.getElementById('width')?.value
+        };
+    }
+
+    function collectDoubleGrecianDimensions() {
+        return {
+            overallLength: document.getElementById('overallLength')?.value,
+            overallWidth: document.getElementById('overallWidth')?.value,
+            endWidth: document.getElementById('endWidth')?.value
+        };
+    }
 
     function collectTrueLDimensions() { // Renamed from collectLazyLDimensions
         const lengthAVal = document.getElementById('lengthA')?.value;
@@ -506,24 +808,34 @@ return `
         const diagCVal = document.getElementById('diagC')?.value;
         return { lenA: lengthAVal, widA: widthAVal, lenB: lengthBVal, widB: widthBVal, diagC: diagCVal };
     }
-    function collectLazyL2Dimensions() { // New: For 6-input Lazy L (#2)
-        const dimAVal = document.getElementById('dimA')?.value; 
-        const dimBVal = document.getElementById('dimB')?.value;
-        const dimSVal = document.getElementById('dimS')?.value; // Changed from dimC
-        const dimTVal = document.getElementById('dimT')?.value; // Changed from dimD
-        const dimPVal = document.getElementById('dimP')?.value; // Changed from diagE
-        const dimNVal = document.getElementById('dimN')?.value; // Changed from diagF
-        return { 
-            dimA: dimAVal, 
-            dimB: dimBVal, 
-            dimS: dimSVal, 
-            dimT: dimTVal, 
-            dimP: dimPVal,
-            dimN: dimNVal
+    function collectOffsetRectangleDimensions() {
+        return {
+            lenA: document.getElementById('lengthA')?.value,
+            widA: document.getElementById('widthA')?.value,
+            lenB: document.getElementById('lengthB')?.value,
+            widB: document.getElementById('widthB')?.value,
+            offsetX: document.getElementById('offsetX')?.value
         };
     }
-
-
+    function collectLazyL2Dimensions() {
+        const orientation = document.querySelector('#lazyL2-orientation-buttons .btn-active')?.dataset.orientation || 'right';
+        return { 
+            length1: document.getElementById('length1')?.value, 
+            width1: document.getElementById('width1')?.value, 
+            length2: document.getElementById('length2')?.value,
+            width2: document.getElementById('width2')?.value,
+            length3: document.getElementById('length3')?.value, 
+            length4: document.getElementById('length4')?.value,
+            orientation: orientation
+        };
+    }
+    function collectKidneyDimensions() { // Shared function for Kidney and Mountain Lake
+        return {
+            length: document.getElementById('length')?.value,
+            widthA: document.getElementById('widthA')?.value,
+            widthB: document.getElementById('widthB')?.value
+        };
+    }
     function updateShapeDiagram(shape, rotation = 0, dynamicDims = null) { 
         let svgContent = '';
         if (shape === 'trueL') { // Changed from 'lazyL' to 'trueL'
@@ -536,11 +848,27 @@ return `
             rotateButtonContainer.style.display = 'block';
         } else if (shape === 'lazyL2') { // New: 6-input Lazy L (#2)
             const dimsToUse = dynamicDims || collectLazyL2Dimensions();
-            svgContent = svgDiagrams.lazyL2(rotation, dimsToUse);
+            svgContent = svgDiagrams.lazyL2(rotation, dimsToUse, dimsToUse.orientation);
             rotateButtonContainer.style.display = 'block';
-        } else {
-            if (svgDiagrams[shape]) {
-                svgContent = typeof svgDiagrams[shape] === 'function' ? svgDiagrams[shape]() : svgDiagrams[shape];
+        } else if (shape === 'tShape') { // New T-Shape
+            const dimsToUse = dynamicDims || collectTrueLDimensions(); // Re-uses TrueL's dimension collection
+            svgContent = svgDiagrams.tShape(rotation, dimsToUse);
+            rotateButtonContainer.style.display = 'block';
+        } else if (shape === 'offsetRectangle') {
+            const dimsToUse = dynamicDims || collectOffsetRectangleDimensions();
+            svgContent = svgDiagrams.offsetRectangle(rotation, dimsToUse);
+            rotateButtonContainer.style.display = 'block';
+        } else if (shape === 'roman') {
+            const dimsToUse = dynamicDims || collectRomanDimensions();
+            svgContent = svgDiagrams.roman(dimsToUse);
+            rotateButtonContainer.style.display = 'none'; // No rotation for Roman shape
+        } else if (shape === 'mountainLake') {
+            const dimsToUse = dynamicDims || collectKidneyDimensions(); // Reuses kidney collection logic
+            svgContent = svgDiagrams.mountainLake(dimsToUse);
+            rotateButtonContainer.style.display = 'none';
+            } else {
+                if (svgDiagrams[shape]) {
+                    svgContent = typeof svgDiagrams[shape] === 'function' ? svgDiagrams[shape]() : svgDiagrams[shape];
             }
             rotateButtonContainer.style.display = 'none'; 
         }
@@ -557,7 +885,7 @@ return `
     }
     
     rotateDiagramBtn.addEventListener('click', () => {
-        if (selectedShape === 'trueL' || selectedShape === 'lazyL' || selectedShape === 'lazyL2') { // Added lazyL2
+        if (selectedShape === 'trueL' || selectedShape === 'lazyL' || selectedShape === 'lazyL2' || selectedShape === 'tShape' || selectedShape ==='offsetRectangle') {  // Added lazyL2
         currentLazyLRotation = (currentLazyLRotation + 90) % 360;
         updateShapeDiagram(selectedShape, currentLazyLRotation); 
         }
@@ -588,13 +916,30 @@ return `
     });
 
     function getDefaultDiagramText(diagramTextId) {
-    if (diagramTextId.includes('lazyL2-dimA-text')) return 'A';
-    if (diagramTextId.includes('lazyL2-dimB-text')) return 'B';
-    if (diagramTextId.includes('lazyL2-dimS-text')) return 'S'; // Was dimC
-    if (diagramTextId.includes('lazyL2-dimT-text')) return 'T'; // Was dimD
-    if (diagramTextId.includes('lazyL2-dimP-text')) return 'P'; // Was diagE
-    if (diagramTextId.includes('lazyL2-dimN-text')) return 'N'; // Was diagF
+    if (diagramTextId.includes('mountainLake-length-text')) return 'Length';
+    if (diagramTextId.includes('mountainLake-widthA-text')) return 'Width A';
+    if (diagramTextId.includes('mountainLake-widthB-text')) return 'Width B';
+    if (diagramTextId.includes('roman-length-text')) return 'Length';
+    if (diagramTextId.includes('roman-width-text')) return 'Width';
+    if (diagramTextId.includes('doubleGrecian-overallLength-text')) return 'Overall Length';
+    if (diagramTextId.includes('doubleGrecian-overallWidth-text')) return 'Overall Width';
+    if (diagramTextId.includes('doubleGrecian-endWidth-text')) return 'End Width';
+    if (diagramTextId.includes('lazyL2-length1-text')) return 'Top Width';
+    if (diagramTextId.includes('lazyL2-width1-text')) return 'Right Side';
+    if (diagramTextId.includes('lazyL2-length2-text')) return 'Right Angled';
+    if (diagramTextId.includes('lazyL2-width2-text')) return 'Bottom Width';
+    if (diagramTextId.includes('lazyL2-length3-text')) return 'Left Angled';
+    if (diagramTextId.includes('lazyL2-length4-text')) return 'Left Side';
+    if (diagramTextId.includes('tShape-lengthA-text')) return 'Top';
+    if (diagramTextId.includes('tShape-widthA-text')) return 'TWidth';
+    if (diagramTextId.includes('tShape-lengthB-text')) return 'Stem L';
+    if (diagramTextId.includes('tShape-widthB-text')) return 'Stem W';
     if (diagramTextId.includes('trueL-lengthA')) return 'Length A'; 
+    if (diagramTextId.includes('offsetRectangle-lengthA-text')) return 'Length A';
+    if (diagramTextId.includes('offsetRectangle-widthA-text')) return 'Width A';
+    if (diagramTextId.includes('offsetRectangle-lengthB-text')) return 'Length B';
+    if (diagramTextId.includes('offsetRectangle-widthB-text')) return 'Width B';
+    if (diagramTextId.includes('offsetRectangle-offsetX-text')) return 'Offset X';
     if (diagramTextId.includes('lengthA')) return 'Length A'; // TrueL & LazyL
     if (diagramTextId.includes('widthA')) return 'Width A';   // TrueL & LazyL & Kidney
     if (diagramTextId.includes('lengthB')) return 'Length B'; // TrueL & LazyL
@@ -694,6 +1039,52 @@ return `
                     }
                 });  
                 break;
+            case 'roman':
+                diagramIdPrefix = 'roman-';
+                inputsContainer.appendChild(createInputElement('length', 'Length of Straight Section', 'e.g., 30', diagramIdPrefix + 'length-text'));
+                inputsContainer.appendChild(createInputElement('width', 'Width (Diameter of Ends)', 'e.g., 15', diagramIdPrefix + 'width-text'));
+            
+                ['length', 'width'].forEach(id => {
+                    const inputEl = document.getElementById(id);
+                    if (inputEl) {
+                           inputEl.addEventListener('input', () => {
+                            if (selectedShape === 'roman') {
+                                const currentDims = collectRomanDimensions();
+                                updateShapeDiagram('roman', 0, currentDims);
+                                }
+                            });
+                        }
+                    });
+                    break;
+                    case 'mountainLake':
+                        diagramIdPrefix = 'mountainLake-';
+                        const instructionDivML = document.createElement('div');
+                        instructionDivML.className = 'instruction-card';
+                        instructionDivML.innerHTML = `
+                            <h4>How to Measure a Mountain Lake Pool</h4>
+                            <ul>
+                                <li><strong>Length (L):</strong> Measure the longest distance across the pool from end to end.</li>
+                                <li><strong>Width A & B:</strong> Measure the width at the widest point of each of the two lobes.</li>
+                            </ul>
+                        `;
+                        inputsContainer.appendChild(instructionDivML);
+                
+                        inputsContainer.appendChild(createInputElement('length', 'Overall Length (L)', 'e.g., 35', diagramIdPrefix + 'length-text'));
+                        inputsContainer.appendChild(createInputElement('widthA', 'Width A', 'e.g., 18', diagramIdPrefix + 'widthA-text'));
+                        inputsContainer.appendChild(createInputElement('widthB', 'Width B', 'e.g., 12', diagramIdPrefix + 'widthB-text'));
+                        
+                        ['length', 'widthA', 'widthB'].forEach(id => {
+                            const inputEl = document.getElementById(id);
+                            if (inputEl) {
+                                inputEl.addEventListener('input', () => {
+                                    if (selectedShape === 'mountainLake') {
+                                        const currentDims = collectKidneyDimensions(); // Reuses kidney collection logic
+                                        updateShapeDiagram('mountainLake', 0, currentDims);
+                                    }
+                                });
+                            }
+                        });
+                        break;
             case 'lazyL': // New case for the new LazyL shape
                 diagramIdPrefix = 'lazyL-';
                 inputsContainer.appendChild(createInputElement('lengthA', 'Length of Section A', 'e.g., 30', diagramIdPrefix + 'lengthA-text'));
@@ -714,28 +1105,141 @@ return `
                     }
                 });
                 break;
-            case 'lazyL2': // Updated for Lazy L (#2) based on Hydra PDF (A,B,S,T,P,N)
-            diagramIdPrefix = 'lazyL2-';
-            inputsContainer.appendChild(createInputElement('dimA', 'A - Top Arm Length', 'e.g., 18', diagramIdPrefix + 'dimA-text'));
-            inputsContainer.appendChild(createInputElement('dimB', 'B - Overall Left Height', 'e.g., 29', diagramIdPrefix + 'dimB-text'));
-            inputsContainer.appendChild(createInputElement('dimS', 'S - Middle Arm Height', 'e.g., 17', diagramIdPrefix + 'dimS-text'));
-            inputsContainer.appendChild(createInputElement('dimT', 'T - Middle Arm Length', 'e.g., 18', diagramIdPrefix + 'dimT-text'));
-            inputsContainer.appendChild(createInputElement('dimP', 'P - Foot Length', 'e.g., 12', diagramIdPrefix + 'dimP-text'));
-            inputsContainer.appendChild(createInputElement('dimN', 'N - Foot Height', 'e.g., 24', diagramIdPrefix + 'dimN-text'));
-        
-            ['dimA', 'dimB', 'dimS', 'dimT', 'dimP', 'dimN'].forEach(id => { // Ensure these match new input IDs
-                    const inputEl = document.getElementById(id);
-                    if (inputEl) {
-                        inputEl.addEventListener('input', () => {
+                case 'lazyL2':
+                    diagramIdPrefix = 'lazyL2-';
+                    // Add orientation buttons
+                    const orientationDiv = document.createElement('div');
+                    orientationDiv.id = 'lazyL2-orientation-container';
+                    orientationDiv.className = 'mb-4';
+                    orientationDiv.innerHTML = `
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Cutout Orientation</label>
+                        <div id="lazyL2-orientation-buttons" class="grid grid-cols-2 gap-2">
+                            <button type="button" data-orientation="right" class="py-2 px-4 rounded-lg text-sm font-medium transition-colors btn-active">Right Cutout</button>
+                            <button type="button" data-orientation="left" class="py-2 px-4 rounded-lg text-sm font-medium transition-colors btn-inactive">Left Cutout</button>
+                        </div>
+                    `;
+                    inputsContainer.appendChild(orientationDiv);
+                
+                    // Add dimension inputs for the 6 perimeter sides
+                    inputsContainer.appendChild(createInputElement('length1', 'Top Width', 'e.g., 36', diagramIdPrefix + 'length1-text'));
+    inputsContainer.appendChild(createInputElement('length4', 'Left Vertical Side', 'e.g., 15', diagramIdPrefix + 'length4-text'));
+    inputsContainer.appendChild(createInputElement('width1', 'Right Vertical Side', 'e.g., 15', diagramIdPrefix + 'width1-text'));
+    inputsContainer.appendChild(createInputElement('width2', 'Bottom Width', 'e.g., 20', diagramIdPrefix + 'width2-text'));
+    inputsContainer.appendChild(createInputElement('length3', 'Left Angled Side', 'e.g., 10', diagramIdPrefix + 'length3-text'));
+    inputsContainer.appendChild(createInputElement('length2', 'Right Angled Side', 'e.g., 10', diagramIdPrefix + 'length2-text'));
+    
+                    // Add event listeners for orientation buttons
+                    document.querySelectorAll('#lazyL2-orientation-buttons button').forEach(button => {
+                        button.addEventListener('click', () => {
+                            document.querySelectorAll('#lazyL2-orientation-buttons button').forEach(btn => {
+                                btn.classList.remove('btn-active');
+                                btn.classList.add('btn-inactive');
+                            });
+                            button.classList.add('btn-active');
+                            button.classList.remove('btn-inactive');
                             if (selectedShape === 'lazyL2') {
                                 const currentDims = collectLazyL2Dimensions();
                                 updateShapeDiagram('lazyL2', currentLazyLRotation, currentDims);
                             }
                         });
+                    });
+                
+                    // Add event listeners for dynamic diagram updates
+                    ['length1', 'width1', 'length2', 'width2', 'length3', 'length4'].forEach(id => {
+                    const inputEl = document.getElementById(id);
+                    if (inputEl) {
+                    inputEl.addEventListener('input', () => {
+                    if (selectedShape === 'lazyL2') {
+                    const currentDims = collectLazyL2Dimensions();
+                    updateShapeDiagram('lazyL2', currentLazyLRotation, currentDims);
+                    }
+                    });
+                    }
+                    });
+                    break;
+                    case 'offsetRectangle':
+                    diagramIdPrefix = 'offsetRectangle-';
+                    inputsContainer.appendChild(createInputElement('lengthA', 'Main Length (A)', 'e.g., 40', diagramIdPrefix + 'lengthA-text'));
+                    inputsContainer.appendChild(createInputElement('widthA', 'Main Width (A)', 'e.g., 20', diagramIdPrefix + 'widthA-text'));       
+                    inputsContainer.appendChild(createInputElement('lengthB', 'Offset Length (B)', 'e.g., 15', diagramIdPrefix + 'lengthB-text'));
+                    inputsContainer.appendChild(createInputElement('widthB', 'Offset Width (B)', 'e.g., 10', diagramIdPrefix + 'widthB-text'));
+                    inputsContainer.appendChild(createInputElement('offsetX', 'Horizontal Offset (X)', 'e.g., 5', diagramIdPrefix + 'offsetX-text'));
+
+                    ['lengthA', 'widthA', 'lengthB', 'widthB', 'offsetX'].forEach(id => {
+                    const inputEl = document.getElementById(id);
+                    if (inputEl) {
+                    inputEl.addEventListener('input', () => {
+                    if (selectedShape === 'offsetRectangle') {
+                        const currentDims = collectOffsetRectangleDimensions();
+                        updateShapeDiagram('offsetRectangle', currentLazyLRotation, currentDims);
                     }
                 });
-                break;
+            }
+        });
+        break;
+        case 'doubleGrecian':
+        diagramIdPrefix = 'doubleGrecian-';
+        const instructionDivDG = document.createElement('div');
+        instructionDivDG.className = 'instruction-card';
+        instructionDivDG.innerHTML = `
+            <h4>How to Measure a Double Grecian Pool</h4>
+            <ul>
+                <li><strong>Overall Length:</strong> Measure the longest distance from tip to tip.</li>
+                <li><strong>Overall Width:</strong> Measure the widest distance from side to side.</li>
+                <li><strong>End Width:</strong> Measure the width of the flat section at one of the ends.</li>
+            </ul>
+        `;
+        inputsContainer.appendChild(instructionDivDG);
+
+        inputsContainer.appendChild(createInputElement('overallLength', 'Overall Length', 'e.g., 40', diagramIdPrefix + 'overallLength-text'));
+        inputsContainer.appendChild(createInputElement('overallWidth', 'Overall Width', 'e.g., 20', diagramIdPrefix + 'overallWidth-text'));
+        inputsContainer.appendChild(createInputElement('endWidth', 'End Width', 'e.g., 12', diagramIdPrefix + 'endWidth-text'));
+
+        ['overallLength', 'overallWidth', 'endWidth'].forEach(id => {
+            const inputEl = document.getElementById(id);
+            if (inputEl) {
+                inputEl.addEventListener('input', () => {
+                    if (selectedShape === 'doubleGrecian') {
+                        const currentDims = collectDoubleGrecianDimensions();
+                        updateShapeDiagram('doubleGrecian', 0, currentDims);
+                    }
+                });
+            }
+        });
+        break;
+                    case 'tShape':
+                        diagramIdPrefix = 'tShape-';
+                        inputsContainer.appendChild(createInputElement('lengthA', 'Top Bar Length (A)', 'e.g., 40', diagramIdPrefix + 'lengthA-text'));
+                        inputsContainer.appendChild(createInputElement('widthA', 'Top Bar Width (A)', 'e.g., 15', diagramIdPrefix + 'widthA-text'));
+                        inputsContainer.appendChild(createInputElement('lengthB', 'Stem Length (B)', 'e.g., 25', diagramIdPrefix + 'lengthB-text'));
+                        inputsContainer.appendChild(createInputElement('widthB', 'Stem Width (B)', 'e.g., 15', diagramIdPrefix + 'widthB-text'));
+                        
+                        // Re-use the same dynamic update logic as TrueL
+                        ['lengthA', 'widthA', 'lengthB', 'widthB'].forEach(id => {
+                            const inputEl = document.getElementById(id);
+                            if (inputEl) {
+                                inputEl.addEventListener('input', () => {
+                                    if (selectedShape === 'tShape') {
+                                        const currentDims = collectTrueLDimensions(); // Re-uses TrueL's dimension collection
+                                        updateShapeDiagram('tShape', currentLazyLRotation, currentDims);
+                                    }
+                                });
+                            }
+                        });
+                        break;
+                    
             case 'kidney':
+            case 'mountainLake':
+                const instructionDiv = document.createElement('div');
+    instructionDiv.className = 'instruction-card';
+    instructionDiv.innerHTML = `
+        <h4>How to Measure a Kidney Pool</h4>
+        <ul>
+            <li><strong>Length (L):</strong> Measure the longest distance across the pool from end to end.</li>
+            <li><strong>Width A & B:</strong> Measure the width at the widest point of each of the two lobes of the kidney shape.</li>
+        </ul>
+    `;
+    inputsContainer.appendChild(instructionDiv);
                 diagramIdPrefix = 'kidney-';
                 inputsContainer.appendChild(createInputElement('length', 'Overall Length (L)', 'e.g., 30', diagramIdPrefix + 'length-text'));
                 inputsContainer.appendChild(createInputElement('widthA', 'Width A', 'e.g., 15', diagramIdPrefix + 'widthA-text'));
@@ -823,9 +1327,20 @@ return `
                     if (isNaN(widthB_TL) || widthB_TL <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('widthB');}
                     
                     if (dimensionsValid) {
-                        const areaA = lengthA_L * widthA_L;
-                        const areaB = lengthB_L * widthB_L;
+                        const areaA = lengthA_TL * widthA_TL;
+                        const areaB = lengthB_TL * widthB_TL;
                         volumeCubicFeet = (areaA + areaB) * avgDepth;
+                    }
+                    break;
+                case 'roman':
+                    const lengthRoman = parseFloat(document.getElementById('length').value);
+                    const widthRoman = parseFloat(document.getElementById('width').value);
+                    if (isNaN(lengthRoman) || lengthRoman <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('length'); }
+                    if (isNaN(widthRoman) || widthRoman <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('width'); }
+                    if (dimensionsValid) {
+                        const rectArea = lengthRoman * widthRoman;
+                        const circleArea = Math.PI * Math.pow(widthRoman / 2, 2);
+                        volumeCubicFeet = (rectArea + circleArea) * avgDepth;
                     }
                     break;
                 case 'lazyL': // New calculation for LazyL with cut corner
@@ -853,35 +1368,148 @@ return `
                         volumeCubicFeet = (gross_area - area_cut_triangle) * avgDepth;
                     }
                     break;
-                case 'lazyL2': // Calculation for Lazy L (#2) based on Hydra PDF (A,B,S,T,P,N)
-                    let dimA_L2 = parseFloat(document.getElementById('dimA').value); 
-                    let dimB_L2 = parseFloat(document.getElementById('dimB').value); 
-                    let dimS_L2 = parseFloat(document.getElementById('dimS').value);   
-                    let dimT_L2 = parseFloat(document.getElementById('dimT').value); 
-                    let dimP_L2 = parseFloat(document.getElementById('dimP')?.value || "0");        
-                    let dimN_L2 = parseFloat(document.getElementById('dimN').value);
-    
-                    if (isNaN(dimA_L2) || dimA_L2 <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('dimA');}
-                    if (isNaN(dimB_L2) || dimB_L2 <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('dimB');}
-                    if (isNaN(dimS_L2) || dimS_L2 <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('dimS'); }  
-                    if (isNaN(dimT_L2) || dimT_L2 <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('dimT');}
-                    if (isNaN(dimP_L2) || dimP_L2 < 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('dimP');} // P can be 0
-                    if (isNaN(dimN_L2) || dimN_L2 < 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('dimN');} // N can be 0
+                case 'lazyL2':
+                        // Calculation for a 6-sided Grecian L-shape.
+                    const L1 = parseFloat(document.getElementById('length1')?.value); // Top Width
+                    const L2 = parseFloat(document.getElementById('width1')?.value);  // Right Vertical Side
+                    const L3 = parseFloat(document.getElementById('length2')?.value); // Right Angled Side
+                    const L4 = parseFloat(document.getElementById('width2')?.value);  // Bottom Width
+                    const L5 = parseFloat(document.getElementById('length3')?.value); // Left Angled Side
+                    const L6 = parseFloat(document.getElementById('length4')?.value); // Left Vertical Side
+                    
+                    if (isNaN(L1) || L1 <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('length1');}
+                    if (isNaN(L2) || L2 <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('width1');}
+                    if (isNaN(L3) || L3 <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('length2');}
+                    if (isNaN(L4) || L4 <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('width2');}
+                    if (isNaN(L5) || L5 <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('length3');}
+                    if (isNaN(L6) || L6 <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('length4');}
+                    
+                if (dimensionsValid) {
+                            // Re-calculate geometric parameters to find area.
+                            // This ensures consistency between the diagram and the calculation.
+                            const A = L1 - L4;
+                            const B = L2 - L6;
+                            const C = A * A + B * B + L5 * L5 - L3 * L3;
+                            let dx_left = 0, dy_left = 0, dx_right = 0, dy_right = 0, H = 0, W = L1;
+                            let area = 0;
+                    
+                            // Use same solver as diagram to find component dimensions
+                            if (Math.abs(A) > 1e-6) {
+                                const qa = 4 * (A * A + B * B);
+                                const qb = -4 * B * C;
+                                const qc = C * C - 4 * A * A * L5 * L5;
+                                const discriminant = qb * qb - 4 * qa * qc;
+                                if (discriminant >= 0) {
+                                    dy_left = (-qb + Math.sqrt(discriminant)) / (2 * qa);
+                                    dx_left = (C - 2 * B * dy_left) / (2 * A);
+                                }
+                            } else {
+                                dy_left = C / (2 * B);
+                                const dx_left_sq = L5 * L5 - dy_left * dy_left;
+                                if (dx_left_sq >= 0) dx_left = Math.sqrt(dx_left_sq);
+                            }
+                            
+                            dx_right = A - dx_left;
+                            dy_right = dy_left - B;
+                            H = L6 + dy_left;
+                    
+                            // Area is the bounding rectangle minus the two corner triangles.
+                            const area_bounding_box = W * H;
+                            const area_triangle_left = 0.5 * dx_left * dy_left;
+                            const area_triangle_right = 0.5 * dx_right * dy_right;
+                            
+                            area = area_bounding_box - area_triangle_left - area_triangle_right;
+                            
+                            if (area > 0) {
+                                volumeCubicFeet = area * avgDepth;
+                            } else {
+                                dimensionsValid = false;
+                                alert("The entered dimensions do not form a valid pool shape. Please check your measurements.");
+                            }
+                        }
+                        break;
+                case 'offsetRectangle':
+                            const lenA_OR = parseFloat(document.getElementById('lengthA').value);
+                            const widA_OR = parseFloat(document.getElementById('widthA').value);
+                            const lenB_OR = parseFloat(document.getElementById('lengthB').value);
+                            const widB_OR = parseFloat(document.getElementById('widthB').value);
+                            const offX_OR = parseFloat(document.getElementById('offsetX').value);
+                    
+                            if (isNaN(lenA_OR) || lenA_OR <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('lengthA');}
+                            if (isNaN(widA_OR) || widA_OR <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('widthA');}
+                            if (isNaN(lenB_OR) || lenB_OR <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('lengthB');}
+                            if (isNaN(widB_OR) || widB_OR <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('widthB');}
+                            if (isNaN(offX_OR) || offX_OR < 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('offsetX');}
+                    
+                            // Validate that the offset section does not extend beyond the main section
+                            if (dimensionsValid && (offX_OR + widB_OR > lenA_OR)) {
+                                alert('The sum of Offset X and Offset Width (B) cannot be greater than Main Length (A).');
+                                dimensionsValid = false;
+                                firstInvalidInput = firstInvalidInput || document.getElementById('offsetX');
+                            }
+                    
+                            if (dimensionsValid) {
+                                const areaA = lenA_OR * widA_OR;
+                                const areaB = lenB_OR * widB_OR;
+                                volumeCubicFeet = (areaA + areaB) * avgDepth;
+                            }
+                            break;
+                case 'doubleGrecian':
+                                const L_DG = parseFloat(document.getElementById('overallLength').value);
+                                const W_DG = parseFloat(document.getElementById('overallWidth').value);
+                                const EW_DG = parseFloat(document.getElementById('endWidth').value);
+                        
+                                if (isNaN(L_DG) || L_DG <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('overallLength');}
+                                if (isNaN(W_DG) || W_DG <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('overallWidth');}
+                                if (isNaN(EW_DG) || EW_DG <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('endWidth');}
+                        
+                                if (dimensionsValid && EW_DG >= W_DG) {
+                                    alert('End Width must be less than Overall Width.');
+                                    dimensionsValid = false;
+                                    firstInvalidInput = firstInvalidInput || document.getElementById('endWidth');
+                                }
+                                
+                                if (dimensionsValid && L_DG <= (W_DG - EW_DG)) {
+                                    alert('Overall Length is too short for the given widths, causing the angled corners to overlap.');
+                                    dimensionsValid = false;
+                                    firstInvalidInput = firstInvalidInput || document.getElementById('overallLength');
+                                }
+                        
+                                if (dimensionsValid) {
+                                    // Area is the bounding rectangle minus the four corner triangles (assuming 45-degree angles).
+                                    const dx = (W_DG - EW_DG) / 2.0;
+                                    const area_bounding_box = L_DG * W_DG;
+                                    const area_four_triangles = 2 * dx * dx;
+                                    const totalArea = area_bounding_box - area_four_triangles;
+                                    
+                                    volumeCubicFeet = totalArea * avgDepth;
+                                }
+                                break;
 
+                case 'tShape':
+                    const lengthA_TS = parseFloat(document.getElementById('lengthA').value); // TS for T-Shape
+                    const widthA_TS = parseFloat(document.getElementById('widthA').value);
+                    const lengthB_TS = parseFloat(document.getElementById('lengthB').value);
+                    const widthB_TS = parseFloat(document.getElementById('widthB').value);
+                            
+                    if (isNaN(lengthA_TS) || lengthA_TS <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('lengthA');}
+                    if (isNaN(widthA_TS) || widthA_TS <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('widthA');}
+                    if (isNaN(lengthB_TS) || lengthB_TS <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('lengthB');}
+                    if (isNaN(widthB_TS) || widthB_TS <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('widthB');}
+                            
+                            // The stem width cannot be greater than the top bar length
+                    if (dimensionsValid && widthB_TS > lengthA_TS) {
+                        alert('Stem Width (B) cannot be greater than Top Bar Length (A).');
+                        dimensionsValid = false;
+                        firstInvalidInput = firstInvalidInput || document.getElementById('widthB');
+                    }
+                    
                     if (dimensionsValid) {
-                        if (dimS_L2 > dimB_L2) {
-                alert("Dimension S (Middle Arm Height) cannot exceed Dimension B (Overall Left Height). Adjusting S to match B for accurate calculation."); 
-                dimS_L2 = dimB_L2; 
-                document.getElementById('dimS').value = dimS_L2; 
-            }
-            
-            const area_rect1 = dimA_L2 * (dimB_L2 - dimS_L2); // Top arm
-            const area_rect2 = dimS_L2 * dimT_L2;          // Middle/Bottom-left arm
-            const area_rect3 = dimP_L2 * dimN_L2;          // Foot/Bottom-right arm
-            
-            volumeCubicFeet = (area_rect1 + area_rect2 + area_rect3) * avgDepth;
-        }
-        break;  
+                        const areaA = lengthA_TS * widthA_TS;
+                        const areaB = lengthB_TS * widthB_TS;
+                        volumeCubicFeet = (areaA + areaB) * avgDepth;
+                    }
+                    break; 
                 case 'kidney':
                     const overallLengthK = parseFloat(document.getElementById('length').value); // Reusing 'length' ID for overall length
                     const widthAK = parseFloat(document.getElementById('widthA').value);
