@@ -1,3 +1,9 @@
+## v1.13.0 
+
+1 - added "custom freeform tool" for approximating pool volume on irregularly shaped pools.  
+2 - added "Figure 8" shape.
+
+
 ## v1.12.0 
 
 1 - Integrated URL parameter handling for all chemical levels, state, chlorine type and volume.

@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const rotateButtonContainer = document.getElementById('rotate-button-container'); 
     const rotateDiagramBtn = document.getElementById('rotate-diagram-btn'); 
 
-    let selectedShape = null;
+    let selectedShape = null; 
     let currentLazyLRotation = 0; 
 
     const GALLONS_PER_CUBIC_FOOT = 7.48;
@@ -26,6 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
      const DEFAULT_ROMAN_INPUTS = { length: 30, width: 15 };
      const DEFAULT_DOUBLE_GRECIAN_INPUTS = { overallLength: 40, overallWidth: 20, endWidth: 12 };
      const DEFAULT_OFFSET_RECT_INPUTS = { lenA: 40, widA: 15, lenB: 15, widB: 10, offsetX: 5 };
+     const DEFAULT_FIGURE8_INPUTS = { diameterA: 20, diameterB: 18 };
+     const DEFAULT_CUSTOM_FREEFORM_INPUTS = { length: 40, widths: [15, 20, 18] };
      const DEFAULT_MOUNTAIN_LAKE_INPUTS = { length: 35, widthA: 18, widthB: 12 };
      const SVG_L_BASE_X = 20; // Renamed from SVG_BASE_X
      const SVG_L_BASE_Y = 20; // Renamed from SVG_BASE_Y
@@ -77,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <line id="oval-width-line2" x1="5" y1="115" x2="5" y2="145" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="oval-width-cap2" x1="0" y1="145" x2="10" y2="145" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     </svg>`,
+    
     mountainLake: (dims = {}) => {
         // This function is now dynamic, responding to user inputs for a more intuitive experience.
         // The path has been adjusted to be narrower in the middle, as requested.
@@ -549,9 +552,9 @@ doubleGrecian: (dims = {}) => {
 
     let scale = 1;
     if (L > 0 && W > 0) {
-        const scaleX = maxShapeWidth / L;
-        const scaleY = maxShapeHeight / W;
-        scale = Math.min(scaleX, scaleY);
+    const scaleX = maxShapeWidth / L;
+    const scaleY = maxShapeHeight / W;
+    scale = Math.min(scaleX, scaleY);
     }
 
     const sL = L * scale;
@@ -568,33 +571,157 @@ doubleGrecian: (dims = {}) => {
     const baseX = (viewboxWidth - sL) / 2;
     const baseY = (viewboxHeight - sW) / 2;
 
-    // Define the 8 vertices of the octagon, starting from top-left of the shape's bounding box and going clockwise
+    // Define the 8 vertices of the octagon, starting from the bottom-left inside corner and going clockwise.
+    // Note: Y-coordinate 0 is at the top of the SVG.
     const p = [
-        { x: baseX + s_dx,         y: baseY + sW }, // P0: Top-left corner
-        { x: baseX + sL - s_dx,     y: baseY + sW }, // P1: Top-right corner
-        { x: baseX + sL,           y: baseY + sW - s_dy }, // P2: Right-top corner
-        { x: baseX + sL,           y: baseY + s_dy }, // P3: Right-bottom corner
-        { x: baseX + sL - s_dx,     y: baseY },      // P4: Bottom-right corner
-        { x: baseX + s_dx,         y: baseY },      // P5: Bottom-left corner
-        { x: baseX,                y: baseY + s_dy }, // P6: Left-bottom corner
-        { x: baseX,                y: baseY + sW - s_dy }  // P7: Left-top corner
+        { x: baseX + s_dx,      y: baseY + sW },       // P0: Bottom-left inside corner
+        { x: baseX + sL - s_dx,  y: baseY + sW },       // P1: Bottom-right inside corner
+        { x: baseX + sL,        y: baseY + sW - s_dy }, // P2: Right-bottom outside corner
+        { x: baseX + sL,        y: baseY + s_dy },      // P3: Right-top outside corner
+        { x: baseX + sL - s_dx,  y: baseY },           // P4: Top-right inside corner
+        { x: baseX + s_dx,      y: baseY },           // P5: Top-left inside corner
+        { x: baseX,             y: baseY + s_dy },      // P6: Left-top outside corner
+        { x: baseX,             y: baseY + sW - s_dy }  // P7: Left-bottom outside corner
     ];
 
     const pathData = `M ${p[0].x},${p[0].y} L ${p[1].x},${p[1].y} L ${p[2].x},${p[2].y} L ${p[3].x},${p[3].y} L ${p[4].x},${p[4].y} L ${p[5].x},${p[5].y} L ${p[6].x},${p[6].y} L ${p[7].x},${p[7].y} Z`;
 
+    // --- Define positions for dimension lines and text ---
+    const textGapHorizontal = 30;
+    const textGapVertical = 25;
+
+    // Overall Length (bottom)
+    const lenLineY = baseY + sW + 15;
+    const lenCapY1 = lenLineY - 5;
+    const lenCapY2 = lenLineY + 5;
+    const lenTextX = baseX + sL / 2;
+
+    // Overall Width (right)
+    const widthLineX = baseX + sL + 15;
+    const widthCapX1 = widthLineX - 5;
+    const widthCapX2 = widthLineX + 5;
+    const widthTextY = baseY + sW / 2;
+
+    // End Width (left)
+    const endWidthLineX = baseX - 15;
+    const endWidthCapX1 = endWidthLineX - 5;
+    const endWidthCapX2 = endWidthLineX + 5;
+    const endWidthTextY = baseY + sW / 2;
+    const endWidthY1 = p[6].y; // Y-coord of left-top corner
+    const endWidthY2 = p[7].y; // Y-coord of left-bottom corner
+
+    return `
+    <svg viewBox="0 0 260 180" xmlns="http://www.w3.org/2000/svg">
+    <path d="${pathData}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
+    <path d="${pathData}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1" transform="scale(0.95, 0.95)" transform-origin="${baseX + sL/2} ${baseY + sW/2}"/>
+
+    <!-- Dimension: Overall Length -->
+    <line id="doubleGrecian-overallLength-cap1" x1="${baseX}" y1="${lenCapY1}" x2="${baseX}" y2="${lenCapY2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+    <line id="doubleGrecian-overallLength-line1" x1="${baseX}" y1="${lenLineY}" x2="${lenTextX - textGapHorizontal}" y2="${lenLineY}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+    <text id="doubleGrecian-overallLength-text" x="${lenTextX}" y="${lenLineY}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Overall Length</text>
+    <line id="doubleGrecian-overallLength-line2" x1="${lenTextX + textGapHorizontal}" y1="${lenLineY}" x2="${baseX + sL}" y2="${lenLineY}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+    <line id="doubleGrecian-overallLength-cap2" x1="${baseX + sL}" y1="${lenCapY1}" x2="${baseX + sL}" y2="${lenCapY2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+    
+    <!-- Dimension: Overall Width -->
+    <line id="doubleGrecian-overallWidth-cap1" x1="${widthCapX1}" y1="${baseY}" x2="${widthCapX2}" y2="${baseY}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+    <line id="doubleGrecian-overallWidth-line1" x1="${widthLineX}" y1="${baseY}" x2="${widthLineX}" y2="${widthTextY - textGapVertical}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+    <text id="doubleGrecian-overallWidth-text" x="${widthLineX}" y="${widthTextY}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(90, ${widthLineX}, ${widthTextY})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Overall Width</text>
+    <line id="doubleGrecian-overallWidth-line2" x1="${widthLineX}" y1="${widthTextY + textGapVertical}" x2="${widthLineX}" y2="${baseY + sW}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+    <line id="doubleGrecian-overallWidth-cap2" x1="${widthCapX1}" y1="${baseY + sW}" x2="${widthCapX2}" y2="${baseY + sW}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+
+    <!-- Dimension: End Width -->
+    <line id="doubleGrecian-endWidth-cap1" x1="${endWidthCapX1}" y1="${endWidthY1}" x2="${endWidthCapX2}" y2="${endWidthY1}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+    <line id="doubleGrecian-endWidth-line1" x1="${endWidthLineX}" y1="${endWidthY1}" x2="${endWidthLineX}" y2="${endWidthTextY - textGapVertical}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+    <text id="doubleGrecian-endWidth-text" x="${endWidthLineX}" y="${endWidthTextY}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(-90, ${endWidthLineX}, ${endWidthTextY})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">End Width</text>
+    <line id="doubleGrecian-endWidth-line2" x1="${endWidthLineX}" y1="${endWidthTextY + textGapVertical}" x2="${endWidthLineX}" y2="${endWidthY2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+    <line id="doubleGrecian-endWidth-cap2" x1="${endWidthCapX1}" y1="${endWidthY2}" x2="${endWidthCapX2}" y2="${endWidthY2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+    </svg>`;
+},
+customFreeform: (dims = {}) => {
+    const L = !isNaN(parseFloat(dims.length)) ? parseFloat(dims.length) : DEFAULT_CUSTOM_FREEFORM_INPUTS.length;
+    // Ensure widths are valid numbers and filter out any zeros.
+    const widths = Array.isArray(dims.widths) && dims.widths.length > 0 ? dims.widths.map(w => parseFloat(w) || 0).filter(w => w > 0) : DEFAULT_CUSTOM_FREEFORM_INPUTS.widths;
+
+    // If there are no valid widths, return an empty diagram to prevent errors.
+    if (widths.length === 0) {
+        return `<svg viewBox="0 0 260 180" xmlns="http://www.w3.org/2000/svg"></svg>`;
+    }
+
+    const maxShapeWidth = 220;
+    const maxShapeHeight = 140;
+
+    const maxDimWidth = Math.max(...widths, 0);
+    let scale = 1;
+    if (L > 0 && maxDimWidth > 0) {
+        const scaleX = maxShapeWidth / L;
+        const scaleY = maxShapeHeight / maxDimWidth;
+        scale = Math.min(scaleX, scaleY);
+    }
+
+    const sL = L * scale;
+    const scaledWidths = widths.map(w => w * scale);
+    const sMaxW = Math.max(...scaledWidths, 0);
+
+    const viewboxWidth = 260;
+    const viewboxHeight = 180;
+    const baseX = (viewboxWidth - sL) / 2;
+    const baseY = (viewboxHeight - sMaxW) / 2;
+
+    const numSegments = scaledWidths.length + 1;
+    const topPoints = scaledWidths.map((w, i) => ({ x: baseX + (sL * (i + 1)) / numSegments, y: baseY + (sMaxW - w) / 2 }));
+    const bottomPoints = scaledWidths.map((w, i) => ({ x: baseX + (sL * (i + 1)) / numSegments, y: baseY + (sMaxW + w) / 2 }));
+
+    // Create a smooth path with rounded ends using arcs.
+    const pathData =
+        `M ${topPoints[0].x},${topPoints[0].y}` + // Start at the first top point
+        // Create a smooth curve through the subsequent top points
+        topPoints.slice(1).map((p, i) => {
+            const p_prev = topPoints[i];
+            const midPointX = (p_prev.x + p.x) / 2;
+            return ` C ${midPointX},${p_prev.y}, ${midPointX},${p.y}, ${p.x},${p.y}`;
+        }).join('') +
+        // Draw the rounded right end of the pool
+        ` A ${scaledWidths[scaledWidths.length - 1] / 2},${scaledWidths[scaledWidths.length - 1] / 2} 0 0 1 ${bottomPoints[bottomPoints.length - 1].x},${bottomPoints[bottomPoints.length - 1].y}` +
+        // Create a smooth curve through the bottom points (in reverse order)
+        [...bottomPoints].reverse().slice(1).map((p, i) => {
+            const p_prev = [...bottomPoints].reverse()[i];
+            const midPointX = (p_prev.x + p.x) / 2;
+            return ` C ${midPointX},${p_prev.y}, ${midPointX},${p.y}, ${p.x},${p.y}`;
+        }).join('') +
+        // Draw the rounded left end of the pool, closing the path
+        ` A ${scaledWidths[0] / 2},${scaledWidths[0] / 2} 0 0 1 ${topPoints[0].x},${topPoints[0].y}` +
+        ` Z`;
+
+    // --- Dimension lines ---
+    let widthLines = '';
+    scaledWidths.forEach((sw, i) => {
+        const x = baseX + (sL * (i + 1)) / numSegments;
+        const y1 = baseY + (sMaxW - sw) / 2;
+        const y2 = baseY + (sMaxW + sw) / 2;
+        widthLines += `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5" stroke-dasharray="2,2"/>`;
+        widthLines += `<text id="customFreeform-width${i+1}-text" x="${x}" y="${y1 - 5}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">W${i+1}</text>`;
+    });
+
+    const lenLineY = baseY + sMaxW + 25;
+    const lenCapY1 = lenLineY - 5;
+    const lenCapY2 = lenLineY + 5;
+    const lenTextX = baseX + sL / 2;
+    const textGapHorizontal = 30;
+
     return `
     <svg viewBox="0 0 260 180" xmlns="http://www.w3.org/2000/svg">
         <path d="${pathData}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
-        <path d="${pathData}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1" transform="scale(0.95, 0.95)" transform-origin="${baseX + sL/2} ${baseY + sW/2}"/>
+        <path d="${pathData}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1" transform="scale(0.95, 0.95)" transform-origin="center"/>
+        
+        <!-- Width Dimension Lines -->
+        ${widthLines}
 
         <!-- Dimension: Overall Length -->
-        <text id="doubleGrecian-overallLength-text" x="${baseX + sL / 2}" y="${baseY + sW + 15}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Overall Length</text>
-        
-        <!-- Dimension: Overall Width -->
-        <text id="doubleGrecian-overallWidth-text" x="${baseX + sL + 15}" y="${baseY + sW / 2}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(90, ${baseX + sL + 15}, ${baseY + sW / 2})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Overall Width</text>
-
-        <!-- Dimension: End Width -->
-        <text id="doubleGrecian-endWidth-text" x="${baseX - 15}" y="${baseY + sW / 2}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(-90, ${baseX - 15}, ${baseY + sW / 2})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">End Width</text>
+        <line id="customFreeform-length-cap1" x1="${baseX}" y1="${lenCapY1}" x2="${baseX}" y2="${lenCapY2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <line id="customFreeform-length-line1" x1="${baseX}" y1="${lenLineY}" x2="${lenTextX - textGapHorizontal}" y2="${lenLineY}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <text id="customFreeform-length-text" x="${lenTextX}" y="${lenLineY}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Overall Length</text>
+        <line id="customFreeform-length-line2" x1="${lenTextX + textGapHorizontal}" y1="${lenLineY}" x2="${baseX + sL}" y2="${lenLineY}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <line id="customFreeform-length-cap2" x1="${baseX + sL}" y1="${lenCapY1}" x2="${baseX + sL}" y2="${lenCapY2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     </svg>`;
 },
 offsetRectangle: (rotation = 0, dims = {}) => {
@@ -649,6 +776,91 @@ offsetRectangle: (rotation = 0, dims = {}) => {
         </g>
     </svg>`;
 },
+figure8: (dims = {}) => {
+    const dA = !isNaN(parseFloat(dims.diameterA)) ? parseFloat(dims.diameterA) : DEFAULT_FIGURE8_INPUTS.diameterA;
+    const dB = !isNaN(parseFloat(dims.diameterB)) ? parseFloat(dims.diameterB) : DEFAULT_FIGURE8_INPUTS.diameterB;
+
+    const maxShapeWidth = 220;
+    const maxShapeHeight = 140;
+
+    // Define overlap as a fraction of the smaller diameter
+    const overlapFactor = 0.4;
+    const overlap = overlapFactor * Math.min(dA, dB);
+
+    const totalInputWidth = dA + dB - overlap;
+    const totalInputHeight = Math.max(dA, dB);
+
+    let scale = 1;
+    if (totalInputWidth > 0 && totalInputHeight > 0) {
+        const scaleX = maxShapeWidth / totalInputWidth;
+        const scaleY = maxShapeHeight / totalInputHeight;
+        scale = Math.min(scaleX, scaleY);
+    }
+
+    const s_dA = dA * scale;
+    const s_dB = dB * scale;
+    const s_rA = s_dA / 2;
+    const s_rB = s_dB / 2;
+    const s_overlap = overlap * scale;
+
+    const s_total_w = s_dA + s_dB - s_overlap;
+    const s_total_h = Math.max(s_dA, s_dB);
+
+    const viewboxWidth = 260;
+    const viewboxHeight = 180;
+
+    const baseX = (viewboxWidth - s_total_w) / 2;
+    const baseY = (viewboxHeight - s_total_h) / 2;
+
+    const cx_A = baseX + s_rA;
+    const cy_A = baseY + s_total_h / 2;
+    const cx_B = baseX + s_dA - s_overlap + s_rB;
+    const cy_B = baseY + s_total_h / 2;
+
+    // Dimension lines
+    const textGap = 20;
+    // Diameter A (top)
+    const diaA_line_y = baseY - 15;
+    const diaA_cap_y1 = diaA_line_y - 5;
+    const diaA_cap_y2 = diaA_line_y + 5;
+    const diaA_text_x = cx_A;
+
+    // Diameter B (bottom)
+    const diaB_line_y = baseY + s_total_h + 15;
+    const diaB_cap_y1 = diaB_line_y - 5;
+    const diaB_cap_y2 = diaB_line_y + 5;
+    const diaB_text_x = cx_B;
+
+    return `
+    <svg viewBox="0 0 260 180" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <mask id="figure8-mask">
+                <rect x="0" y="0" width="100%" height="100%" fill="white"/>
+                <circle cx="${cx_B}" cy="${cy_B}" r="${s_rB}" fill="black"/>
+            </mask>
+        </defs>
+        <circle cx="${cx_A}" cy="${cy_A}" r="${s_rA}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2" mask="url(#figure8-mask)"/>
+        <circle cx="${cx_B}" cy="${cy_B}" r="${s_rB}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
+        
+        <!-- Inner shape -->
+        <circle cx="${cx_A}" cy="${cy_A}" r="${s_rA * 0.9}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1" mask="url(#figure8-mask)"/>
+        <circle cx="${cx_B}" cy="${cy_B}" r="${s_rB * 0.9}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1"/>
+
+        <!-- Dimension: Diameter A -->
+        <line id="figure8-diameterA-cap1" x1="${baseX}" y1="${diaA_cap_y1}" x2="${baseX}" y2="${diaA_cap_y2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <line id="figure8-diameterA-line1" x1="${baseX}" y1="${diaA_line_y}" x2="${diaA_text_x - textGap}" y2="${diaA_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <text id="figure8-diameterA-text" x="${diaA_text_x}" y="${diaA_line_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Diameter A</text>
+        <line id="figure8-diameterA-line2" x1="${diaA_text_x + textGap}" y1="${diaA_line_y}" x2="${baseX + s_dA}" y2="${diaA_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <line id="figure8-diameterA-cap2" x1="${baseX + s_dA}" y1="${diaA_cap_y1}" x2="${baseX + s_dA}" y2="${diaA_cap_y2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+
+        <!-- Dimension: Diameter B -->
+        <line id="figure8-diameterB-cap1" x1="${baseX + s_dA - s_overlap}" y1="${diaB_cap_y1}" x2="${baseX + s_dA - s_overlap}" y2="${diaB_cap_y2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <line id="figure8-diameterB-line1" x1="${baseX + s_dA - s_overlap}" y1="${diaB_line_y}" x2="${diaB_text_x - textGap}" y2="${diaB_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <text id="figure8-diameterB-text" x="${diaB_text_x}" y="${diaB_line_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Diameter B</text>
+        <line id="figure8-diameterB-line2" x1="${diaB_text_x + textGap}" y1="${diaB_line_y}" x2="${baseX + s_total_w}" y2="${diaB_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+        <line id="figure8-diameterB-cap2" x1="${baseX + s_total_w}" y1="${diaB_cap_y1}" x2="${baseX + s_total_w}" y2="${diaB_cap_y2}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
+    </svg>`;
+    },
 tShape: (rotation = 0, dims = {}) => {
     // Using same dimension names as TrueL for simplicity (lenA, widA, lenB, widB)
     const L_A = !isNaN(parseFloat(dims.lenA)) && parseFloat(dims.lenA) > 0 ? parseFloat(dims.lenA) : DEFAULT_L_SHAPE_INPUTS.lenA; // Top bar length
@@ -775,12 +987,20 @@ fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
 <line id="kidney-widthB-line2" x1="180" y1="105" x2="180" y2="135" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/> 
 <line id="kidney-widthB-cap2" x1="175" y1="135" x2="185" y2="135" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 </svg>`
-};
+}
+
     
     function collectRomanDimensions() {
         return {
             length: document.getElementById('length')?.value,
             width: document.getElementById('width')?.value
+        };
+    }
+
+    function collectFigure8Dimensions() {
+        return {
+            diameterA: document.getElementById('diameterA')?.value,
+            diameterB: document.getElementById('diameterB')?.value
         };
     }
 
@@ -829,6 +1049,17 @@ fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
             orientation: orientation
         };
     }
+    function collectCustomFreeformDimensions() {
+        const widths = [];
+        const widthInputs = document.querySelectorAll('input[id^="width_"]');
+        widthInputs.forEach(input => {
+            widths.push(input.value);
+        });
+        return {
+            length: document.getElementById('length')?.value,
+            widths: widths
+        };
+    }
     function collectKidneyDimensions() { // Shared function for Kidney and Mountain Lake
         return {
             length: document.getElementById('length')?.value,
@@ -865,6 +1096,14 @@ fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
         } else if (shape === 'mountainLake') {
             const dimsToUse = dynamicDims || collectKidneyDimensions(); // Reuses kidney collection logic
             svgContent = svgDiagrams.mountainLake(dimsToUse);
+            rotateButtonContainer.style.display = 'none';
+        } else if (shape === 'customFreeform') {
+            const dimsToUse = dynamicDims || collectCustomFreeformDimensions();
+            svgContent = svgDiagrams.customFreeform(dimsToUse);
+            rotateButtonContainer.style.display = 'none';
+        } else if (shape === 'figure8') { // New Figure 8 shape
+            const dimsToUse = dynamicDims || collectFigure8Dimensions();
+            svgContent = svgDiagrams.figure8(dimsToUse);
             rotateButtonContainer.style.display = 'none';
             } else {
                 if (svgDiagrams[shape]) {
@@ -916,6 +1155,12 @@ fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
     });
 
     function getDefaultDiagramText(diagramTextId) {
+    if (/customFreeform-width\d+-text/.test(diagramTextId)) {
+        const match = diagramTextId.match(/width(\d+)/);
+        if (match) return `W${match[1]}`;
+    }
+    if (diagramTextId.includes('figure8-diameterA-text')) return 'Diameter A';
+    if (diagramTextId.includes('figure8-diameterB-text')) return 'Diameter B';
     if (diagramTextId.includes('mountainLake-length-text')) return 'Length';
     if (diagramTextId.includes('mountainLake-widthA-text')) return 'Width A';
     if (diagramTextId.includes('mountainLake-widthB-text')) return 'Width B';
@@ -1056,6 +1301,36 @@ fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
                         }
                     });
                     break;
+                    case 'figure8':
+                        diagramIdPrefix = 'figure8-';
+                        const instructionDivF8 = document.createElement('div');
+                        instructionDivF8.className = 'instruction-card';
+                        instructionDivF8.innerHTML = `
+                        <h4>How to Measure a Figure 8 Pool</h4>
+                        <ul>
+                            <li><strong>Diameter A:</strong> Measure the diameter of the larger circle.</li>
+                            <li><strong>Diameter B:</strong> Measure the diameter of the smaller circle.</li>
+                        </ul>
+                        `;
+                        inputsContainer.appendChild(instructionDivF8);
+                
+                        inputsContainer.appendChild(createInputElement('diameterA', 'Diameter A', 'e.g., 20', diagramIdPrefix + 'diameterA-text'));
+                        inputsContainer.appendChild(createInputElement('diameterB', 'Diameter B', 'e.g., 15', diagramIdPrefix + 'diameterB-text'));
+                
+                        ['diameterA', 'diameterB'].forEach(id => {
+                            const inputEl = document.getElementById(id);
+                            if (inputEl) {
+                                inputEl.addEventListener('input', () => {
+                                    if (selectedShape === 'figure8') {
+                                        const currentDims = collectFigure8Dimensions();
+                                        updateShapeDiagram('figure8', 0, currentDims);
+                                    }
+                                });
+                            }
+                        });
+                        break;
+
+
                     case 'mountainLake':
                         diagramIdPrefix = 'mountainLake-';
                         const instructionDivML = document.createElement('div');
@@ -1157,6 +1432,90 @@ fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
                     }
                     });
                     break;
+                    case 'customFreeform':
+        diagramIdPrefix = 'customFreeform-';
+        const instructionDivCF = document.createElement('div');
+        instructionDivCF.className = 'instruction-card';
+        instructionDivCF.innerHTML = `
+            <h4>How to Measure a Freeform Pool</h4>
+            <ul>
+                <li><strong>Overall Length:</strong> Measure the longest point of the pool.</li>
+                <li><strong>Widths:</strong> Measure the width at regular intervals. Add or remove measurements for better accuracy.</li>
+            </ul>
+        `;
+        inputsContainer.appendChild(instructionDivCF);
+        inputsContainer.appendChild(createInputElement('length', 'Overall Length', 'e.g., 40', diagramIdPrefix + 'length-text'));
+        
+        const widthsContainer = document.createElement('div');
+        widthsContainer.id = 'widths-container';
+        inputsContainer.appendChild(widthsContainer);
+
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.className = 'flex gap-2 mt-2';
+        
+        const addWidthBtn = document.createElement('button');
+        addWidthBtn.textContent = 'Add Width';
+        addWidthBtn.className = 'py-2 px-3 rounded-md text-sm font-medium bg-cyan-500 text-white hover:bg-cyan-600 transition-colors';
+        addWidthBtn.type = 'button';
+
+        const removeWidthBtn = document.createElement('button');
+        removeWidthBtn.textContent = 'Remove Width';
+        removeWidthBtn.type = 'button';
+        // Initial styling is handled in redrawWidthInputs
+
+        buttonsContainer.appendChild(addWidthBtn);
+        buttonsContainer.appendChild(removeWidthBtn);
+        inputsContainer.appendChild(buttonsContainer);
+
+        // This function now handles all rendering of width inputs
+        const redrawWidthInputs = (widthsToRender) => {
+            widthsContainer.innerHTML = ''; // Clear previous inputs
+            const widthCount = widthsToRender.length;
+
+            widthsToRender.forEach((widthValue, i) => {
+                const inputId = `width_${i + 1}`;
+                const textId = `${diagramIdPrefix}width${i + 1}-text`;
+                const inputGroup = createInputElement(inputId, `Width ${i + 1}`, `W${i+1}`, textId, widthValue);
+                widthsContainer.appendChild(inputGroup);
+            });
+            
+            // Re-attach listeners to all relevant inputs
+            document.querySelectorAll('input[id^="width_"], input#length').forEach(el => {
+                el.addEventListener('input', () => {
+                    const currentDims = collectCustomFreeformDimensions();
+                    updateShapeDiagram('customFreeform', 0, currentDims);
+                });
+            });
+
+            // Update button state and style
+            const canRemove = widthCount > 2;
+            removeWidthBtn.disabled = !canRemove;
+            removeWidthBtn.className = `py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                canRemove 
+                ? 'bg-red-500 text-white hover:bg-red-600' 
+                : 'bg-gray-300 text-gray-800 opacity-50 cursor-not-allowed'
+            }`;
+        };
+
+        addWidthBtn.onclick = () => {
+            const dims = collectCustomFreeformDimensions();
+            dims.widths.push(10); // Add a new width with a default value
+            redrawWidthInputs(dims.widths.map(w => w || '')); // Re-render inputs
+            updateShapeDiagram('customFreeform', 0, collectCustomFreeformDimensions());
+        };
+
+        removeWidthBtn.onclick = () => {
+            const dims = collectCustomFreeformDimensions();
+            if (dims.widths.length > 2) {
+                dims.widths.pop();
+                redrawWidthInputs(dims.widths);
+                updateShapeDiagram('customFreeform', 0, collectCustomFreeformDimensions());
+            }
+        };
+        
+        // Initial setup with default values
+        redrawWidthInputs(DEFAULT_CUSTOM_FREEFORM_INPUTS.widths);
+        break;
                     case 'offsetRectangle':
                     diagramIdPrefix = 'offsetRectangle-';
                     inputsContainer.appendChild(createInputElement('lengthA', 'Main Length (A)', 'e.g., 40', diagramIdPrefix + 'lengthA-text'));
@@ -1343,6 +1702,48 @@ fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
                         volumeCubicFeet = (rectArea + circleArea) * avgDepth;
                     }
                     break;
+                case 'figure8':
+                    const diameterA = parseFloat(document.getElementById('diameterA').value);
+                    const diameterB = parseFloat(document.getElementById('diameterB').value);
+                    if (isNaN(diameterA) || diameterA <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('diameterA'); }
+                    if (isNaN(diameterB) || diameterB <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('diameterB'); }
+                    if (dimensionsValid) {
+                        const radiusA = diameterA / 2;
+                        const radiusB = diameterB / 2;
+                        const area = (Math.PI * Math.pow(radiusA, 2)) + (Math.PI * Math.pow(radiusB, 2));
+                        volumeCubicFeet = area * avgDepth;
+                    }
+                    break;
+                    case 'customFreeform':
+        const length = parseFloat(document.getElementById('length').value);
+        const widthInputs = document.querySelectorAll('input[id^="width_"]');
+        let totalWidth = 0;
+        let validWidthCount = 0;
+        let allWidthsValid = true;
+
+        if (isNaN(length) || length <= 0) { dimensionsValid = false; firstInvalidInput = firstInvalidInput || document.getElementById('length'); }
+        
+        widthInputs.forEach(input => {
+            const widthVal = parseFloat(input.value);
+            if (isNaN(widthVal) || widthVal <= 0) {
+                allWidthsValid = false;
+                firstInvalidInput = firstInvalidInput || input;
+            } else {
+                totalWidth += widthVal;
+                validWidthCount++;
+            }
+        });
+
+        if (!allWidthsValid || validWidthCount === 0) {
+            dimensionsValid = false;
+        }
+
+        if (dimensionsValid) {
+            const averageWidth = totalWidth / validWidthCount;
+            const surfaceArea = length * averageWidth;
+            volumeCubicFeet = surfaceArea * avgDepth;
+        }
+        break;
                 case 'lazyL': // New calculation for LazyL with cut corner
                     const lengthA_LL = parseFloat(document.getElementById('lengthA').value); // LL for LazyL
                     const widthA_LL = parseFloat(document.getElementById('widthA').value);
