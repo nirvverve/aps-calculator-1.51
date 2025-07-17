@@ -1,3 +1,6 @@
+## v1.14.1
+1 - corrected small typo errors
+
 ## v1.14.0
 1 - added "how-to" training video.
 2 - updated training video link to dynamically change based on selected language.  
