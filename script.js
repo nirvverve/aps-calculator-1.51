@@ -3,6 +3,7 @@ const translations = {
         title: "Pool Chemistry Calculator for Residential Pools",
         selectLanguage: "Select a Language",
         clearForm: "🔄 Clear Form for New Pool",
+        trainingVideo: "Watch Training Video",
         selectState: "Select Your State",
         poolCapacity: "Pool Capacity",
         poolCapacityLabel: "Pool Capacity (in gallons):",
@@ -61,6 +62,7 @@ const translations = {
         title: "Calculadora de Química para Piscinas Residenciales",
         selectLanguage: "Seleccione un Idioma",
         clearForm: "🔄 Borrar Formulario para Nueva Piscina",
+        trainingVideo: "Ver Video de Entrenamiento",
         selectState: "Seleccione su Estado",
         poolCapacity: "Capacidad de la Piscina",
         poolCapacityLabel: "Capacidad de la piscina (en galones):",
@@ -119,6 +121,7 @@ const translations = {
         title: "Calcolatrice Chimica per Piscine Residenziali",
         selectLanguage: "Seleziona una Lingua",
         clearForm: "🔄 Cancella Modulo per Nuova Piscina",
+        trainingVideo: "Guarda il Video di Formazione",
         selectState: "Seleziona il tuo Stato",
         poolCapacity: "Capacità della Piscina",
         poolCapacityLabel: "Capacità della piscina (in galloni):",
@@ -181,7 +184,7 @@ function formatNumberWithCommas(num) {
 // Function to remove commas from string
 function removeCommas(str) {
     return str.replace(/,/g, "");
-}
+} 
 function applyUrlParameters() {
     const params = new URLSearchParams(window.location.search);
 
@@ -302,6 +305,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear button
         const clearBtn = document.getElementById('clear-form-btn');
         if (clearBtn) clearBtn.textContent = t.clearForm;
+
+        // Training video link - updates the link text based on selected language
+        const trainingLink = document.getElementById('training-video-link');
+        if (trainingLink) {
+        trainingLink.innerHTML = `<span class="material-icons inline-block align-middle mr-1" style="font-size: 1.25em; vertical-align: text-bottom;">ondemand_video</span> ${t.trainingVideo}`;
+        }
         
         // Pool capacity
         const capacityLabel = document.querySelector('label[for="capacity"]');
@@ -371,7 +380,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Set default values for temperature and TDS if empty
     // Set default values for temperature and TDS if empty
     const tempInput = document.getElementById('temperature');
     if (tempInput && (tempInput.value === "" || tempInput.value === undefined)) {

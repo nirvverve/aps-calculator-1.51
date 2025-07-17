@@ -21,7 +21,7 @@ function logUserData(dataToLog) {
             console.error('Failed to write to user activity log:', err);
         }
     });
-}
+} 
 const translations = {
     en: {
         title: "Pool Chemistry Calculator for Residential Pools",

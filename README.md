@@ -1,3 +1,10 @@
+## v1.14.0
+1 - added "how-to" training video.
+2 - updated training video link to dynamically change based on selected language.  
+3 - set default values for temperature and TDS if empty.
+4 - corrected several bugs in the Spanish & Italian translation sections.
+5 - other small bugs and formatting fixes.
+
 ## v1.13.0 
 
 1 - added "custom freeform tool" for approximating pool volume on irregularly shaped pools.  
