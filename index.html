@@ -265,8 +265,59 @@
         <h1 class="text-2xl font-bold text-white">Pool Chemistry Calculator</h1>
         <p class="text-sm text-blue-100">v1.15.0</p>
 
-        <div class="mt-4 flex justify-center">
-            <input placeholder="Try Our New Service Assistant Here" id="searchWidgetTrigger" />
+        <div class="mt-6 flex justify-center">
+            <button id="searchWidgetTrigger" type="button" class="inline-flex items-center gap-3 px-10 py-4 rounded-2xl text-lg font-semibold text-white bg-sky-500 hover:bg-sky-600 shadow-lg focus:outline-none focus:ring-4 focus:ring-white/40 transition-transform transform hover:-translate-y-0.5">
+                <span class="material-icons text-white" style="font-size: 1.75em;">travel_explore</span>
+                Launch CrystalClear AI Search
+            </button>
+        </div>
+
+        <gen-search-widget
+            configId="d0eaf5fa-0474-418f-af02-262d8a60e3d1"
+            triggerId="searchWidgetTrigger">
+        </gen-search-widget>
+                        <ul class="mt-4 space-y-3 text-sm inline-block text-left">
+                            <li class="flex items-center justify-center gap-3">
+                                <span class="material-icons text-sky-500" style="font-size: 1.25em;">check_circle</span>
+                                <span>Search by equipment name, error code, or maintenance task to get tailored guidance.</span>
+                            </li>
+                            <li class="flex items-center justify-center gap-3">
+                                <span class="material-icons text-sky-500" style="font-size: 1.25em;">check_circle</span>
+                                <span>Review concise AI summaries paired with direct links to the right service documents.</span>
+                            </li>
+                            <li class="flex items-center justify-center gap-3">
+                                <span class="material-icons text-sky-500" style="font-size: 1.25em;">check_circle</span>
+                                <span>Open manuals stored securely in Google Cloud right from the result panel.</span>
+                            </li>
+                        </ul>
+                                <span>Open manuals stored securely in Google Cloud right from the result panel.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </gen-search-widget>
+                            <span class="inline-flex items-center gap-2">
+                                <span class="material-icons text-sky-500" style="font-size: 1.25em;">check_circle</span>
+                                <span>Review concise AI summaries paired with direct links to the right service documents.</span>
+                            </span>
+                        </li>
+                        <li class="flex flex-col items-center">
+                            <span class="inline-flex items-center gap-2">
+                                <span class="material-icons text-sky-500" style="font-size: 1.25em;">check_circle</span>
+                                <span>Open manuals stored securely in Google Cloud right from the result panel.</span>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+                    </ul>
+                </div>
+            </div>
+        </gen-search-widget>
+                <li class="flex items-start gap-2"><span class="material-icons text-blue-100 mt-0.5" style="font-size: 1.1em;">check_circle</span><span>Search by equipment name, error code, or maintenance task to get tailored guidance.</span></li>
+                <li class="flex items-start gap-2"><span class="material-icons text-blue-100 mt-0.5" style="font-size: 1.1em;">check_circle</span><span>Review concise AI summaries paired with direct links to the right service documents.</span></li>
+                <li class="flex items-start gap-2"><span class="material-icons text-blue-100 mt-0.5" style="font-size: 1.1em;">check_circle</span><span>Open manuals stored securely in Google Cloud right from the result panel.</span></li>
+            </ul>
         </div>
 
         <gen-search-widget
@@ -274,6 +325,12 @@
             triggerId="searchWidgetTrigger">
         </gen-search-widget>
     </header>
+
+    <main class="bg-white rounded-t-3xl shadow-xl w-full max-w-md p-6 flex-grow">
+        <!-- All your existing content remains the same -->
+        <!-- Language Selection -->
+        <section class="mb-6">
+            <h2 class="text-lg font-semibold text-gray-700 mb-3">Select a Language</h2>
 
     <main class="bg-white rounded-t-3xl shadow-xl w-full max-w-md p-6 flex-grow">
         <!-- All your existing content remains the same -->
