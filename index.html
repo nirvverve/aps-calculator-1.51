@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"> 
 <head> 
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Pool Chemistry Calculator v1.14.1</title>
+    <title>Pool Chemistry Calculator v1.15.0</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <script src="https://cloud.google.com/ai/gen-app-builder/client?hl=en_US"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -46,7 +47,7 @@
         border-radius: 6px;
         display: block;
     }
-        
+
         /* Custom styles for results and cards */
         .chem-card {
             margin: 0.5em 0;
@@ -56,7 +57,7 @@
             background: #f8fafc;
             border-left: 4px solid #3b82f6;
         }
-        
+
         .chem-card.ph { background: #fef2f2; border-left-color: #dc2626; }
         .chem-card.alk { background: #f0fdf4; border-left-color: #16a34a; }
         .chem-card.ch { background: #eff6ff; border-left-color: #2563eb; }
@@ -262,7 +263,17 @@
     <header class="w-full py-6 px-4 text-center">
         <img src="logo.png" alt="Amenity Pool Services Logo" id="logo" class="mx-auto mb-4">
         <h1 class="text-2xl font-bold text-white">Pool Chemistry Calculator</h1>
-        <p class="text-sm text-blue-100">v1.14.1</p>
+        <p class="text-sm text-blue-100">v1.15.0</p>
+
+        <div class="mt-4 flex justify-center">
+            <input placeholder="Try Our New Service Assistant Here" id="searchWidgetTrigger" />
+        </div>
+
+        <gen-search-widget
+            configId="d0eaf5fa-0474-418f-af02-262d8a60e3d1"
+            triggerId="searchWidgetTrigger">
+        </gen-search-widget>
+    </header>
     </header>
     
     <main class="bg-white rounded-t-3xl shadow-xl w-full max-w-md p-6 flex-grow">
@@ -456,9 +467,9 @@
     
     <!-- Footer -->
     <footer class="footer-powered w-full">
-        Powered by Amenity Pool Services (v1.14.1)
+        Powered by Amenity Pool Services (v1.15.0)
     </footer>
     
     <script src="script.js"></script>
 </body>
-</html>
+    </html>

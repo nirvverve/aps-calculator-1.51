@@ -1,6 +1,6 @@
 // Add the 'fs' module for file system operations and 'path' for constructing file paths
 const fs = require('fs');
-const path = require('path');
+const path = require('path'); 
 
 // Define the path for the log file
 const LOG_FILE_PATH = path.join(__dirname, 'user_activity.log');

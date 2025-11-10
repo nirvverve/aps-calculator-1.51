@@ -4,7 +4,7 @@ process.on('uncaughtException', (err) => {
   process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at:', promise, 'reason:', reason);
   });
-  
+   
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
@@ -14,6 +14,7 @@ const PORT = 3000; // or whatever port you use
 
 app.use(express.static(path.join(__dirname))); // serves your HTML, JS, CSS
 app.use(bodyParser.json()); // lets Express read JSON sent from the browser
+
 app.post('/api/calculate', (req, res) => {
     console.log("Received request body:", req.body);
     try {
@@ -23,10 +24,10 @@ app.post('/api/calculate', (req, res) => {
     } catch (err) {
         console.error("Calculation error:", err);
         const lang = req.body.lang || 'en';
-        res.status(500).json({ 
+        res.status(500).json({
             error: 'Calculation error.',
             lang: lang
-            
+
          });
     }
 });

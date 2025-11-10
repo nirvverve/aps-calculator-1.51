@@ -1,5 +1,5 @@
 const translations = {
-    en: {
+    en: { 
         title: "Pool Chemistry Calculator for Residential Pools",
         selectLanguage: "Select a Language",
         clearForm: "🔄 Clear Form for New Pool",
