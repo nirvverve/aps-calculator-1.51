@@ -528,6 +528,10 @@ display: block;
 
 .valign-text-bottom { vertical-align: text-bottom; }
 
+input {
+    color: #000;
+}
+
 @media (max-width: 640px) {
     #logo {
         max-width: 120px;

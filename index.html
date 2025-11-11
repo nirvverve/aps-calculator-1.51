@@ -16,31 +16,13 @@
         <h1 class="text-2xl font-bold text-white">Pool Chemistry Calculator</h1>
         <p class="text-sm text-blue-100">v1.15.0</p>
 
-<div class="mt-6 flex flex-col items-center">
-    <button id="searchWidgetTrigger" type="button" class="inline-flex items-center gap-3 px-10 py-4 rounded-2xl text-lg font-semibold text-white bg-sky-500 hover:bg-sky-600 shadow-lg focus:outline-none focus:ring-4 focus:ring-white/40 transition-transform transform hover:-translate-y-0.5">
-        <span class="material-icons text-white icon-1_75em">travel_explore</span>
-        Launch CrystalClear AI Search
-    </button>
-    <div class="mt-4 text-center">
-        <div class="text-sm text-blue-100">
-            <p>Search by equipment name, error code, or maintenance task to get tailored guidance.</p>
-            <p>Review concise AI summaries paired with direct links to the right service documents.</p>
-            <p>Open manuals stored securely in Google Cloud right from the result panel.</p>
+        <div class="mt-6">
+            <a href="ai_search.html" class="inline-flex items-center gap-3 px-10 py-4 rounded-2xl text-lg font-semibold text-white bg-sky-500 hover:bg-sky-600 shadow-lg focus:outline-none focus:ring-4 focus:ring-white/40 transition-transform transform hover:-translate-y-0.5">
+                <span class="material-icons text-white icon-1_75em">travel_explore</span>
+                CrystalClear AI Search
+            </a>
         </div>
-    </div>
-</div>
-
-        <gen-search-widget
-            configId="d0eaf5fa-0474-418f-af02-262d8a60e3d1"
-            triggerId="searchWidgetTrigger">
-        </gen-search-widget>
     </header>
-
-    <main class="bg-white rounded-t-3xl shadow-xl w-full max-w-md p-6 flex-grow">
-        <!-- All your existing content remains the same -->
-        <!-- Language Selection -->
-        <section class="mb-6">
-            <h2 class="text-lg font-semibold text-gray-700 mb-3">Select a Language</h2>
 
     <main class="bg-white rounded-t-3xl shadow-xl w-full max-w-md p-6 flex-grow">
         <!-- All your existing content remains the same -->
@@ -209,7 +191,6 @@
             
             <!-- State Selection -->
             <section class="mb-6">
-                <h2 class="text-lg font-semibold text-gray-700 mb-3 required-marker">Select Your State</h2>
                 <div id="state-buttons" class="grid grid-cols-3 gap-2">
                     <button type="button" data-state="arizona" class="py-3 px-4 rounded-lg text-sm font-medium transition-colors btn-inactive">Arizona</button>
                     <button type="button" data-state="texas" class="py-3 px-4 rounded-lg text-sm font-medium transition-colors btn-inactive">Texas</button>
