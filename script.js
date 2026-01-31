@@ -207,6 +207,34 @@ function sanitizeHtml(html) {
     return html;
 }
 
+function getById(id) {
+    const element = document.getElementById(id);
+    if (!element) return null;
+    return element;
+}
+
+function getBySelector(selector) {
+    const element = document.querySelector(selector);
+    if (!element) return null;
+    return element;
+}
+
+function getAllBySelector(selector) {
+    const elements = document.querySelectorAll(selector);
+    if (!elements || elements.length === 0) return [];
+    return Array.from(elements);
+}
+
+function getInputValue(id) {
+    const element = getById(id);
+    return element ? element.value : '';
+}
+
+function setInputValue(id, value) {
+    const element = getById(id);
+    if (element) element.value = value;
+}
+
 function buildIconSpan(iconName, className, styles = {}) {
     const icon = document.createElement('span');
     icon.className = className;
@@ -241,19 +269,18 @@ function applyUrlParameters() {
     // Helper to set value for a standard input/select field
     const setValue = (paramName, elementId) => {
         if (params.has(paramName)) {
-            const element = document.getElementById(elementId);
-            if (element) {
-                let value = params.get(paramName);
-                // The capacity input has special formatting logic (commas)
-                if (elementId === 'capacity' && value.trim() !== '') {
-                    const numValue = parseInt(removeCommas(value), 10);
-                    if (!Number.isNaN(numValue)) {
-                        // Use existing formatting function from this script
-                        element.value = formatNumberWithCommas(numValue);
-                    }
-                } else {
-                    element.value = value;
+            const element = getById(elementId);
+            if (!element) return;
+            let value = params.get(paramName);
+            // The capacity input has special formatting logic (commas)
+            if (elementId === 'capacity' && value.trim() !== '') {
+                const numValue = parseInt(removeCommas(value), 10);
+                if (!Number.isNaN(numValue)) {
+                    // Use existing formatting function from this script
+                    element.value = formatNumberWithCommas(numValue);
                 }
+            } else {
+                element.value = value;
             }
         }
     };
@@ -274,7 +301,7 @@ function applyUrlParameters() {
     // This ensures all related logic (UI update, localStorage) is triggered
     if (params.has('state')) {
         const stateValue = params.get('state').toLowerCase();
-        const stateButton = document.querySelector(`#state-buttons button[data-state="${stateValue}"]`);
+        const stateButton = getBySelector(`#state-buttons button[data-state="${stateValue}"]`);
         if (stateButton) {
             stateButton.click();
         }
@@ -283,7 +310,7 @@ function applyUrlParameters() {
     // Handle Language button group similarly
     if (params.has('lang')) {
         const langValue = params.get('lang').toLowerCase();
-        const langButton = document.querySelector(`#language-buttons button[data-lang="${langValue}"]`);
+        const langButton = getBySelector(`#language-buttons button[data-lang="${langValue}"]`);
         if (langButton) {
             langButton.click();
         }
@@ -297,18 +324,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Language selection logic
     const autoPopulateVolume = localStorage.getItem('calculatedPoolVolumeGallons');
     if (autoPopulateVolume) {
-        const capacityInputOnIndexPage = document.getElementById('capacity'); // ID of the capacity input on index.html
+        const capacityInputOnIndexPage = getById('capacity'); // ID of the capacity input on index.html
         if (capacityInputOnIndexPage) {
             capacityInputOnIndexPage.value = autoPopulateVolume;
         }
         localStorage.removeItem('calculatedPoolVolumeGallons'); // Important: Clear the item after using it
     }
 
-    const languageButtons = document.querySelectorAll('#language-buttons button');
+    const languageButtons = getAllBySelector('#language-buttons button');
     const savedLang = getSelectedLanguage();
     
     // Clear form functionality
-    const clearFormBtn = document.getElementById('clear-form-btn');
+    const clearFormBtn = getById('clear-form-btn');
     if (clearFormBtn) {
         clearFormBtn.addEventListener('click', function() {
             clearAllFormData();
@@ -345,19 +372,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const t = translations[lang] || translations.en;
         
         // Header
-        const headerTitle = document.querySelector('h1');
+        const headerTitle = getBySelector('h1');
         if (headerTitle) headerTitle.textContent = t.title;
         
         // Language section
-        const langSectionH2 = document.querySelector('section h2');
+        const langSectionH2 = getBySelector('section h2');
         if (langSectionH2) langSectionH2.textContent = t.selectLanguage;
         
         // Clear button
-        const clearBtn = document.getElementById('clear-form-btn');
+        const clearBtn = getById('clear-form-btn');
         if (clearBtn) clearBtn.textContent = t.clearForm;
 
         // Training video link - updates the link text based on selected language
-        const trainingLink = document.getElementById('training-video-link');
+        const trainingLink = getById('training-video-link');
         if (trainingLink) {
         const icon = buildIconSpan(
             'ondemand_video',
@@ -368,67 +395,70 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Pool capacity
-        const capacityLabel = document.querySelector('label[for="capacity"]');
+        const capacityLabel = getBySelector('label[for="capacity"]');
         if (capacityLabel) capacityLabel.childNodes[0].textContent = t.poolCapacityLabel;
         
         // Sanitize section
-        const sanitizeH3 = document.getElementById('h3-sanitize');
+        const sanitizeH3 = getById('h3-sanitize');
         if (sanitizeH3) sanitizeH3.textContent = t.sanitize;
         
-        const fcLabel = document.querySelector('label[for="freechlorine"]');
+        const fcLabel = getBySelector('label[for="freechlorine"]');
         if (fcLabel) fcLabel.childNodes[0].textContent = t.freeChlorine;
         
-        const cyaLabel = document.querySelector('label[for="cyanuric"]');
+        const cyaLabel = getBySelector('label[for="cyanuric"]');
         if (cyaLabel) cyaLabel.childNodes[0].textContent = t.cyanuric;
         
         // Balance section
-        const balanceH3 = document.getElementById('h3-balance');
+        const balanceH3 = getById('h3-balance');
         if (balanceH3) balanceH3.textContent = t.balance;
         
-        const phLabel = document.querySelector('label[for="ph"]');
+        const phLabel = getBySelector('label[for="ph"]');
         if (phLabel) phLabel.childNodes[0].textContent = t.ph;
         
-        const alkLabel = document.querySelector('label[for="alkalinity"]');
+        const alkLabel = getBySelector('label[for="alkalinity"]');
         if (alkLabel) alkLabel.childNodes[0].textContent = t.alkalinity;
         
-        const caLabel = document.querySelector('label[for="calcium"]');
+        const caLabel = getBySelector('label[for="calcium"]');
         if (caLabel) caLabel.childNodes[0].textContent = t.calcium;
         
         // Optional section
-        const optionalH3 = document.getElementById('h3-optional');
+        const optionalH3 = getById('h3-optional');
         if (optionalH3) optionalH3.textContent = t.optional;
         
-        const tdsLabel = document.querySelector('label[for="tds"]');
+        const tdsLabel = getBySelector('label[for="tds"]');
         if (tdsLabel) tdsLabel.childNodes[0].textContent = t.tds;
         
-        const tdsNote = document.getElementById('tds-note');
+        const tdsNote = getById('tds-note');
         if (tdsNote) tdsNote.textContent = t.tdsNote;
         
-        const tempLabel = document.querySelector('label[for="temperature"]');
+        const tempLabel = getBySelector('label[for="temperature"]');
         if (tempLabel) tempLabel.childNodes[0].textContent = t.temperature;
         
-        const tempNote = document.querySelector('label[for="temperature"]').parentElement.querySelector('p');
-        if (tempNote) tempNote.textContent = t.tempNote;
+        if (tempLabel && tempLabel.parentElement) {
+            const tempNote = tempLabel.parentElement.querySelector('p');
+            if (tempNote) tempNote.textContent = t.tempNote;
+        }
         
         // Salt section
-        const saltH3 = document.getElementById('h3-salt');
+        const saltH3 = getById('h3-salt');
         if (saltH3) saltH3.textContent = t.salt;
         
-        const saltCurrentLabel = document.querySelector('label[for="salt-current"]');
+        const saltCurrentLabel = getBySelector('label[for="salt-current"]');
         if (saltCurrentLabel) saltCurrentLabel.childNodes[0].textContent = t.saltCurrent;
         
-        const saltCurrentNote = document.getElementById('salt-current-note');
+        const saltCurrentNote = getById('salt-current-note');
         if (saltCurrentNote) saltCurrentNote.textContent = t.saltCurrentNote;
         
-        const saltDesiredLabel = document.querySelector('label[for="salt-desired"]');
+        const saltDesiredLabel = getBySelector('label[for="salt-desired"]');
         if (saltDesiredLabel) saltDesiredLabel.childNodes[0].textContent = t.saltDesired;
         
         // State section
-        const stateH2 = document.querySelectorAll('h2')[1];
+        const headingElements = getAllBySelector('h2');
+        const stateH2 = headingElements[1];
         if (stateH2) stateH2.textContent = t.selectState;
         
         // Calculate button
-        const calculateBtn = document.querySelector('button[type="submit"]');
+        const calculateBtn = getBySelector('button[type="submit"]');
         if (calculateBtn) {
             // Keep the icon and update the text
             const icon = buildIconSpan('calculate', 'material-icons mr-2');
@@ -437,24 +467,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Set default values for temperature and TDS if empty
-    const tempInput = document.getElementById('temperature');
+    const tempInput = getById('temperature');
     if (tempInput && (tempInput.value === "" || tempInput.value === undefined)) {
         tempInput.value = 86;
     }
-    const tdsInput = document.getElementById('tds');
+    const tdsInput = getById('tds');
     if (tdsInput && (tdsInput.value === "" || tdsInput.value === undefined)) {
         tdsInput.value = 1000;
     }
 
     // State button logic
-    const stateButtons = document.querySelectorAll('#state-buttons button');
-    const stateInput = document.getElementById('state');
+    const stateButtons = getAllBySelector('#state-buttons button');
+    const stateInput = getById('state');
     const savedState = localStorage.getItem('selectedState');
 
 
     // Restore previous selection if available
     if (savedState) {
-        stateInput.value = savedState;
+        if (stateInput) stateInput.value = savedState;
         stateButtons.forEach(btn => {
             if (btn.dataset.state === savedState) {
                 btn.classList.remove('btn-inactive');
@@ -480,7 +510,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             btn.classList.remove('btn-inactive');
             btn.classList.add('btn-active');
-            stateInput.value = btn.dataset.state;
+            if (stateInput) stateInput.value = btn.dataset.state;
             localStorage.setItem('selectedState', btn.dataset.state);
         });
     });
@@ -488,7 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setLanguage(savedLang);
 
     // Form submission handler - IMPROVED VERSION
-    const capacityInput = document.getElementById('capacity');
+    const capacityInput = getById('capacity');
     if (capacityInput) {
         // Only allow digits during input
         capacityInput.addEventListener('input', function(e) {
@@ -519,36 +549,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Form submission handler - IMPROVED VERSION
-    const form = document.getElementById('pool-form');
+    const form = getById('pool-form');
     if (form) {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
             e.stopPropagation();
             
             // CRITICAL: Clean capacity field BEFORE getting its value
-            const capacityField = document.getElementById('capacity');
+            const capacityField = getById('capacity');
             if (capacityField) {
                 capacityField.value = removeCommas(capacityField.value);
             }
         
         // Now get the cleaned values
         const formData = {
-            state: document.getElementById('state').value,
-            capacity: document.getElementById('capacity').value, // Now guaranteed to be clean
-            ph: document.getElementById('ph').value,
-            alkalinity: document.getElementById('alkalinity').value,
-            calcium: document.getElementById('calcium').value,
-            temperature: document.getElementById('temperature').value,
-            tds: document.getElementById('tds').value,
-            cyanuric: document.getElementById('cyanuric').value,
-            freechlorine: document.getElementById('freechlorine').value,
-            'salt-current': document.getElementById('salt-current').value,
-            'salt-desired': document.getElementById('salt-desired').value,
+            state: getInputValue('state'),
+            capacity: getInputValue('capacity'), // Now guaranteed to be clean
+            ph: getInputValue('ph'),
+            alkalinity: getInputValue('alkalinity'),
+            calcium: getInputValue('calcium'),
+            temperature: getInputValue('temperature'),
+            tds: getInputValue('tds'),
+            cyanuric: getInputValue('cyanuric'),
+            freechlorine: getInputValue('freechlorine'),
+            'salt-current': getInputValue('salt-current'),
+            'salt-desired': getInputValue('salt-desired'),
             lang: getSelectedLanguage()
         };
         
         
-        const resultsElement = document.getElementById('results');
+        const resultsElement = getById('results');
+        if (!resultsElement) return;
         const lang = getSelectedLanguage();
         const t = translations[lang];
 
@@ -696,18 +727,18 @@ applyUrlParameters();
 
 // Clear form function - moved outside of DOMContentLoaded
 function clearAllFormData() {
-    const form = document.getElementById('pool-form');
+    const form = getById('pool-form');
     if (form) {
         form.reset();
         
         setTimeout(() => {
-            document.getElementById('temperature').value = 86;
-            document.getElementById('tds').value = 1000;
-            document.getElementById('salt-current').value = 0;
-            document.getElementById('salt-desired').value = 0;
+            setInputValue('temperature', 86);
+            setInputValue('tds', 1000);
+            setInputValue('salt-current', 0);
+            setInputValue('salt-desired', 0);
             
             const currentLang = getSelectedLanguage();
-            const languageButtons = document.querySelectorAll('#language-buttons button');
+            const languageButtons = getAllBySelector('#language-buttons button');
             languageButtons.forEach(btn => {
                 if (btn.dataset.lang === currentLang) {
                     btn.classList.remove('btn-inactive');
@@ -720,8 +751,8 @@ function clearAllFormData() {
             
             const currentState = localStorage.getItem('selectedState');
             if (currentState) {
-                document.getElementById('state').value = currentState;
-                const stateButtons = document.querySelectorAll('#state-buttons button');
+                setInputValue('state', currentState);
+                const stateButtons = getAllBySelector('#state-buttons button');
                 stateButtons.forEach(btn => {
                     if (btn.dataset.state === currentState) {
                         btn.classList.remove('btn-inactive');
@@ -732,20 +763,20 @@ function clearAllFormData() {
                     }
                 });
             } else {
-                const stateButtons = document.querySelectorAll('#state-buttons button');
+                const stateButtons = getAllBySelector('#state-buttons button');
                 stateButtons.forEach(btn => {
                     btn.classList.remove('btn-active');
                     btn.classList.add('btn-inactive');
                 });
-                document.getElementById('state').value = '';
+                setInputValue('state', '');
             }
             
-            const resultsElement = document.getElementById('results');
+            const resultsElement = getById('results');
             if (resultsElement) {
                 resultsElement.replaceChildren();
             }
             
-            const firstInput = document.getElementById('capacity');
+            const firstInput = getById('capacity');
             if (firstInput) {
                 firstInput.focus();
             }
