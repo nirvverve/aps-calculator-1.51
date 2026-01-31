@@ -53,11 +53,12 @@ const translations = {
         errorRangeCapacity: "Pool capacity must be between 500 and 50,000 gallons.",
         errorRangePh: "pH must be between 6.5 and 8.5.",
         errorRangeAlkalinity: "Alkalinity must be between 10 and 300 ppm.",
+        alkalinityZeroNote: "Note: The calculator requires a minimum alkalinity entry of 10 ppm. If your manual test shows 0 ppm, enter 10 ppm in the calculator.",
         errorRangeCalcium: "Calcium hardness must be between 0 and 1,000 ppm.",
         errorRangeCyanuric: "Cyanuric acid must be between 0 and 300 ppm.",
         errorRangeTds: "TDS must be between 0 and 10,000 ppm.",
         errorRangeSalt: "Salt levels must be between 0 and 10,000 ppm.",
-        errorRangeTemperature: "Temperature must be between 50°F and 104°F.",
+        errorRangeTemperature: "Temperature must be between 33°F and 104°F.",
         errorRangeFreeChlorine: "Free chlorine must be between 0 and 30 ppm."
     },
     es: {
@@ -114,11 +115,12 @@ const translations = {
         errorRangeCapacity: "La capacidad de la piscina debe estar entre 500 y 50,000 galones.",
         errorRangePh: "El pH debe estar entre 6.5 y 8.5.",
         errorRangeAlkalinity: "La alcalinidad debe estar entre 10 y 300 ppm.",
+        alkalinityZeroNote: "Nota: La calculadora requiere un mínimo de 10 ppm de alcalinidad. Si la prueba manual marca 0 ppm, ingrese 10 ppm en la calculadora.",
         errorRangeCalcium: "La dureza de calcio debe estar entre 0 y 1,000 ppm.",
         errorRangeCyanuric: "El ácido cianúrico debe estar entre 0 y 300 ppm.",
         errorRangeTds: "Los TDS deben estar entre 0 y 10,000 ppm.",
         errorRangeSalt: "Los niveles de sal deben estar entre 0 y 10,000 ppm.",
-        errorRangeTemperature: "La temperatura debe estar entre 50°F y 104°F.",
+        errorRangeTemperature: "La temperatura debe estar entre 33°F y 104°F.",
         errorRangeFreeChlorine: "El cloro libre debe estar entre 0 y 30 ppm."
     },
     it: {
@@ -175,14 +177,20 @@ const translations = {
         errorRangeCapacity: "La capacità della piscina deve essere compresa tra 500 e 50.000 galloni.",
         errorRangePh: "Il pH deve essere compreso tra 6,5 e 8,5.",
         errorRangeAlkalinity: "L'alcalinità deve essere compresa tra 10 e 300 ppm.",
+        alkalinityZeroNote: "Nota: Il calcolatore richiede un minimo di 10 ppm di alcalinità. Se il test manuale mostra 0 ppm, inserisci 10 ppm nel calcolatore.",
         errorRangeCalcium: "La durezza del calcio deve essere compresa tra 0 e 1.000 ppm.",
         errorRangeCyanuric: "L'acido cianurico deve essere compreso tra 0 e 300 ppm.",
         errorRangeTds: "I TDS devono essere compresi tra 0 e 10.000 ppm.",
         errorRangeSalt: "I livelli di sale devono essere compresi tra 0 e 10.000 ppm.",
-        errorRangeTemperature: "La temperatura deve essere compresa tra 50°F e 104°F.",
+        errorRangeTemperature: "La temperatura deve essere compresa tra 33°F e 104°F.",
         errorRangeFreeChlorine: "Il cloro libero deve essere compreso tra 0 e 30 ppm."
     }
 };
+
+function getSelectedLanguage() {
+    const stored = localStorage.getItem('selectedLanguage');
+    return translations[stored] ? stored : 'en';
+}
 function formatNumberWithCommas(num) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -203,7 +211,7 @@ function applyUrlParameters() {
                 // The capacity input has special formatting logic (commas)
                 if (elementId === 'capacity' && value.trim() !== '') {
                     const numValue = parseInt(removeCommas(value), 10);
-                    if (!isNaN(numValue)) {
+                    if (!Number.isNaN(numValue)) {
                         // Use existing formatting function from this script
                         element.value = formatNumberWithCommas(numValue);
                     }
@@ -261,7 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const languageButtons = document.querySelectorAll('#language-buttons button');
-    const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+    const savedLang = getSelectedLanguage();
     
     // Clear form functionality
     const clearFormBtn = document.getElementById('clear-form-btn');
@@ -298,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to update UI text - FIXED VERSION
     function setLanguage(lang) {
-        const t = translations[lang];
+        const t = translations[lang] || translations.en;
         
         // Header
         const headerTitle = document.querySelector('h1');
@@ -453,7 +461,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let value = e.target.value;
             if (value && value.trim() !== '') {
                 const numValue = parseInt(value, 10);
-                if (!isNaN(numValue) && numValue > 0) {
+                if (!Number.isNaN(numValue) && numValue > 0) {
                     e.target.value = formatNumberWithCommas(numValue);
                 }
             }
@@ -494,24 +502,31 @@ document.addEventListener('DOMContentLoaded', function() {
             freechlorine: document.getElementById('freechlorine').value,
             'salt-current': document.getElementById('salt-current').value,
             'salt-desired': document.getElementById('salt-desired').value,
-            lang: localStorage.getItem('selectedLanguage') || 'en'
+            lang: getSelectedLanguage()
         };
         
         console.log('Form data being submitted:', formData);
         console.log('Capacity value:', formData.capacity);
         
         const resultsElement = document.getElementById('results');
-        const lang = localStorage.getItem('selectedLanguage') || 'en';
+        const lang = getSelectedLanguage();
         const t = translations[lang];
-        
+
+        const isBlank = (value) => value === undefined || value === null || String(value).trim() === '';
+
         // Check if all required fields are filled
-        if (!formData.state || !formData.capacity || !formData.ph || 
-            !formData.alkalinity || !formData.calcium || !formData.temperature || 
-            !formData.tds || !formData.cyanuric || !formData.freechlorine) {
+        if (isBlank(formData.state) || isBlank(formData.capacity) || isBlank(formData.ph) || 
+            isBlank(formData.alkalinity) || isBlank(formData.calcium) || 
+            isBlank(formData.cyanuric) || isBlank(formData.freechlorine)) {
             resultsElement.innerHTML = `<p class="error">${t.errorRequired}</p>`;
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
+
+        if (isBlank(formData.temperature)) formData.temperature = "86";
+        if (isBlank(formData.tds)) formData.tds = "1000";
+        if (isBlank(formData['salt-current'])) formData['salt-current'] = "0";
+        if (isBlank(formData['salt-desired'])) formData['salt-desired'] = "0";
         
         // Parse values for validation
         const capacity = parseFloat(formData.capacity);
@@ -522,12 +537,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const freeChlorine = parseFloat(formData.freechlorine);
         const tds = parseFloat(formData.tds);
         const saltCurrent = parseFloat(formData['salt-current']);
+        const saltDesired = parseFloat(formData['salt-desired']);
         const temperature = parseFloat(formData.temperature);
         
         console.log('Parsed capacity:', capacity);
+
+        if ([capacity, ph, alkalinity, calcium, cyanuric, freeChlorine, tds, saltCurrent, saltDesired, temperature].some(Number.isNaN)) {
+            resultsElement.innerHTML = `<p class="error">${t.errorRequired}</p>`;
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
         
         // Validate ranges
-        if (isNaN(capacity) || capacity < 500 || capacity > 50000) {
+        if (Number.isNaN(capacity) || capacity < 500 || capacity > 50000) {
             console.log('Capacity validation failed:', capacity);
             resultsElement.innerHTML = `<p class="error">${t.errorRangeCapacity}</p>`;
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -540,6 +562,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        if (alkalinity === 0) {
+            resultsElement.innerHTML = `<p class="error">${t.alkalinityZeroNote}</p>`;
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+
         if (alkalinity < 10 || alkalinity > 300) {
             resultsElement.innerHTML = `<p class="error">${t.errorRangeAlkalinity}</p>`;
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -570,13 +598,13 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        if (saltCurrent < 0 || saltCurrent > 10000) {
+        if (saltCurrent < 0 || saltCurrent > 10000 || saltDesired < 0 || saltDesired > 10000) {
             resultsElement.innerHTML = `<p class="error">${t.errorRangeSalt}</p>`;
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
         
-        if (temperature < 50 || temperature > 104) {
+        if (temperature < 33 || temperature > 104) {
             resultsElement.innerHTML = `<p class="error">${t.errorRangeTemperature}</p>`;
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
@@ -609,7 +637,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
             } else if (data.error) {
-                const errorLang = data.lang || localStorage.getItem('selectedLanguage') || 'en';
+                const errorLang = data.lang || getSelectedLanguage();
                 const t = translations[errorLang];
                 resultsElement.innerHTML = `<p class="error">${t.serverError}</p>`;
                 resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -619,7 +647,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (err) {
             console.error('Fetch error:', err);
-            const lang = localStorage.getItem('selectedLanguage') || 'en';
+            const lang = getSelectedLanguage();
             const t = translations[lang];
             resultsElement.innerHTML = `<p class="error">${t.serverError}</p>`;
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -643,7 +671,7 @@ function clearAllFormData() {
             document.getElementById('salt-current').value = 0;
             document.getElementById('salt-desired').value = 0;
             
-            const currentLang = localStorage.getItem('selectedLanguage') || 'en';
+            const currentLang = getSelectedLanguage();
             const languageButtons = document.querySelectorAll('#language-buttons button');
             languageButtons.forEach(btn => {
                 if (btn.dataset.lang === currentLang) {

@@ -79,12 +79,13 @@ const translations = {
         addAfterTesting: "Add immediately after adding bicarbonate (if applicable). Otherwise, add after testing.",
         errorRangeCapacity: "Pool capacity must be between 500 and 50,000 gallons.",
         errorRangePh: "pH must be between 6.5 and 8.5.",
-        errorRangeAlkalinity: "Alkalinity must be between 10 and 300 ppm. If tested alkalinity is zero, enter 10 ppm.",
+        errorRangeAlkalinity: "Alkalinity must be between 10 and 300 ppm.",
+        alkalinityZeroNote: "Note: The calculator requires a minimum alkalinity entry of 10 ppm. If your manual test shows 0 ppm, enter 10 ppm in the calculator.",
         errorRangeCalcium: "Calcium hardness must be between 0 and 1,000 ppm.",
         errorRangeCyanuric: "Cyanuric acid must be between 0 and 300 ppm.",
         errorRangeTds: "TDS must be between 0 and 10,000 ppm.",
         errorRangeSalt: "Salt levels must be between 0 and 10,000 ppm.",
-        errorRangeTemperature: "Temperature must be between 50°F and 104°F.",
+        errorRangeTemperature: "Temperature must be between 33°F and 104°F.",
         errorRangeFreeChlorine: "Free chlorine must be between 0 and 30 ppm.",
         units: {
             lbs: "lbs",
@@ -179,12 +180,13 @@ const translations = {
         addAfterTesting: "Agregar inmediatamente después de añadir bicarbonato (si aplica). De lo contrario, agregar después de la prueba.",
         errorRangeCapacity: "La capacidad de la piscina debe estar entre 500 y 50,000 galones.",
         errorRangePh: "El pH debe estar entre 6.5 y 8.5.",
-        errorRangeAlkalinity: "La alcalinidad debe estar entre 10 y 300 ppm. Si la alcalinidad medida es cero, ingrese 10 ppm.",
+        errorRangeAlkalinity: "La alcalinidad debe estar entre 10 y 300 ppm.",
+        alkalinityZeroNote: "Nota: La calculadora requiere un mínimo de 10 ppm de alcalinidad. Si la prueba manual marca 0 ppm, ingrese 10 ppm en la calculadora.",
         errorRangeCalcium: "La dureza de calcio debe estar entre 0 y 1,000 ppm.",
         errorRangeCyanuric: "El ácido cianúrico debe estar entre 0 y 300 ppm.",
         errorRangeTds: "Los TDS deben estar entre 0 y 10,000 ppm.",
         errorRangeSalt: "Los niveles de sal deben estar entre 0 y 10,000 ppm.",
-        errorRangeTemperature: "La temperatura debe estar entre 50°F y 104°F.",
+        errorRangeTemperature: "La temperatura debe estar entre 33°F y 104°F.",
         errorRangeFreeChlorine: "El cloro libre debe estar entre 0 y 30 ppm.",
         units: { 
             lbs: "libras",
@@ -281,12 +283,13 @@ const translations = {
         addAfterTesting: "Aggiungere immediatamente dopo aver aggiunto bicarbonato (se applicabile). Altrimenti aggiungere dopo il test.",
         errorRangeCapacity: "La capacità della piscina deve essere compresa tra 500 e 50.000 galloni.",
         errorRangePh: "Il pH deve essere compreso tra 6,5 e 8,5.",
-        errorRangeAlkalinity: "L'alcalinità deve essere compresa tra 10 e 300 ppm. Se l'alcalinità misurata è zero, inserire 10 ppm.",
+        errorRangeAlkalinity: "L'alcalinità deve essere compresa tra 10 e 300 ppm.",
+        alkalinityZeroNote: "Nota: Il calcolatore richiede un minimo di 10 ppm di alcalinità. Se il test manuale mostra 0 ppm, inserisci 10 ppm nel calcolatore.",
         errorRangeCalcium: "La durezza del calcio deve essere compresa tra 0 e 1.000 ppm.",
         errorRangeCyanuric: "L'acido cianurico deve essere compreso tra 0 e 300 ppm.",
         errorRangeTds: "I TDS devono essere compresi tra 0 e 10.000 ppm.",
         errorRangeSalt: "I livelli di sale devono essere compresi tra 0 e 10.000 ppm.",
-        errorRangeTemperature: "La temperatura deve essere compresa tra 50°F e 104°F.",
+        errorRangeTemperature: "La temperatura deve essere compresa tra 33°F e 104°F.",
         errorRangeFreeChlorine: "Il cloro libero deve essere compreso tra 0 e 30 ppm.",
         units: {
             lbs: "libbre",
@@ -763,6 +766,10 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
         return { html: `<p class="error">${t.errorRangePh}</p>` };
     }
     
+    if (alkalinity === 0) {
+        return { html: `<p class="error">${t.alkalinityZeroNote}</p>` };
+    }
+
     if (alkalinity < 10 || alkalinity > 300) {
         return { html: `<p class="error">${t.errorRangeAlkalinity}</p>` };
     }
@@ -787,7 +794,7 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
         return { html: `<p class="error">${t.errorRangeSalt}</p>` };
     }
 
-    if (temperature < 50 || temperature > 104) {
+    if (temperature < 33 || temperature > 104) {
         return { html: `<p class="error">${t.errorRangeTemperature}</p>` };
     }
 

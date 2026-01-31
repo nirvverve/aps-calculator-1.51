@@ -11,22 +11,23 @@ const { calculateLSIAndAdvice } = require('./calculator');
 const app = express();
 const PORT = 3000; // or whatever port you use
 
-// Block access to sensitive files/directories before static serving
-app.use((req, res, next) => {
-    const blocked = ['/user_activity.log', '/calculator.js', '/server.js',
-                     '/package.json', '/package-lock.json',
-                     '/.beads', '/.ntm', '/.claude', '/.git', '/.vscode',
-                     '/node_modules', '/.gitignore', '/AGENTS.md',
-                     '/INVESTIGATION_REPORT.md'];
-    const lower = req.path.toLowerCase();
-    if (blocked.some(p => lower === p || lower.startsWith(p + '/'))) {
-        return res.status(404).send('Not found');
-    }
-    next();
-});
-
-app.use(express.static(path.join(__dirname)));
 app.use(express.json());
+app.use('/assets', express.static(path.join(__dirname, 'assets'), { fallthrough: false }));
+
+const PUBLIC_FILES = {
+    '/': 'index.html',
+    '/index.html': 'index.html',
+    '/ai_search.html': 'ai_search.html',
+    '/volume_calculator.html': 'volume_calculator.html',
+    '/styles.css': 'styles.css',
+    '/script.js': 'script.js',
+    '/volume_script.js': 'volume_script.js'
+};
+
+app.get(Object.keys(PUBLIC_FILES), (req, res) => {
+    const file = PUBLIC_FILES[req.path] || 'index.html';
+    res.sendFile(path.join(__dirname, file));
+});
 
 app.post('/api/calculate', (req, res) => {
     console.log("Received request body:", req.body);
