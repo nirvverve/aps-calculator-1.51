@@ -24,6 +24,7 @@ const translations = {
         saltCurrentNote: "Note: If pool does not use salt, leave at 0 ppm.",
         saltDesired: "Desired Salt Level (ppm):",
         calculate: "Calculate Chemical Dose Amounts & LSI",
+        calculating: "Calculating...",
         summaryTitle: "Summary of Chemicals to Add at Today's Visit",
         waitNote: "Wait at least 10 minutes and circulate water before adding any other chemicals.",
         detailsTitle: "Detailed Explanation",
@@ -49,14 +50,15 @@ const translations = {
         nextVisitNote: "These changes should be made at the next service visit. Retest the water before making adjustments.",
         errorRequired: "Please fill in all required fields.",
         serverError: "Server error. Please try again later.",
-        errorRangeCapacity: "Pool capacity must be between 100 and 50,000 gallons.",
+        errorRangeCapacity: "Pool capacity must be between 500 and 50,000 gallons.",
         errorRangePh: "pH must be between 6.5 and 8.5.",
-        errorRangeAlkalinity: "Alkalinity must be between 0 and 300 ppm.",
+        errorRangeAlkalinity: "Alkalinity must be between 10 and 300 ppm.",
         errorRangeCalcium: "Calcium hardness must be between 0 and 1,000 ppm.",
         errorRangeCyanuric: "Cyanuric acid must be between 0 and 300 ppm.",
         errorRangeTds: "TDS must be between 0 and 10,000 ppm.",
         errorRangeSalt: "Salt levels must be between 0 and 10,000 ppm.",
-        errorRangeTemperature: "Temperature must be between 32°F and 104°F."
+        errorRangeTemperature: "Temperature must be between 50°F and 104°F.",
+        errorRangeFreeChlorine: "Free chlorine must be between 0 and 30 ppm."
     },
     es: {
         title: "Calculadora de Química para Piscinas Residenciales",
@@ -83,6 +85,7 @@ const translations = {
         saltCurrentNote: "Nota: Si la piscina no usa sal, deje en 0 ppm.",
         saltDesired: "Nivel Deseado de Sal (ppm):",
         calculate: "Calcular Dosis Química y LSI",
+        calculating: "Calculando...",
         summaryTitle: "Resumen de Químicos a Añadir en la Visita de Hoy",
         waitNote: "Espere al menos 10 minutos y circule el agua antes de añadir otros productos químicos.",
         detailsTitle: "Explicación Detallada",
@@ -108,14 +111,15 @@ const translations = {
         nextVisitNote: "Estos cambios deben realizarse en la próxima visita de servicio. Vuelva a analizar el agua antes de hacer ajustes.",
         errorRequired: "Por favor, complete todos los campos obligatorios.",
         serverError: "Error del servidor. Por favor, inténtelo de nuevo más tarde.",
-        errorRangeCapacity: "La capacidad de la piscina debe estar entre 100 y 50,000 galones.",
+        errorRangeCapacity: "La capacidad de la piscina debe estar entre 500 y 50,000 galones.",
         errorRangePh: "El pH debe estar entre 6.5 y 8.5.",
-        errorRangeAlkalinity: "La alcalinidad debe estar entre 0 y 300 ppm.",
+        errorRangeAlkalinity: "La alcalinidad debe estar entre 10 y 300 ppm.",
         errorRangeCalcium: "La dureza de calcio debe estar entre 0 y 1,000 ppm.",
         errorRangeCyanuric: "El ácido cianúrico debe estar entre 0 y 300 ppm.",
         errorRangeTds: "Los TDS deben estar entre 0 y 10,000 ppm.",
         errorRangeSalt: "Los niveles de sal deben estar entre 0 y 10,000 ppm.",
-        errorRangeTemperature: "La temperatura debe estar entre 32°F y 104°F."
+        errorRangeTemperature: "La temperatura debe estar entre 50°F y 104°F.",
+        errorRangeFreeChlorine: "El cloro libre debe estar entre 0 y 30 ppm."
     },
     it: {
         title: "Calcolatrice Chimica per Piscine Residenziali",
@@ -142,6 +146,7 @@ const translations = {
         saltCurrentNote: "Nota: Se la piscina non usa sale, lasciare a 0 ppm.",
         saltDesired: "Livello di Sale Desiderato (ppm):",
         calculate: "Calcola Dosaggio Chimico e LSI",
+        calculating: "Calcolo in corso...",
         summaryTitle: "Riepilogo dei Prodotti Chimici da Aggiungere Oggi",
         waitNote: "Attendere almeno 10 minuti e far circolare l'acqua prima di aggiungere altri prodotti chimici.",
         detailsTitle: "Spiegazione Dettagliata",
@@ -167,14 +172,15 @@ const translations = {
         nextVisitNote: "Queste modifiche dovrebbero essere apportate alla prossima visita di servizio. Ritestare l'acqua prima di effettuare regolazioni.",
         errorRequired: "Si prega di compilare tutti i campi obbligatori.",
         serverError: "Errore del server. Riprova più tardi.",
-        errorRangeCapacity: "La capacità della piscina deve essere compresa tra 100 e 50.000 galloni.",
+        errorRangeCapacity: "La capacità della piscina deve essere compresa tra 500 e 50.000 galloni.",
         errorRangePh: "Il pH deve essere compreso tra 6,5 e 8,5.",
-        errorRangeAlkalinity: "L'alcalinità deve essere compresa tra 0 e 300 ppm.",
+        errorRangeAlkalinity: "L'alcalinità deve essere compresa tra 10 e 300 ppm.",
         errorRangeCalcium: "La durezza del calcio deve essere compresa tra 0 e 1.000 ppm.",
         errorRangeCyanuric: "L'acido cianurico deve essere compreso tra 0 e 300 ppm.",
         errorRangeTds: "I TDS devono essere compresi tra 0 e 10.000 ppm.",
         errorRangeSalt: "I livelli di sale devono essere compresi tra 0 e 10.000 ppm.",
-        errorRangeTemperature: "La temperatura deve essere compresa tra 32°F e 104°F."
+        errorRangeTemperature: "La temperatura deve essere compresa tra 50°F e 104°F.",
+        errorRangeFreeChlorine: "Il cloro libero deve essere compreso tra 0 e 30 ppm."
     }
 };
 function formatNumberWithCommas(num) {
@@ -317,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (capacityLabel) capacityLabel.childNodes[0].textContent = t.poolCapacityLabel;
         
         // Sanitize section
-        const sanitizeH3 = document.querySelector('h3');
+        const sanitizeH3 = document.getElementById('h3-sanitize');
         if (sanitizeH3) sanitizeH3.textContent = t.sanitize;
         
         const fcLabel = document.querySelector('label[for="freechlorine"]');
@@ -327,7 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (cyaLabel) cyaLabel.childNodes[0].textContent = t.cyanuric;
         
         // Balance section
-        const balanceH3 = document.querySelectorAll('h3')[1];
+        const balanceH3 = document.getElementById('h3-balance');
         if (balanceH3) balanceH3.textContent = t.balance;
         
         const phLabel = document.querySelector('label[for="ph"]');
@@ -340,13 +346,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (caLabel) caLabel.childNodes[0].textContent = t.calcium;
         
         // Optional section
-        const optionalH3 = document.querySelectorAll('h3')[2];
+        const optionalH3 = document.getElementById('h3-optional');
         if (optionalH3) optionalH3.textContent = t.optional;
         
         const tdsLabel = document.querySelector('label[for="tds"]');
         if (tdsLabel) tdsLabel.childNodes[0].textContent = t.tds;
         
-        const tdsNote = document.querySelector('label[for="tds"] + p');
+        const tdsNote = document.getElementById('tds-note');
         if (tdsNote) tdsNote.textContent = t.tdsNote;
         
         const tempLabel = document.querySelector('label[for="temperature"]');
@@ -356,13 +362,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (tempNote) tempNote.textContent = t.tempNote;
         
         // Salt section
-        const saltH3 = document.querySelectorAll('h3')[3];
+        const saltH3 = document.getElementById('h3-salt');
         if (saltH3) saltH3.textContent = t.salt;
         
         const saltCurrentLabel = document.querySelector('label[for="salt-current"]');
         if (saltCurrentLabel) saltCurrentLabel.childNodes[0].textContent = t.saltCurrent;
         
-        const saltCurrentNote = document.querySelector('label[for="salt-current"] + p');
+        const saltCurrentNote = document.getElementById('salt-current-note');
         if (saltCurrentNote) saltCurrentNote.textContent = t.saltCurrentNote;
         
         const saltDesiredLabel = document.querySelector('label[for="salt-desired"]');
@@ -513,6 +519,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const alkalinity = parseFloat(formData.alkalinity);
         const calcium = parseFloat(formData.calcium);
         const cyanuric = parseFloat(formData.cyanuric);
+        const freeChlorine = parseFloat(formData.freechlorine);
         const tds = parseFloat(formData.tds);
         const saltCurrent = parseFloat(formData['salt-current']);
         const temperature = parseFloat(formData.temperature);
@@ -520,7 +527,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Parsed capacity:', capacity);
         
         // Validate ranges
-        if (isNaN(capacity) || capacity < 100 || capacity > 50000) {
+        if (isNaN(capacity) || capacity < 500 || capacity > 50000) {
             console.log('Capacity validation failed:', capacity);
             resultsElement.innerHTML = `<p class="error">${t.errorRangeCapacity}</p>`;
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -533,7 +540,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        if (alkalinity < 0 || alkalinity > 300) {
+        if (alkalinity < 10 || alkalinity > 300) {
             resultsElement.innerHTML = `<p class="error">${t.errorRangeAlkalinity}</p>`;
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
@@ -550,7 +557,13 @@ document.addEventListener('DOMContentLoaded', function() {
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
-        
+
+        if (freeChlorine < 0 || freeChlorine > 30) {
+            resultsElement.innerHTML = `<p class="error">${t.errorRangeFreeChlorine}</p>`;
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+
         if (tds < 0 || tds > 10000) {
             resultsElement.innerHTML = `<p class="error">${t.errorRangeTds}</p>`;
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -570,7 +583,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Show calculating message
-        resultsElement.innerHTML = '<div style="text-align: center; padding: 2em; color: #1e759d; font-size: 1.2em;">Calculating...</div>';
+        resultsElement.innerHTML = `<div style="text-align: center; padding: 2em; color: #1e759d; font-size: 1.2em;">${t.calculating}</div>`;
         resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         
         try {

@@ -202,14 +202,14 @@ document.addEventListener('DOMContentLoaded', () => {
             <rect x="${baseX}" y="${baseY}" width="${s_total_w}" height="${s_h}" rx="${rect_ry}" ry="${rect_ry}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
             <rect x="${baseX + 4}" y="${baseY + 4}" width="${s_total_w - 8}" height="${s_h - 8}" rx="${rect_ry > 4 ? rect_ry - 4 : 0}" ry="${rect_ry > 4 ? rect_ry - 4 : 0}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1"/>
     
-            {/* Dimension: Length (straight part) */}
+            <!-- Dimension: Length (straight part) -->
             <line id="roman-length-cap1" x1="${baseX + s_h/2}" y1="${baseY + s_h + 5}" x2="${baseX + s_h/2}" y2="${baseY + s_h + 15}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <line id="roman-length-line1" x1="${baseX + s_h/2}" y1="${baseY + s_h + 10}" x2="${baseX + s_h/2 + s_l/2 - 15}" y2="${baseY + s_h + 10}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <text id="roman-length-text" x="${baseX + s_h/2 + s_l/2}" y="${baseY + s_h + 10}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Length</text>
             <line id="roman-length-line2" x1="${baseX + s_h/2 + s_l/2 + 15}" y1="${baseY + s_h + 10}" x2="${baseX + s_h/2 + s_l}" y2="${baseY + s_h + 10}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <line id="roman-length-cap2" x1="${baseX + s_h/2 + s_l}" y1="${baseY + s_h + 5}" x2="${baseX + s_h/2 + s_l}" y2="${baseY + s_h + 15}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     
-            {/* Dimension: Width */}
+            <!-- Dimension: Width -->
             <line id="roman-width-cap1" x1="${baseX + s_total_w + 5}" y1="${baseY}" x2="${baseX + s_total_w + 15}" y2="${baseY}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <line id="roman-width-line1" x1="${baseX + s_total_w + 10}" y1="${baseY}" x2="${baseX + s_total_w + 10}" y2="${baseY + s_h/2 - 15}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <text id="roman-width-text" x="${baseX + s_total_w + 10}" y="${baseY + s_h/2}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(90, ${baseX + s_total_w + 10}, ${baseY + s_h/2})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Width</text>
@@ -272,36 +272,36 @@ document.addEventListener('DOMContentLoaded', () => {
         return `
     <svg viewBox="-10 -10 240 210" xmlns="http://www.w3.org/2000/svg"> 
     <g id="trueL-group" transform="rotate(${rotation}, ${rotationCenterX}, ${rotationCenterY})"> 
-    {/* Top Rectangle (Section A based on Length A and Width A) */}
+    <!-- Top Rectangle (Section A based on Length A and Width A) -->
     <rect x="${r1x}" y="${r1y}" width="${r1w}" height="${r1h}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
     <rect x="${r1x + INNER_L_RECT_PADDING}" y="${r1y + INNER_L_RECT_PADDING}" width="${inner_r1w}" height="${inner_r1h}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1"/>
     
-    {/* Side Rectangle (Section B based on Length B and Width B) */}
+    <!-- Side Rectangle (Section B based on Length B and Width B) -->
     <rect x="${r2x}" y="${r2y}" width="${r2w}" height="${r2h}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
     <rect x="${r2x + INNER_L_RECT_PADDING}" y="${r2y + INNER_L_RECT_PADDING}" width="${inner_r2w}" height="${inner_r2h}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1"/>
 
-    {/* Dimension: Length A (overall width of top arm) */}
+    <!-- Dimension: Length A (overall width of top arm) -->
     <line id="trueL-lengthA-cap1" x1="${r1x}" y1="${la_line_y - DIM_L_CAP_SIZE}" x2="${r1x}" y2="${la_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="trueL-lengthA-line1" x1="${r1x}" y1="${la_line_y}" x2="${Math.max(r1x, la_text_x - DIM_L_TEXT_APPROX_HALF_WIDTH)}" y2="${la_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <text id="trueL-lengthA-text" x="${la_text_x}" y="${la_line_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Length A</text>
     <line id="trueL-lengthA-line2" x1="${la_text_x + DIM_L_TEXT_APPROX_HALF_WIDTH}" y1="${la_line_y}" x2="${r1x + r1w}" y2="${la_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="trueL-lengthA-cap2" x1="${r1x + r1w}" y1="${la_line_y - DIM_L_CAP_SIZE}" x2="${r1x + r1w}" y2="${la_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-    {/* Dimension: Width A (height of top arm) */}
+    <!-- Dimension: Width A (height of top arm) -->
     <line id="trueL-widthA-cap1" x1="${wa_line_x - DIM_L_CAP_SIZE}" y1="${r1y}" x2="${wa_line_x + DIM_L_CAP_SIZE}" y2="${r1y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="trueL-widthA-line1" x1="${wa_line_x}" y1="${r1y}" x2="${wa_line_x}" y2="${Math.max(r1y, wa_text_y - DIM_L_TEXT_APPROX_HALF_WIDTH)}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <text id="trueL-widthA-text" x="${wa_line_x}" y="${wa_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(90, ${wa_line_x}, ${wa_text_y})">Width A</text>
     <line id="trueL-widthA-line2" x1="${wa_line_x}" y1="${wa_text_y + DIM_L_TEXT_APPROX_HALF_WIDTH}" x2="${wa_line_x}" y2="${r1y + r1h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="trueL-widthA-cap2" x1="${wa_line_x - DIM_L_CAP_SIZE}" y1="${r1y + r1h}" x2="${wa_line_x + DIM_L_CAP_SIZE}" y2="${r1y + r1h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-    {/* Dimension: Length B (height of side arm) */}
+    <!-- Dimension: Length B (height of side arm) -->
     <line id="trueL-lengthB-cap1" x1="${lb_line_x - DIM_L_CAP_SIZE}" y1="${r2y}" x2="${lb_line_x + DIM_L_CAP_SIZE}" y2="${r2y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="trueL-lengthB-line1" x1="${lb_line_x}" y1="${r2y}" x2="${lb_line_x}" y2="${Math.max(r2y, lb_text_y - DIM_L_TEXT_APPROX_HALF_WIDTH)}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <text id="trueL-lengthB-text" x="${lb_line_x}" y="${lb_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-90, ${lb_line_x}, ${lb_text_y})">Length B</text>
     <line id="trueL-lengthB-line2" x1="${lb_line_x}" y1="${lb_text_y + DIM_L_TEXT_APPROX_HALF_WIDTH}" x2="${lb_line_x}" y2="${r2y + r2h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="trueL-lengthB-cap2" x1="${lb_line_x - DIM_L_CAP_SIZE}" y1="${r2y + r2h}" x2="${lb_line_x + DIM_L_CAP_SIZE}" y2="${r2y + r2h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-    {/* Dimension: Width B (width of side arm) */}
+    <!-- Dimension: Width B (width of side arm) -->
     <line id="trueL-widthB-cap1" x1="${r2x}" y1="${wb_line_y - DIM_L_CAP_SIZE}" x2="${r2x}" y2="${wb_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="trueL-widthB-line1" x1="${r2x}" y1="${wb_line_y}" x2="${Math.max(r2x, wb_text_x - DIM_L_TEXT_APPROX_HALF_WIDTH)}" y2="${wb_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <text id="trueL-widthB-text" x="${wb_text_x}" y="${wb_line_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Width B</text>
@@ -387,37 +387,37 @@ document.addEventListener('DOMContentLoaded', () => {
     <g id="lazyL-group" transform="rotate(${rotation}, ${rotationCenterX}, ${rotationCenterY})">
     <path d="${pathData}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
     
-    {/* Dimension: Length A */}
+    <!-- Dimension: Length A -->
     <line id="lazyL-lengthA-cap1" x1="${baseX}" y1="${la_line_y - DIM_L_CAP_SIZE}" x2="${baseX}" y2="${la_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="lazyL-lengthA-line1" x1="${baseX}" y1="${la_line_y}" x2="${Math.max(baseX, la_text_x - DIM_L_TEXT_APPROX_HALF_WIDTH)}" y2="${la_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <text id="lazyL-lengthA-text" x="${la_text_x}" y="${la_line_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Length A</text>
     <line id="lazyL-lengthA-line2" x1="${la_text_x + DIM_L_TEXT_APPROX_HALF_WIDTH}" y1="${la_line_y}" x2="${baseX + lA_s}" y2="${la_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="lazyL-lengthA-cap2" x1="${baseX + lA_s}" y1="${la_line_y - DIM_L_CAP_SIZE}" x2="${baseX + lA_s}" y2="${la_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-    {/* Dimension: Width A */}
+    <!-- Dimension: Width A -->
     <line id="lazyL-widthA-cap1" x1="${wa_line_x - DIM_L_CAP_SIZE}" y1="${baseY}" x2="${wa_line_x + DIM_L_CAP_SIZE}" y2="${baseY}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="lazyL-widthA-line1" x1="${wa_line_x}" y1="${baseY}" x2="${wa_line_x}" y2="${Math.max(baseY, wa_text_y - DIM_L_TEXT_APPROX_HALF_WIDTH)}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <text id="lazyL-widthA-text" x="${wa_line_x}" y="${wa_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(90, ${wa_line_x}, ${wa_text_y})">Width A</text>
     <line id="lazyL-widthA-line2" x1="${wa_line_x}" y1="${wa_text_y + DIM_L_TEXT_APPROX_HALF_WIDTH}" x2="${wa_line_x}" y2="${baseY + wA_s}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="lazyL-widthA-cap2" x1="${wa_line_x - DIM_L_CAP_SIZE}" y1="${baseY + wA_s}" x2="${wa_line_x + DIM_L_CAP_SIZE}" y2="${baseY + wA_s}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-    {/* Dimension: Length B (height of vertical part) */}
+    <!-- Dimension: Length B (height of vertical part) -->
     <line id="lazyL-lengthB-cap1" x1="${lb_line_x - DIM_L_CAP_SIZE}" y1="${baseY + wA_s}" x2="${lb_line_x + DIM_L_CAP_SIZE}" y2="${baseY + wA_s}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="lazyL-lengthB-line1" x1="${lb_line_x}" y1="${baseY + wA_s}" x2="${lb_line_x}" y2="${Math.max(baseY + wA_s, lb_text_y - DIM_L_TEXT_APPROX_HALF_WIDTH)}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <text id="lazyL-lengthB-text" x="${lb_line_x}" y="${lb_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-90, ${lb_line_x}, ${lb_text_y})">Length B</text>
     <line id="lazyL-lengthB-line2" x1="${lb_line_x}" y1="${lb_text_y + DIM_L_TEXT_APPROX_HALF_WIDTH}" x2="${lb_line_x}" y2="${baseY + wA_s + lB_s}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="lazyL-lengthB-cap2" x1="${lb_line_x - DIM_L_CAP_SIZE}" y1="${baseY + wA_s + lB_s}" x2="${lb_line_x + DIM_L_CAP_SIZE}" y2="${baseY + wA_s + lB_s}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     
-    {/* Dimension: Width B (width of vertical part) */}
+    <!-- Dimension: Width B (width of vertical part) -->
     <line id="lazyL-widthB-cap1" x1="${baseX}" y1="${wb_line_y - DIM_L_CAP_SIZE}" x2="${baseX}" y2="${wb_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="lazyL-widthB-line1" x1="${baseX}" y1="${wb_line_y}" x2="${Math.max(baseX, wb_text_x - DIM_L_TEXT_APPROX_HALF_WIDTH)}" y2="${wb_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <text id="lazyL-widthB-text" x="${wb_text_x}" y="${wb_line_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Width B</text>
     <line id="lazyL-widthB-line2" x1="${wb_text_x + DIM_L_TEXT_APPROX_HALF_WIDTH}" y1="${wb_line_y}" x2="${baseX + wB_s}" y2="${wb_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
     <line id="lazyL-widthB-cap2" x1="${baseX + wB_s}" y1="${wb_line_y - DIM_L_CAP_SIZE}" x2="${baseX + wB_s}" y2="${wb_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-    {/* Dimension: Diagonal C */}
+    <!-- Dimension: Diagonal C -->
     <line id="lazyL-diagC-line" x1="${diagC_p1.x}" y1="${diagC_p1.y}" x2="${diagC_p2.x}" y2="${diagC_p2.y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
-    {/* Caps for DiagC line can be tricky due to 45deg angle. Simple line for now. */}
+    <!-- Caps for DiagC line can be tricky due to 45deg angle. Simple line for now. -->
     <text id="lazyL-diagC-text" x="${diagC_text_x}" y="${diagC_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-45, ${diagC_text_x}, ${diagC_text_y})">Diag. C</text>
     </g> 
     </svg>`;
@@ -757,20 +757,20 @@ offsetRectangle: (rotation = 0, dims = {}) => {
     return `
     <svg viewBox="-10 -10 240 210" xmlns="http://www.w3.org/2000/svg">
         <g id="offsetRectangle-group" transform="rotate(${rotation}, ${rotationCenterX}, ${rotationCenterY})">
-            {/* Main Rectangle (A) */}
+            <!-- Main Rectangle (A) -->
             <rect x="${r1x}" y="${r1y}" width="${r1w}" height="${r1h}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
-            {/* Offset Rectangle (B) */}
+            <!-- Offset Rectangle (B) -->
             <rect x="${r2x}" y="${r2y}" width="${r2w}" height="${r2h}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
 
-            {/* Dimension: Length A (Main Length) */}
+            <!-- Dimension: Length A (Main Length) -->
             <text id="offsetRectangle-lengthA-text" x="${r1x + r1w / 2}" y="${r1y - 10}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Length A</text>
-            {/* Dimension: Width A (Main Width) */}
+            <!-- Dimension: Width A (Main Width) -->
             <text id="offsetRectangle-widthA-text" x="${r1x + r1w + 10}" y="${r1y + r1h / 2}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(90, ${r1x + r1w + 10}, ${r1y + r1h / 2})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Width A</text>
-            {/* Dimension: Length B (Offset Length) */}
+            <!-- Dimension: Length B (Offset Length) -->
             <text id="offsetRectangle-lengthB-text" x="${r2x - 10}" y="${r2y + r2h / 2}" font-family="sans-serif" font-size="10" text-anchor="middle" transform="rotate(-90, ${r2x - 10}, ${r2y + r2h / 2})" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Length B</text>
-            {/* Dimension: Width B (Offset Width) */}
+            <!-- Dimension: Width B (Offset Width) -->
             <text id="offsetRectangle-widthB-text" x="${r2x + r2w / 2}" y="${r2y + r2h + 10}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Width B</text>
-            {/* Dimension: Offset X */}
+            <!-- Dimension: Offset X -->
             <line x1="${r1x}" y1="${r1y + r1h + 5}" x2="${r2x}" y2="${r1y + r1h + 5}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1" stroke-dasharray="2,2"/>
             <text id="offsetRectangle-offsetX-text" x="${r1x + r2offsetX / 2}" y="${r1y + r1h + 15}" font-family="sans-serif" font-size="10" text-anchor="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Offset X</text>
         </g>
@@ -914,36 +914,36 @@ tShape: (rotation = 0, dims = {}) => {
     return `
     <svg viewBox="-10 -10 240 210" xmlns="http://www.w3.org/2000/svg">
         <g id="tShape-group" transform="rotate(${rotation}, ${rotationCenterX}, ${rotationCenterY})">
-            {/* Top Bar Rectangle (Section A) */}
+            <!-- Top Bar Rectangle (Section A) -->
             <rect x="${r1x}" y="${r1y}" width="${r1w}" height="${r1h}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
             <rect x="${r1x + INNER_L_RECT_PADDING}" y="${r1y + INNER_L_RECT_PADDING}" width="${inner_r1w}" height="${inner_r1h}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1"/>
 
-            {/* Stem Rectangle (Section B) */}
+            <!-- Stem Rectangle (Section B) -->
             <rect x="${r2x}" y="${r2y}" width="${r2w}" height="${r2h}" fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
             <rect x="${r2x + INNER_L_RECT_PADDING}" y="${r2y + INNER_L_RECT_PADDING}" width="${inner_r2w}" height="${inner_r2h}" fill="#22d3ee" stroke="#06b6d4" stroke-width="1"/>
 
-            {/* Dimension: Length A (Top Bar Length) */}
+            <!-- Dimension: Length A (Top Bar Length) -->
             <line id="tShape-lengthA-cap1" x1="${r1x}" y1="${la_line_y - DIM_L_CAP_SIZE}" x2="${r1x}" y2="${la_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <line id="tShape-lengthA-line1" x1="${r1x}" y1="${la_line_y}" x2="${la_text_x - DIM_L_TEXT_APPROX_HALF_WIDTH}" y2="${la_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <text id="tShape-lengthA-text" x="${la_text_x}" y="${la_line_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Top Bar Length</text>
             <line id="tShape-lengthA-line2" x1="${la_text_x + DIM_L_TEXT_APPROX_HALF_WIDTH}" y1="${la_line_y}" x2="${r1x + r1w}" y2="${la_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <line id="tShape-lengthA-cap2" x1="${r1x + r1w}" y1="${la_line_y - DIM_L_CAP_SIZE}" x2="${r1x + r1w}" y2="${la_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-            {/* Dimension: Width A (Top Bar Width) */}
+            <!-- Dimension: Width A (Top Bar Width) -->
             <line id="tShape-widthA-cap1" x1="${wa_line_x - DIM_L_CAP_SIZE}" y1="${r1y}" x2="${wa_line_x + DIM_L_CAP_SIZE}" y2="${r1y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <line id="tShape-widthA-line1" x1="${wa_line_x}" y1="${r1y}" x2="${wa_line_x}" y2="${wa_text_y - DIM_L_TEXT_APPROX_HALF_WIDTH}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <text id="tShape-widthA-text" x="${wa_line_x}" y="${wa_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(90, ${wa_line_x}, ${wa_text_y})">Top Bar Width</text>
             <line id="tShape-widthA-line2" x1="${wa_line_x}" y1="${wa_text_y + DIM_L_TEXT_APPROX_HALF_WIDTH}" x2="${wa_line_x}" y2="${r1y + r1h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <line id="tShape-widthA-cap2" x1="${wa_line_x - DIM_L_CAP_SIZE}" y1="${r1y + r1h}" x2="${wa_line_x + DIM_L_CAP_SIZE}" y2="${r1y + r1h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-            {/* Dimension: Length B (Stem Length) */}
+            <!-- Dimension: Length B (Stem Length) -->
             <line id="tShape-lengthB-cap1" x1="${lb_line_x - DIM_L_CAP_SIZE}" y1="${r2y}" x2="${lb_line_x + DIM_L_CAP_SIZE}" y2="${r2y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <line id="tShape-lengthB-line1" x1="${lb_line_x}" y1="${r2y}" x2="${lb_line_x}" y2="${lb_text_y - DIM_L_TEXT_APPROX_HALF_WIDTH}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <text id="tShape-lengthB-text" x="${lb_line_x}" y="${lb_text_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-90, ${lb_line_x}, ${lb_text_y})">Stem Length</text>
             <line id="tShape-lengthB-line2" x1="${lb_line_x}" y1="${lb_text_y + DIM_L_TEXT_APPROX_HALF_WIDTH}" x2="${lb_line_x}" y2="${r2y + r2h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <line id="tShape-lengthB-cap2" x1="${lb_line_x - DIM_L_CAP_SIZE}" y1="${r2y + r2h}" x2="${lb_line_x + DIM_L_CAP_SIZE}" y2="${r2y + r2h}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-            {/* Dimension: Width B (Stem Width) */}
+            <!-- Dimension: Width B (Stem Width) -->
             <line id="tShape-widthB-cap1" x1="${r2x}" y1="${wb_line_y - DIM_L_CAP_SIZE}" x2="${r2x}" y2="${wb_line_y + DIM_L_CAP_SIZE}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <line id="tShape-widthB-line1" x1="${r2x}" y1="${wb_line_y}" x2="${wb_text_x - DIM_L_TEXT_APPROX_HALF_WIDTH}" y2="${wb_line_y}" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
             <text id="tShape-widthB-text" x="${wb_text_x}" y="${wb_line_y}" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Stem Width</text>
@@ -954,33 +954,33 @@ tShape: (rotation = 0, dims = {}) => {
 },
 kidney: `
 <svg viewBox="0 0 260 180" xmlns="http://www.w3.org/2000/svg">
-{/* Kidney shape path */}
+<!-- Kidney shape path -->
 <path d="M65,130 C30,110 35,40 100,35 C165,30 210,60 210,90 C210,120 170,140 140,135 C110,130 100,120 65,130Z" 
 fill="#a5f3fc" stroke="#0284c7" stroke-width="2"/>
 
-{/* Overall Length Dimension (L) */}
+<!-- Overall Length Dimension (L) -->
 <line id="kidney-length-cap1" x1="50" y1="155" x2="50" y2="165" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 <line id="kidney-length-line1" x1="50" y1="160" x2="120" y2="160" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 <text id="kidney-length-text" x="130" y="160" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}">Length</text>
 <line id="kidney-length-line2" x1="140" y1="160" x2="210" y2="160" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 <line id="kidney-length-cap2" x1="210" y1="155" x2="210" y2="165" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-{/* --- Width A Dimension (Corrected) --- */}
-{/* Dashed lines to indicate measurement points */}
+<!-- --- Width A Dimension (Corrected) --- -->
+<!-- Dashed lines to indicate measurement points -->
 <line x1="45" y1="40" x2="80" y2="40" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1" stroke-dasharray="2,2"/>
 <line x1="65" y1="125" x2="80" y2="125" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1" stroke-dasharray="2,2"/>
-{/* Vertical dimension line inside the shape */}
+<!-- Vertical dimension line inside the shape -->
 <line id="kidney-widthA-cap1" x1="75" y1="40" x2="85" y2="40" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 <line id="kidney-widthA-line1" x1="80" y1="40" x2="80" y2="70" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 <text id="kidney-widthA-text" x="80" y="82.5" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-90, 80, 82.5)">Width A</text>
 <line id="kidney-widthA-line2" x1="80" y1="95" x2="80" y2="125" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/> 
 <line id="kidney-widthA-cap2" x1="75" y1="125" x2="85" y2="125" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 
-{/* --- Width B Dimension (Corrected) --- */}
-{/* Dashed lines to indicate measurement points */}
+<!-- --- Width B Dimension (Corrected) --- -->
+<!-- Dashed lines to indicate measurement points -->
 <line x1="180" y1="55" x2="205" y2="55" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1" stroke-dasharray="2,2"/>
 <line x1="180" y1="135" x2="195" y2="135" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1" stroke-dasharray="2,2"/>
-{/* Vertical dimension line inside the shape */}
+<!-- Vertical dimension line inside the shape -->
 <line id="kidney-widthB-cap1" x1="175" y1="55" x2="185" y2="55" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/> 
 <line id="kidney-widthB-line1" x1="180" y1="55" x2="180" y2="85" stroke="${DIAGRAM_LINE_COLOR_NORMAL}" stroke-width="1.5"/>
 <text id="kidney-widthB-text" x="180" y="95" font-family="sans-serif" font-size="10" text-anchor="middle" dominant-baseline="middle" fill="${DIAGRAM_TEXT_COLOR_NORMAL}" transform="rotate(-90, 180, 95)">Width B</text>

@@ -2,8 +2,10 @@
 const fs = require('fs');
 const path = require('path'); 
 
-// Define the path for the log file
-const LOG_FILE_PATH = path.join(__dirname, 'user_activity.log');
+// Define the path for the log file (outside the served directory for security)
+const LOG_DIR = path.join(__dirname, '..', 'aps_logs');
+const LOG_FILE_PATH = path.join(LOG_DIR, 'user_activity.log');
+fs.mkdirSync(LOG_DIR, { recursive: true });
 
 // Function to log data
 function logUserData(dataToLog) {
@@ -49,6 +51,9 @@ const translations = {
         summaryTitle: "Summary of Chemicals to Add at Today's Visit",
         waitNote: "Wait at least 10 minutes and circulate water before adding any other chemicals.",
         detailsTitle: "Detailed Explanation",
+        currentLabel: "Current:",
+        targetLabel: "Target:",
+        waterChemistryTitle: "Water Chemistry Parameters",
         parameter: "Parameter",
         testResult: "Test Result",
         goldenNumber: "Golden Number",
@@ -72,14 +77,15 @@ const translations = {
         errorRequired: "Please fill in all required fields.",
         serverError: "Server error. Please try again later.",
         addAfterTesting: "Add immediately after adding bicarbonate (if applicable). Otherwise, add after testing.",
-        errorRangeCapacity: "Pool capacity must be between 100 and 50,000 gallons.",
+        errorRangeCapacity: "Pool capacity must be between 500 and 50,000 gallons.",
         errorRangePh: "pH must be between 6.5 and 8.5.",
-        errorRangeAlkalinity: "Alkalinity must be between 10 and 300 ppm.  If tested alkalinity is zero, enter 10 ppm.",
+        errorRangeAlkalinity: "Alkalinity must be between 10 and 300 ppm. If tested alkalinity is zero, enter 10 ppm.",
         errorRangeCalcium: "Calcium hardness must be between 0 and 1,000 ppm.",
         errorRangeCyanuric: "Cyanuric acid must be between 0 and 300 ppm.",
         errorRangeTds: "TDS must be between 0 and 10,000 ppm.",
         errorRangeSalt: "Salt levels must be between 0 and 10,000 ppm.",
-        errorRangeTemperature: "Temperature must be between 32°F and 104°F.",
+        errorRangeTemperature: "Temperature must be between 50°F and 104°F.",
+        errorRangeFreeChlorine: "Free chlorine must be between 0 and 30 ppm.",
         units: {
             lbs: "lbs",
             oz: "oz",
@@ -145,6 +151,9 @@ const translations = {
         summaryTitle: "Resumen de Químicos a Añadir en la Visita de Hoy",
         waitNote: "Espere al menos 10 minutos y circule el agua antes de añadir otros productos químicos.",
         detailsTitle: "Explicación Detallada",
+        currentLabel: "Actual:",
+        targetLabel: "Objetivo:",
+        waterChemistryTitle: "Parámetros de Química del Agua",
         parameter: "Parámetro",
         testResult: "Resultado de la Prueba",
         goldenNumber: "Valor Ideal",
@@ -168,14 +177,15 @@ const translations = {
         errorRequired: "Por favor, complete todos los campos obligatorios.",
         serverError: "Error del servidor. Por favor, inténtelo de nuevo más tarde.",
         addAfterTesting: "Agregar inmediatamente después de añadir bicarbonato (si aplica). De lo contrario, agregar después de la prueba.",
-        errorRangeCapacity: "La capacidad de la piscina debe estar entre 100 y 50,000 galones.",
+        errorRangeCapacity: "La capacidad de la piscina debe estar entre 500 y 50,000 galones.",
         errorRangePh: "El pH debe estar entre 6.5 y 8.5.",
         errorRangeAlkalinity: "La alcalinidad debe estar entre 10 y 300 ppm. Si la alcalinidad medida es cero, ingrese 10 ppm.",
         errorRangeCalcium: "La dureza de calcio debe estar entre 0 y 1,000 ppm.",
         errorRangeCyanuric: "El ácido cianúrico debe estar entre 0 y 300 ppm.",
         errorRangeTds: "Los TDS deben estar entre 0 y 10,000 ppm.",
         errorRangeSalt: "Los niveles de sal deben estar entre 0 y 10,000 ppm.",
-        errorRangeTemperature: "La temperatura debe estar entre 32°F y 104°F.",
+        errorRangeTemperature: "La temperatura debe estar entre 50°F y 104°F.",
+        errorRangeFreeChlorine: "El cloro libre debe estar entre 0 y 30 ppm.",
         units: { 
             lbs: "libras",
             oz: "oz",
@@ -243,6 +253,9 @@ const translations = {
         summaryTitle: "Riepilogo dei Prodotti Chimici da Aggiungere Oggi",
         waitNote: "Attendere almeno 10 minuti e far circolare l'acqua prima di aggiungere altri prodotti chimici.",
         detailsTitle: "Spiegazione Dettagliata",
+        currentLabel: "Attuale:",
+        targetLabel: "Obiettivo:",
+        waterChemistryTitle: "Parametri della Chimica dell'Acqua",
         parameter: "Parametro",
         testResult: "Risultato del Test",
         goldenNumber: "Valore Ideale",
@@ -266,14 +279,15 @@ const translations = {
         errorRequired: "Si prega di compilare tutti i campi obbligatori.",
         serverError: "Errore del server. Riprova più tardi.",
         addAfterTesting: "Aggiungere immediatamente dopo aver aggiunto bicarbonato (se applicabile). Altrimenti aggiungere dopo il test.",
-        errorRangeCapacity: "La capacità della piscina deve essere compresa tra 100 e 50.000 galloni.",
+        errorRangeCapacity: "La capacità della piscina deve essere compresa tra 500 e 50.000 galloni.",
         errorRangePh: "Il pH deve essere compreso tra 6,5 e 8,5.",
-        errorRangeAlkalinity: "L'alcalinità deve essere compresa tra 10 e 300 ppm.  Se l'alcalinità misurata è zero, inserire 10 ppm.",
+        errorRangeAlkalinity: "L'alcalinità deve essere compresa tra 10 e 300 ppm. Se l'alcalinità misurata è zero, inserire 10 ppm.",
         errorRangeCalcium: "La durezza del calcio deve essere compresa tra 0 e 1.000 ppm.",
         errorRangeCyanuric: "L'acido cianurico deve essere compreso tra 0 e 300 ppm.",
         errorRangeTds: "I TDS devono essere compresi tra 0 e 10.000 ppm.",
         errorRangeSalt: "I livelli di sale devono essere compresi tra 0 e 10.000 ppm.",
-        errorRangeTemperature: "La temperatura deve essere compresa tra 32°F e 104°F.",
+        errorRangeTemperature: "La temperatura deve essere compresa tra 50°F e 104°F.",
+        errorRangeFreeChlorine: "Il cloro libero deve essere compreso tra 0 e 30 ppm.",
         units: {
             lbs: "libbre",
             oz: "oz",
@@ -475,10 +489,10 @@ function getCalHypoOunces(chlorinePPM, poolGallons) {
     return chlorinePPM * 2.0 * (poolGallons / 10000);
 }
 
-// Helper to bold the quantity and units in a dosing sentence
+// Helper to bold the quantity and units in a dosing sentence (supports en/es/it)
 function boldQuantity(sentence) {
-    // This regex matches "Add <quantity and units> of"
-    return sentence.replace(/(Add\s+)([\d.,\s\(\)a-zA-Z%]+)(\s+of)/i, function(match, p1, p2, p3) {
+    // Match "Add/Agregue/Aggiungi <quantity and units> of/de/di/para/per"
+    return sentence.replace(/((?:Add|Agregue|Aggiungi)\s+)([\d.,\s\(\)a-zA-Z%]+?)(\s+(?:of|de|di|para|per)\b)/i, function(match, p1, p2, p3) {
         return p1 + '<strong>' + p2.trim() + '</strong>' + p3;
     });
 }
@@ -749,7 +763,7 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
         return { html: `<p class="error">${t.errorRangePh}</p>` };
     }
     
-    if (alkalinity < 0 || alkalinity > 300) {
+    if (alkalinity < 10 || alkalinity > 300) {
         return { html: `<p class="error">${t.errorRangeAlkalinity}</p>` };
     }
     
@@ -760,7 +774,11 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
     if (cyanuric < 0 || cyanuric > 300) {
         return { html: `<p class="error">${t.errorRangeCyanuric}</p>` };
     }
-    
+
+    if (freeChlorine < 0 || freeChlorine > 30) {
+        return { html: `<p class="error">${t.errorRangeFreeChlorine}</p>` };
+    }
+
     if (tds < 0 || tds > 10000) {
         return { html: `<p class="error">${t.errorRangeTds}</p>` };
     }
@@ -1044,18 +1062,18 @@ if (saltDesired > 0) {
 
 
     // --- Build comparison chart as styled cards ---
-function createParameterCard(label, current, golden, isInRange, cardClass) {
+function createParameterCard(label, current, golden, isInRange, cardClass, t) {
     const statusClass = isInRange ? 'in-range' : 'out-of-range';
     return `
         <div class="param-card ${cardClass} ${statusClass}">
             <div class="param-header">${label}</div>
             <div class="param-values">
                 <div class="current-value">
-                    <span class="label">Current:</span>
+                    <span class="label">${t.currentLabel}</span>
                     <span class="value">${current}</span>
                 </div>
                 <div class="target-value">
-                    <span class="label">Target:</span>
+                    <span class="label">${t.targetLabel}</span>
                     <span class="value">${golden}</span>
                 </div>
             </div>
@@ -1071,10 +1089,10 @@ const cyaInRange = Math.abs(cyanuric - golden.cya) <= 10;
 
 let comparisonCards = `
     <div class="parameters-grid">
-        ${createParameterCard(t.ph, ph, golden.ph, phInRange, 'ph')}
-        ${createParameterCard(t.alkalinity, alkalinity, golden.alkalinity, alkInRange, 'alk')}
-        ${createParameterCard(t.calcium, calcium, golden.calcium, calciumInRange, 'ch')}
-        ${createParameterCard(t.cyanuric, cyanuric, golden.cya, cyaInRange, 'cya')}
+        ${createParameterCard(t.ph, ph, golden.ph, phInRange, 'ph', t)}
+        ${createParameterCard(t.alkalinity, alkalinity, golden.alkalinity, alkInRange, 'alk', t)}
+        ${createParameterCard(t.calcium, calcium, golden.calcium, calciumInRange, 'ch', t)}
+        ${createParameterCard(t.cyanuric, cyanuric, golden.cya, cyaInRange, 'cya', t)}
     </div>
 `;
 
@@ -1115,7 +1133,7 @@ ${otherList.join('')}
     
 <h3 class="results-heading">${t.detailsTitle}</h3>
 
-<h4>Water Chemistry Parameters</h4>
+<h4>${t.waterChemistryTitle}</h4>
 ${comparisonCards}
 
 ${chlorineHTML}

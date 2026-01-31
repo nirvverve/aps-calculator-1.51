@@ -7,13 +7,26 @@ process.on('uncaughtException', (err) => {
    
 const express = require('express');
 const path = require('path');
-const bodyParser = require('body-parser');
-const { calculateLSIAndAdvice } = require('./calculator'); 
+const { calculateLSIAndAdvice } = require('./calculator');
 const app = express();
 const PORT = 3000; // or whatever port you use
 
-app.use(express.static(path.join(__dirname))); // serves your HTML, JS, CSS
-app.use(bodyParser.json()); // lets Express read JSON sent from the browser
+// Block access to sensitive files/directories before static serving
+app.use((req, res, next) => {
+    const blocked = ['/user_activity.log', '/calculator.js', '/server.js',
+                     '/package.json', '/package-lock.json',
+                     '/.beads', '/.ntm', '/.claude', '/.git', '/.vscode',
+                     '/node_modules', '/.gitignore', '/AGENTS.md',
+                     '/INVESTIGATION_REPORT.md'];
+    const lower = req.path.toLowerCase();
+    if (blocked.some(p => lower === p || lower.startsWith(p + '/'))) {
+        return res.status(404).send('Not found');
+    }
+    next();
+});
+
+app.use(express.static(path.join(__dirname)));
+app.use(express.json());
 
 app.post('/api/calculate', (req, res) => {
     console.log("Received request body:", req.body);
