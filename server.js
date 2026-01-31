@@ -14,6 +14,25 @@ const PORT = 3000; // or whatever port you use
 app.use(express.json());
 app.use('/assets', express.static(path.join(__dirname, 'assets'), { fallthrough: false }));
 
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader(
+        'Permissions-Policy',
+        'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()'
+    );
+    res.setHeader(
+        'Content-Security-Policy',
+        "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; " +
+        "script-src 'self' https://cdn.tailwindcss.com https://cloud.google.com; " +
+        "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; " +
+        "font-src 'self' https://fonts.gstatic.com data:; " +
+        "img-src 'self' data:; " +
+        "connect-src 'self' https://cloud.google.com"
+    );
+    next();
+});
+
 const PUBLIC_FILES = {
     '/': 'index.html',
     '/index.html': 'index.html',
@@ -30,10 +49,8 @@ app.get(Object.keys(PUBLIC_FILES), (req, res) => {
 });
 
 app.post('/api/calculate', (req, res) => {
-    console.log("Received request body:", req.body);
     try {
         const result = calculateLSIAndAdvice(req.body);
-        console.log("Sending API response:", result);
         res.json(result);
     } catch (err) {
         console.error("Calculation error:", err);
