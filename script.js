@@ -570,7 +570,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Show calculating message
-        resultsElement.innerHTML = '<div style="text-align: center; padding: 2em; color: #1a237e; font-size: 1.2em;">Calculating...</div>';
+        resultsElement.innerHTML = '<div style="text-align: center; padding: 2em; color: #1e759d; font-size: 1.2em;">Calculating...</div>';
         resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         
         try {

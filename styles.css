@@ -1,16 +1,102 @@
+@font-face {
+    font-family: 'ManganaSega';
+    src: url('assets/brand/fonts/ManganaSega-Regular.woff2') format('woff2'),
+         url('assets/brand/fonts/ManganaSega-Regular.woff') format('woff'),
+         url('assets/brand/fonts/ManganaSega-Regular.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Medhorn';
+    src: url('assets/brand/fonts/Medhorn.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+:root {
+    --aps-blue: #1e759d;
+    --wave-blue: #27add6;
+    --sunshine-yellow: #ffdb43;
+    --splashberry-red: #e54e4e;
+    --oasis-green: #53bc53;
+    --poolside-grey: #dddddd;
+    --black-pebble: #2d2d2d;
+    --clearwater-white: #ffffff;
+}
+
 body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f6f9fc;
+    font-family: 'Sansation', 'Inter', 'Segoe UI', Arial, sans-serif;
+    background: var(--clearwater-white);
     margin: 0;
     padding: 0;
-    color: #222; 
+    color: var(--black-pebble);
     min-height: max(884px, 100dvh);
+}
+
+.aps-gradient {
+    background: linear-gradient(135deg, var(--aps-blue) 0%, var(--wave-blue) 100%);
+}
+
+.aps-headline {
+    font-family: 'ManganaSega', 'Medhorn', serif;
+}
+
+.aps-subhead {
+    font-family: 'Medhorn', 'ManganaSega', serif;
+}
+
+h2,
+h3,
+h4 {
+    font-family: 'Medhorn', 'ManganaSega', serif;
+}
+
+.aps-btn-primary {
+    background-color: var(--aps-blue);
+    color: var(--clearwater-white);
+}
+
+.aps-btn-primary:hover {
+    background-color: #175f80;
+}
+
+.aps-btn-secondary {
+    background-color: var(--wave-blue);
+    color: var(--clearwater-white);
+}
+
+.aps-btn-secondary:hover {
+    background-color: #1f93b6;
+}
+
+.aps-btn-accent {
+    background-color: var(--sunshine-yellow);
+    color: var(--black-pebble);
+}
+
+.aps-btn-accent:hover {
+    background-color: #f0c72f;
+}
+
+.footer-powered {
+    background: rgba(30, 117, 157, 0.25);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--clearwater-white);
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: auto;
+    font-size: 0.875rem;
+    font-weight: 500;
 }
 
 header {
     text-align: center;
-    background: #1a237e;
-    color: #fff;
+    background: transparent;
+    color: var(--clearwater-white);
     padding: 1.5em 0 1em 0;
 }
 
@@ -25,6 +111,7 @@ h1 {
     margin: 0 0 0.5em 0;
     font-size: 2em;
     letter-spacing: 0.04em;
+    font-family: 'ManganaSega', 'Medhorn', serif;
 }
 
 main {
@@ -68,7 +155,7 @@ input[type="number"], select {
 }
 
 button[type="submit"] {
-    background: #1a237e;
+    background: var(--aps-blue);
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -80,7 +167,7 @@ button[type="submit"] {
     transition: background 0.2s;
 }
 button[type="submit"]:hover {
-    background: #3949ab;
+    background: #175f80;
 }
 
 /* Color coding for fields */
@@ -136,20 +223,20 @@ button[type="submit"]:hover {
 
 /* Salt generator section */
 .section h2 {
-    color: #1a237e;
+    color: var(--aps-blue);
     font-size: 1.15em;
     margin-bottom: 0.7em;
 }
 
 #results h3 {
-    color: #1a237e;
+    color: var(--aps-blue);
     margin-top: 1.2em;
     margin-bottom: 0.5em;
     font-size: 1.25em;
 }
 
 #results h4 {
-    color: #3949ab;
+    color: var(--wave-blue);
     margin-top: 1em;
     margin-bottom: 0.3em;
     font-size: 1.1em;
@@ -182,8 +269,8 @@ button[type="submit"]:hover {
 }
 
 #results th {
-    background: #e3eafc;
-    color: #1a237e;
+    background: #e1f4fb;
+    color: var(--aps-blue);
     font-weight: 600;
     border-bottom: 1px solid #bdbdbd;
 }
@@ -206,7 +293,7 @@ button[type="submit"]:hover {
 }
 
 .error {
-    color: #b71c1c;
+    color: var(--splashberry-red);
     font-weight: 600;
     margin: 1em 0;
     font-size: 1.1em;
@@ -218,12 +305,12 @@ button[type="submit"]:hover {
     width: 100%;
     text-align: center;
     padding: 0.75em 0;
-    background: transparent;
-    color: #555;
+    background: rgba(30, 117, 157, 0.25);
+    color: var(--clearwater-white);
     font-size: 1em;
     z-index: 100;
     pointer-events: none;
-  }
+}
   
 /* Responsive */
 @media (max-width: 600px) {
@@ -315,7 +402,7 @@ button[type="submit"]:hover {
 
 .param-header {
     font-weight: 600;
-    color: #1a237e;
+    color: var(--aps-blue);
     margin-bottom: 0.5em;
     font-size: 1.1em;
 }
@@ -341,7 +428,7 @@ button[type="submit"]:hover {
     display: block;
     font-weight: 600;
     font-size: 1.1em;
-    color: #1a237e;
+    color: var(--aps-blue);
 }
 
 /* Info cards */
@@ -351,12 +438,12 @@ button[type="submit"]:hover {
     padding: 1.5em;
     margin: 1em 0;
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    border-left: 5px solid #1976d2;
+    border-left: 5px solid var(--wave-blue);
 }
 
 .info-card h4 {
     margin-top: 0;
-    color: #1a237e;
+    color: var(--aps-blue);
     border-bottom: 1px solid #e0e0e0;
     padding-bottom: 0.5em;
 }
@@ -379,8 +466,8 @@ button[type="submit"]:hover {
 }
 
 .chlorine-item.highlight {
-    background: #fff3e0;
-    border: 2px solid #ff9800;
+    background: #fff6cc;
+    border: 2px solid var(--sunshine-yellow);
     font-weight: 600;
 }
 
@@ -391,7 +478,7 @@ button[type="submit"]:hover {
 
 .chlorine-value {
     font-weight: 600;
-    color: #1a237e;
+    color: var(--aps-blue);
 }
 
 /* LSI card */
@@ -425,7 +512,7 @@ button[type="submit"]:hover {
 .lsi-value {
     font-size: 2.5em;
     font-weight: 700;
-    color: #1a237e;
+    color: var(--aps-blue);
 }
 
 .lsi-description {
@@ -435,7 +522,7 @@ button[type="submit"]:hover {
 }
 
 .clear-button {
-    background: #1a237e;
+    background: var(--aps-blue);
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -449,7 +536,7 @@ button[type="submit"]:hover {
 }
 
 .clear-button:hover {
-    background: #1a237e;
+    background: #175f80;
 }
 
 .clear-button:active {
@@ -457,14 +544,14 @@ button[type="submit"]:hover {
 }
 
 #clear-section {
-    border-bottom: 2px solid #1a237e;
+    border-bottom: 2px solid var(--aps-blue);
     margin-bottom: 2em;
     padding-bottom: 2em;
 }
 
 .results-heading {
     font-weight: 1000;
-    color: red;
+    color: var(--aps-blue);
     font-size: 1.3em;
     margin-top: 1.5em;
     margin-bottom: 1em;
@@ -473,13 +560,13 @@ button[type="submit"]:hover {
 }
 
 .btn-active {
-    background-color: #2563eb;
-    color: white;
+    background-color: var(--aps-blue);
+    color: var(--clearwater-white);
 }
 
 .btn-inactive {
-    background-color: #e5e7eb;
-    color: #4b5563;
+    background-color: var(--poolside-grey);
+    color: var(--black-pebble);
 }
 
 .required-marker::after {
@@ -489,24 +576,24 @@ button[type="submit"]:hover {
 }
 
 .warning-text {
-color: #991b1b; /* Tailwind red-800 */
-font-weight: 600;
-padding: 0.75em;
-margin-bottom: 0.75em;
-background-color: #fee2e2; /* Tailwind red-100 */
-border: 1px solid #fca5a5; /* Tailwind red-300 */
-border-radius: 6px;
-display: block;
+	color: #a63a3a;
+	font-weight: 600;
+	padding: 0.75em;
+	margin-bottom: 0.75em;
+	background-color: #fdeaea;
+	border: 1px solid #f6bcbc;
+	border-radius: 6px;
+	display: block;
 }
 .advice-text {
-color: #1e40af; /* Tailwind blue-800 */
-font-weight: 500;
-padding: 0.75em;
-margin-bottom: 0.75em;
-background-color: #eff6ff; /* Tailwind blue-100 */
-border: 1px solid #bfdbfe; /* Tailwind blue-200 */
-border-radius: 6px;
-display: block;
+	color: var(--aps-blue);
+	font-weight: 500;
+	padding: 0.75em;
+	margin-bottom: 0.75em;
+	background-color: #e1f4fb;
+	border: 1px solid #bfe7f5;
+	border-radius: 6px;
+	display: block;
 }
 
 .logo-container {
