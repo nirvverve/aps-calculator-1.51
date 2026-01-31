@@ -409,6 +409,18 @@ const TEMP_FACTORS = [
     { temp: 104, factor: 0.9 }, { temp: 128, factor: 1.0 }
 ];
 
+const PER_10K_GALLONS = 0.0001;
+const PER_10 = 0.1;
+const PER_100 = 0.01;
+const PER_40 = 0.025;
+const OUNCES_PER_POUND = 16;
+const POUNDS_PER_OUNCE = 0.0625;
+const FL_OZ_PER_GALLON = 128;
+const GALLONS_PER_FL_OZ = 0.0078125;
+const LIQUID_CHLORINE_FACTOR = 0.000008333333333333333;
+const SALT_LBS_PER_PPM_GALLON = 0.0000183;
+const ONE_THIRD = 0.3333333333333333;
+
 function getTDSFactor(tds) {
     if (tds <= 800) return 12.1;
     if (tds <= 1500) return 12.2;
@@ -424,17 +436,27 @@ function getFactor(value, table, key = 'ppm') {
     return table[table.length - 1].factor;
 }
 
+function getDosingText(t, key) {
+    return (t && t.dosing && typeof t.dosing[key] === 'string') ? t.dosing[key] : '';
+}
+
 function formatAmountOzLb(amountOz, t) {
-    if (amountOz > 16) {
-        return `${(amountOz / 16).toFixed(2)} ${t.units.lbs}`;
+    if (!Number.isFinite(amountOz) || amountOz === 0) {
+        return `0 ${t.units.lbs}`;
+    }
+    if (amountOz > OUNCES_PER_POUND) {
+        return `${(amountOz * POUNDS_PER_OUNCE).toFixed(2)} ${t.units.lbs}`;
     } else {
         return `${amountOz.toFixed(2)} ${t.units.oz}`;
     }
 }
 
 function formatLbsOz(ounces, t) {
-    const lbs = Math.floor(ounces / 16);
-    const oz = ounces % 16;
+    if (!Number.isFinite(ounces) || ounces <= 0) {
+        return `0 ${t.units.lbs}`;
+    }
+    const lbs = Math.floor(ounces * POUNDS_PER_OUNCE);
+    const oz = ounces % OUNCES_PER_POUND;
     let result = '';
     if (lbs > 0) result += `${lbs} ${t.units.lbs}`;
     if (oz > 0 || lbs === 0) {
@@ -446,15 +468,15 @@ function formatLbsOz(ounces, t) {
 
 function acidDoseFlOzGallons(currentPh, targetPh, poolGallons, alkalinity, t) {
     if (currentPh <= targetPh) return null;
-    const poolFactor = 30 * (poolGallons / 10000);
-    const alkFactor = alkalinity / 100;
+    const poolFactor = 30 * (poolGallons * PER_10K_GALLONS);
+    const alkFactor = alkalinity * PER_100;
     const acidFlOz = (currentPh - targetPh) * poolFactor * alkFactor;
     if (acidFlOz <= 0) return null;
-    if (acidFlOz < 128) {
+    if (acidFlOz < FL_OZ_PER_GALLON) {
         return t.acidDoseFlOz.replace("{amount}", acidFlOz.toFixed(1));
     } else {
         return t.acidDoseGallons
-            .replace("{gallons}", (acidFlOz / 128).toFixed(2))
+            .replace("{gallons}", (acidFlOz * GALLONS_PER_FL_OZ).toFixed(2))
             .replace("{flOz}", acidFlOz.toFixed(1));
     }
 }
@@ -486,13 +508,13 @@ function getChlorinePPMDose(freeChlorine, cya) {
 }
 
 function getLiquidChlorineDose(chlorinePPM, poolGallons) {
-    const gallons = (chlorinePPM * poolGallons) / (12 * 10000);
-    const flOz = gallons * 128;
+    const gallons = chlorinePPM * poolGallons * LIQUID_CHLORINE_FACTOR;
+    const flOz = gallons * FL_OZ_PER_GALLON;
     return { gallons, flOz };
 }
 
 function getCalHypoOunces(chlorinePPM, poolGallons) {
-    return chlorinePPM * 2.0 * (poolGallons / 10000);
+    return chlorinePPM * 2.0 * poolGallons * PER_10K_GALLONS;
 }
 
 // Helper to bold the quantity and units in a dosing sentence (supports en/es/it)
@@ -512,7 +534,7 @@ function boldQuantity(sentence) {
 function estimatePhAfterBicarb(currentPh, currentAlk, targetAlk) {
     if (currentAlk <= 0 || targetAlk <= 0) return currentPh; // avoid division by zero
     // ΔpH = log10(targetAlk / currentAlk)
-    return currentPh + Math.log10(targetAlk / currentAlk);
+    return currentPh + (Math.log10(targetAlk) - Math.log10(currentAlk));
 }
 
 // Salt dosing calculation (183 lbs raises 1,000 ppm in 10,000 gallons)
@@ -520,8 +542,8 @@ function getSaltDose(current, desired, poolGallons) {
     if (desired <= current) return null;
     const ppmNeeded = desired - current;
     // 183 lbs per 1,000 ppm per 10,000 gal
-    const lbsNeeded = (ppmNeeded * poolGallons * 183) / (1000 * 10000);
-    const bags = Math.ceil(lbsNeeded / 40);
+    const lbsNeeded = ppmNeeded * poolGallons * SALT_LBS_PER_PPM_GALLON;
+    const bags = Math.ceil(lbsNeeded * PER_40);
     return { lbsNeeded, bags };
 }
 
@@ -537,25 +559,25 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
         let highAlkAdvice = "";
         // Add warning if alkalinity is 160 ppm or higher
         if (alkalinity >= 160) {
-            highAlkAdvice += `<div class="warning-text">${t.dosing.alkHighWarning}</div>`;
+            highAlkAdvice += `<div class="warning-text">${getDosingText(t, 'alkHighWarning')}</div>`;
         }
         
         // Recommend lowering to 120 ppm, but only display 50% of the required acid dose
         const targetAlk = 120;
         const alkDiff = alkalinity - targetAlk;
-        const fullAcidOz = (alkDiff / 10) * 25.64 * (poolGallons / 10000);
-        const acidOz = fullAcidOz / 2; // Display 50% of the dose
+        const fullAcidOz = alkDiff * PER_10 * 25.64 * poolGallons * PER_10K_GALLONS;
+        const acidOz = fullAcidOz * 0.5; // Display 50% of the dose
         
         let acidDoseText;
-        if (acidOz < 128) {
+        if (acidOz < FL_OZ_PER_GALLON) {
             acidDoseText = t.acidDoseFlOz.replace("{amount}", acidOz.toFixed(1));
         } else {
             acidDoseText = t.acidDoseGallons
-                .replace("{gallons}", (acidOz / 128).toFixed(2))
+                .replace("{gallons}", (acidOz * GALLONS_PER_FL_OZ).toFixed(2))
                 .replace("{flOz}", acidOz.toFixed(1));
         }
         if (acidDoseText) {
-            highAlkAdvice += t.dosing.alkLower
+            highAlkAdvice += getDosingText(t, 'alkLower')
                 .replace("{amount}", acidDoseText)
                 .replace("{current}", alkalinity)
                 .replace("{target}", targetAlk);
@@ -574,8 +596,8 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
         if ((state === "florida" || state === "jacksonville") && saltDesired > 0) {
         if (alkalinity < 90) { // Dose if below 90 ppm
         const targetAlk = 120; // Target is 120 ppm
-        amount = ((targetAlk - alkalinity) / 10) * 1.5 * (poolGallons / 10000);
-        const bicarbText = t.dosing.alkRaise
+        amount = (targetAlk - alkalinity) * PER_10 * 1.5 * poolGallons * PER_10K_GALLONS;
+        const bicarbText = getDosingText(t, 'alkRaise')
         .replace("{amount}", amount.toFixed(2))
         .replace("{target}", targetAlk);
     
@@ -586,7 +608,7 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
         if (estimatedPh > targetPh) { 
         const acidDose = acidDoseFlOzGallons(estimatedPh, targetPh, poolGallons, targetAlk, t);
         if (acidDose) {
-        acidText = t.dosing.phLower
+        acidText = getDosingText(t, 'phLower')
         .replace("{amount}", acidDose)
         .replace("{target}", targetPh);
         }
@@ -601,8 +623,8 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
         if (state === "florida" || state === "jacksonville") {
             if (alkalinity <= FL_THRESHOLDS.alkalinity) { // Dose if <= 60 ppm
             const targetAlk = 80; // Target is 80 ppm
-            amount = ((targetAlk - alkalinity) / 10) * 1.5 * (poolGallons / 10000);
-                const bicarbText = t.dosing.alkRaise
+            amount = (targetAlk - alkalinity) * PER_10 * 1.5 * poolGallons * PER_10K_GALLONS;
+                const bicarbText = getDosingText(t, 'alkRaise')
                     .replace("{amount}", amount.toFixed(2))
                     .replace("{target}", targetAlk);
 
@@ -612,7 +634,7 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
                     if (estimatedPh > 7.6) { // Florida pH target
                         const acidDose = acidDoseFlOzGallons(estimatedPh, 7.6, poolGallons, targetAlk, t);
                         if (acidDose) {
-                            acidText = t.dosing.phLower
+                            acidText = getDosingText(t, 'phLower')
                                 .replace("{amount}", acidDose)
                                 .replace("{target}", 7.6);
                         }
@@ -627,8 +649,8 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
         if ((state === "arizona" || state === "texas")) {
             if (alkalinity < 100) { // Dose if below 100 ppm
                 const targetAlk = 120; // Target is 120 ppm
-                amount = ((targetAlk - alkalinity) / 10) * 1.5 * (poolGallons / 10000);
-                const bicarbText = t.dosing.alkRaise
+                amount = (targetAlk - alkalinity) * PER_10 * 1.5 * poolGallons * PER_10K_GALLONS;
+                const bicarbText = getDosingText(t, 'alkRaise')
                     .replace("{amount}", amount.toFixed(2))
                     .replace("{target}", targetAlk);
 
@@ -638,7 +660,7 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
                     if (estimatedPh > 7.5) { // AZ/TX pH target
                         const acidDose = acidDoseFlOzGallons(estimatedPh, 7.5, poolGallons, targetAlk, t);
                         if (acidDose) {
-                            acidText = t.dosing.phLower
+                            acidText = getDosingText(t, 'phLower')
                                 .replace("{amount}", acidDose)
                                 .replace("{target}", 7.5);
                         }
@@ -657,29 +679,29 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
     // Florida-specific logic for non-alkalinity chems
     if (state === "florida" || state === "jacksonville") {
         if (chemType === "calcium" && userValue < FL_THRESHOLDS.calcium) {
-            amount = ((targetValue - userValue) / 10) * 1.25 * (poolGallons / 10000);
-            advice = t.dosing.calciumRaise
+            amount = (targetValue - userValue) * PER_10 * 1.25 * poolGallons * PER_10K_GALLONS;
+            advice = getDosingText(t, 'calciumRaise')
                 .replace("{amount}", amount.toFixed(2))
                 .replace("{target}", targetValue);
         }
         if (chemType === "ph" && Math.abs(diff) >= 0.01) {
             if (diff > 0) { // pH too low
-                amount = (diff / 0.2) * 6 * (poolGallons / 10000);
-                advice = t.dosing.phRaise
+                amount = diff * 5 * 6 * poolGallons * PER_10K_GALLONS;
+                advice = getDosingText(t, 'phRaise')
                     .replace("{amount}", formatAmountOzLb(amount, t))
                     .replace("{target}", targetValue);
             } else if (diff < 0) { // pH too high
                 const acidDose = acidDoseFlOzGallons(userValue, targetValue, poolGallons, alkalinity, t);
                 if (acidDose) {
-                    advice = t.dosing.phLower
+                    advice = getDosingText(t, 'phLower')
                         .replace("{amount}", acidDose)
                         .replace("{target}", targetValue);
                 }
             }
         }
         if (chemType === "cya" && userValue <= FL_THRESHOLDS.cya) {
-            amount = ((targetValue - userValue) / 10) * 13 * (poolGallons / 10000);
-            advice = t.dosing.cyaRaise
+            amount = (targetValue - userValue) * PER_10 * 13 * poolGallons * PER_10K_GALLONS;
+            advice = getDosingText(t, 'cyaRaise')
                 .replace("{amount}", formatAmountOzLb(amount, t))
                 .replace("{target}", targetValue);
         }
@@ -688,29 +710,29 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
 
     // Default logic for other states (AZ/TX) for non-alkalinity chems
     if (chemType === "calcium" && diff > 0) {
-        amount = (diff / 10) * 1.25 * (poolGallons / 10000);
-        advice = t.dosing.calciumRaise
+        amount = diff * PER_10 * 1.25 * poolGallons * PER_10K_GALLONS;
+        advice = getDosingText(t, 'calciumRaise')
             .replace("{amount}", amount.toFixed(2))
             .replace("{target}", targetValue);
     }
     if (chemType === "ph") {
         if (diff > 0) {
-            amount = (diff / 0.2) * 6 * (poolGallons / 10000);
-            advice = t.dosing.phRaise
+            amount = diff * 5 * 6 * poolGallons * PER_10K_GALLONS;
+            advice = getDosingText(t, 'phRaise')
                 .replace("{amount}", formatAmountOzLb(amount, t))
                 .replace("{target}", targetValue);
         } else if (diff < 0) {
             const acidDose = acidDoseFlOzGallons(userValue, targetValue, poolGallons, alkalinity, t);
             if (acidDose) {
-                advice = t.dosing.phLower
+                advice = getDosingText(t, 'phLower')
                     .replace("{amount}", acidDose)
                     .replace("{target}", targetValue);
             }
         }
     }
     if (chemType === "cya" && diff > 0) {
-        amount = (diff / 10) * 13 * (poolGallons / 10000);
-        advice = t.dosing.cyaRaise
+        amount = diff * PER_10 * 13 * poolGallons * PER_10K_GALLONS;
+        advice = getDosingText(t, 'cyaRaise')
             .replace("{amount}", formatAmountOzLb(amount, t))
             .replace("{target}", targetValue);
     }
@@ -806,7 +828,7 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
         lsiTdsValue = Math.max(tds, saltCurrent);
     }
 
-    let correctedAlkalinity = alkalinity - (cyanuric / 3);
+    let correctedAlkalinity = alkalinity - (cyanuric * ONE_THIRD);
     if (correctedAlkalinity < 0) correctedAlkalinity = 0;
 
     const alkalinityFactor = getFactor(correctedAlkalinity, ALKALINITY_FACTORS);
@@ -923,7 +945,7 @@ if (saltDesired > 0 && saltCurrent >= 0) { // Simplified this condition. The get
     saltDose = getSaltDose(saltCurrent, saltDesired, poolGallons);
     if (saltDose && saltDose.lbsNeeded > 0.01) {
         otherList.push(
-            `<div class="chem-card salt">${boldQuantity(t.dosing.salt
+            `<div class="chem-card salt">${boldQuantity(getDosingText(t, 'salt')
                 .replace("{amount}", saltDose.lbsNeeded.toFixed(2))
                 .replace("{bags}", saltDose.bags)
                 )}</div>`
