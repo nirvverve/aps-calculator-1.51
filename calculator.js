@@ -440,6 +440,11 @@ function getDosingText(t, key) {
     return (t && t.dosing && typeof t.dosing[key] === 'string') ? t.dosing[key] : '';
 }
 
+function getSanitizerText(t, key) {
+    const sanitizer = (t && t.sanitizer) ? t.sanitizer : null;
+    return (sanitizer && typeof sanitizer[key] === 'string') ? sanitizer[key] : '';
+}
+
 function formatAmountOzLb(amountOz, t) {
     if (!Number.isFinite(amountOz) || amountOz === 0) {
         return `0 ${t.units.lbs}`;
@@ -745,7 +750,7 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
 
     // Parse all values from formData (all should be numbers except state)
     const rawState = typeof formData.state === 'string' ? formData.state.toLowerCase() : '';
-    if (!Object.prototype.hasOwnProperty.call(GOLDEN_NUMBERS, rawState)) {
+    if (!Object.hasOwn(GOLDEN_NUMBERS, rawState)) {
         return { html: `<p class="error">${t.errorRequired}</p>` };
     }
 
@@ -968,17 +973,17 @@ if (saltDesired > 0) {
         // Rule #1: FAC is near zero
         const doseToLevel = targetFC * 3;
         ppmToBeDosed = doseToLevel - freeChlorine;
-        saltChlorineWarning = `<div class="warning-text">${t.sanitizer.lowChlorineSaltWarning}</div>`;
+        saltChlorineWarning = `<div class="warning-text">${getSanitizerText(t, 'lowChlorineSaltWarning')}</div>`;
     } else if (freeChlorine > 0.6 && freeChlorine < targetFC) {
         // Rule #2: FAC is low but not critical
         const doseToLevel = targetFC * 2;
         ppmToBeDosed = doseToLevel - freeChlorine;
-        saltChlorineAdvice = `<div class="advice-text">${t.sanitizer.saltChlorineBelowTarget}</div>`;
+        saltChlorineAdvice = `<div class="advice-text">${getSanitizerText(t, 'saltChlorineBelowTarget')}</div>`;
     } else if (freeChlorine > (targetFC + 2)) {
         // Rule #3: FAC is too high
-        saltChlorineMessage = `<div class="chem-card fac">${t.sanitizer.saltChlorineHigh}</div>`;
+        saltChlorineMessage = `<div class="chem-card fac">${getSanitizerText(t, 'saltChlorineHigh')}</div>`;
     } else { // Covers Rule #4: FAC is in range (targetFC to targetFC + 2)
-        saltChlorineMessage = `<div class="chem-card fac">${t.sanitizer.saltChlorineInRange}</div>`;
+        saltChlorineMessage = `<div class="chem-card fac">${getSanitizerText(t, 'saltChlorineInRange')}</div>`;
     }
 
     if (ppmToBeDosed < 0) ppmToBeDosed = 0;
@@ -996,7 +1001,7 @@ if (saltDesired > 0) {
             const liquidChlorine = getLiquidChlorineDose(ppmToBeDosed, poolGallons);
             chlorineList.push(
                 `<div class="chem-card fac">${boldQuantity(
-                    t.sanitizer.liquidChlorineDose
+                    getSanitizerText(t, 'liquidChlorineDose')
                     .replace("{gallons}", liquidChlorine.gallons.toFixed(2))
                     .replace("{flOz}", liquidChlorine.flOz.toFixed(0))
                 )}</div>`
@@ -1005,7 +1010,7 @@ if (saltDesired > 0) {
             const calHypoOunces = getCalHypoOunces(ppmToBeDosed, poolGallons);
             chlorineList.push(
                 `<div class="chem-card fac">${boldQuantity(
-                    t.sanitizer.calHypoDose.replace("{amount}", formatLbsOz(calHypoOunces, t))
+                    getSanitizerText(t, 'calHypoDose').replace("{amount}", formatLbsOz(calHypoOunces, t))
                 )}</div>`
             );
         }
@@ -1016,10 +1021,10 @@ if (saltDesired > 0) {
     // --- Build Salt-Specific Chlorine Details HTML ---
     chlorineHTML = `
     <div class="info-card chlorine-details">
-        <h4>${t.sanitizer.chlorineDetailsSalt}</h4>
+        <h4>${getSanitizerText(t, 'chlorineDetailsSalt')}</h4>
         <div class="chlorine-grid">
             <div class="chlorine-item">
-                <span class="chlorine-label">${t.sanitizer.targetFCSalt}:</span>
+                <span class="chlorine-label">${getSanitizerText(t, 'targetFCSalt')}:</span>
                 <span class="chlorine-value">${targetFC.toFixed(2)} ppm</span>
             </div>
             <div class="chlorine-item">
@@ -1027,7 +1032,7 @@ if (saltDesired > 0) {
                 <span class="chlorine-value">${freeChlorine.toFixed(2)} ppm</span>
             </div>
             <div class="chlorine-item highlight">
-                <span class="chlorine-label">${t.sanitizer.supplementalDoseSalt}:</span>
+                <span class="chlorine-label">${getSanitizerText(t, 'supplementalDoseSalt')}:</span>
                 <span class="chlorine-value">${ppmToBeDosed.toFixed(2)} ppm</span>
             </div>
         </div>
@@ -1042,7 +1047,7 @@ if (saltDesired > 0) {
         if (chlorineInfo.toBeDosed > 0.01) {
             chlorineList.push(
                 `<div class="chem-card fac">${boldQuantity(
-                    t.sanitizer.liquidChlorineDose
+                    getSanitizerText(t, 'liquidChlorineDose')
                     .replace("{gallons}", liquidChlorine.gallons.toFixed(2))
                     .replace("{flOz}", liquidChlorine.flOz.toFixed(0))
                 )}</div>`
@@ -1053,7 +1058,7 @@ if (saltDesired > 0) {
         if (chlorineInfo.toBeDosed > 0.01) {
             chlorineList.push(
                 `<div class="chem-card fac">${boldQuantity(
-                    t.sanitizer.calHypoDose.replace("{amount}", formatLbsOz(calHypoOunces, t))
+                    getSanitizerText(t, 'calHypoDose').replace("{amount}", formatLbsOz(calHypoOunces, t))
                 )}</div>`
             );
         }
