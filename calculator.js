@@ -196,7 +196,7 @@ const translations = {
             liquidChlorineDose: "Agregue {gallons} gal ({flOz} fl oz) de cloro líquido (12.5%).",
             calHypoDose: "Agregue {amount} de hipoclorito de calcio granular (73%).",
             lowChlorineSaltWarning: "El cloro libre está críticamente bajo. Verifique que el sistema de sal funcione correctamente. Agregue la dosis de cloro suplementaria que se muestra a continuación para prevenir algas. Esto es adicional a cualquier sal que también se necesite.",
-            saltChlorineBelowTarget: "Il cloro è al di sotto dell'obiettivo. Oltre a qualsiasi dose di sale richiesta, aumentare la produzione del generatore di sale per mantenere l'acqua limpida e senza alghe.",
+            saltChlorineBelowTarget: "El cloro libre medido está por debajo del objetivo. Además de cualquier dosis de sal requerida, aumente la producción del generador de sal para mantener el agua clara y libre de algas.",
             saltChlorineHigh: "No es necesaria una dosis suplementaria de cloro libre. Considere reducir la producción del sistema de sal.",
             saltChlorineInRange: "El cloro libre medido está dentro del rango objetivo, no es necesaria una dosis suplementaria de cloro.",
             chlorineDetailsSalt: "Recomendación de Cloro para Piscina de Sal",
@@ -210,7 +210,7 @@ const translations = {
             phLower: "Agregue {amount} para bajar el pH a {target}.",
             cyaRaise: "Agregue {amount} de ácido cianúrico (estabilizador) para aumentar el CYA a {target} ppm.",
             salt: "Agregue {amount} libras de sal para piscina ({bags} bolsas de 40 lb) para alcanzar el nivel de sal deseado.",
-            alkLower: "Agregue {amount} de para bajar la alcalinidad de {current} ppm a {target} ppm.",
+            alkLower: "Agregue {amount} para bajar la alcalinidad de {current} ppm a {target} ppm.",
             alkNoAction: "La alcalinidad a {current} ppm está dentro del rango aceptable (120-140 ppm). No se necesita ajuste.",
             alkHighWarning: "La alcalinidad es inusualmente alta. Vuelva a realizar la prueba para confirmar el resultado, especialmente si hubo un cambio significativo desde la visita anterior. Informe esta lectura alta de alcalinidad a su gerente de área o director asistente antes de aplicar la dosis."
     
@@ -346,9 +346,15 @@ const cardKeywords = {
 function calculateLSIAndAdvice(formData) {
     logUserData(formData);
 
-    const lang = formData.lang || 'en';
+    const rawLang = typeof formData.lang === 'string' ? formData.lang.toLowerCase() : '';
+    const lang = translations[rawLang] ? rawLang : 'en';
     const t = translations[lang];
     const keywords = cardKeywords[lang];
+    if (!translations[rawLang] || !cardKeywords[rawLang]) {
+        return { html: `<p class="error">${t.errorRequired}</p>` };
+    }
+
+    const hasValue = (value) => value !== undefined && value !== null && String(value).trim() !== '';
    
 // State-specific "golden numbers"
 const GOLDEN_NUMBERS = {
@@ -696,18 +702,37 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
 // Main backend calculation function
 
     // Parse all values from formData (all should be numbers except state)
-    const state = formData.state;
-    let golden = GOLDEN_NUMBERS[state];
+    const rawState = typeof formData.state === 'string' ? formData.state.toLowerCase() : '';
+    if (!Object.prototype.hasOwnProperty.call(GOLDEN_NUMBERS, rawState)) {
+        return { html: `<p class="error">${t.errorRequired}</p>` };
+    }
+
+    const state = rawState;
+    let golden = { ...GOLDEN_NUMBERS[state] };
     const poolGallons = parseFloat(formData.capacity);
     const ph = parseFloat(formData.ph);
     const alkalinity = parseFloat(formData.alkalinity);
     const calcium = parseFloat(formData.calcium);
-    const temperature = parseFloat(formData.temperature);
-    const tds = parseFloat(formData.tds) || 0;
-    const cyanuric = parseFloat(formData.cyanuric) || 0;
+    const cyanuric = parseFloat(formData.cyanuric);
     const freeChlorine = parseFloat(formData.freechlorine);
-    const saltCurrent = parseFloat(formData['salt-current']) || 0;
-    const saltDesired = parseFloat(formData['salt-desired']) || 0;
+    const temperatureInput = formData.temperature;
+    const tdsInput = formData.tds;
+    const saltCurrentInput = formData['salt-current'];
+    const saltDesiredInput = formData['salt-desired'];
+    const temperature = hasValue(temperatureInput) ? parseFloat(temperatureInput) : 86;
+    const tds = hasValue(tdsInput) ? parseFloat(tdsInput) : 1000;
+    const saltCurrent = hasValue(saltCurrentInput) ? parseFloat(saltCurrentInput) : 0;
+    const saltDesired = hasValue(saltDesiredInput) ? parseFloat(saltDesiredInput) : 0;
+
+    if (
+        [poolGallons, ph, alkalinity, calcium, cyanuric, freeChlorine].some(Number.isNaN) ||
+        (hasValue(temperatureInput) && Number.isNaN(temperature)) ||
+        (hasValue(tdsInput) && Number.isNaN(tds)) ||
+        (hasValue(saltCurrentInput) && Number.isNaN(saltCurrent)) ||
+        (hasValue(saltDesiredInput) && Number.isNaN(saltDesired))
+    ) {
+        return { html: `<p class="error">${t.errorRequired}</p>` };
+    }
 
 
     if (saltDesired > 0) {
@@ -746,14 +771,6 @@ function getDosingAdvice(userValue, targetValue, poolGallons, chemType, alkalini
 
     if (temperature < 50 || temperature > 104) {
         return { html: `<p class="error">${t.errorRangeTemperature}</p>` };
-    }
-
-    // Input validation
-    if (
-        isNaN(poolGallons) || isNaN(ph) || isNaN(alkalinity) || isNaN(calcium) ||
-        isNaN(temperature) || isNaN(cyanuric) || isNaN(freeChlorine)
-    ) {
-        return { html: `<p class="error">${t.errorRequired}</p>` };
     }
 
     let lsiTdsValue = tds;
@@ -906,7 +923,7 @@ if (saltDesired > 0) {
         // Rule #2: FAC is low but not critical
         const doseToLevel = targetFC * 2;
         ppmToBeDosed = doseToLevel - freeChlorine;
-        saltChlorineAdvice = `<div class="advice-text">${t.sanitizer.saltChlorineBelowTarget}</em></div>`;
+        saltChlorineAdvice = `<div class="advice-text">${t.sanitizer.saltChlorineBelowTarget}</div>`;
     } else if (freeChlorine > (targetFC + 2)) {
         // Rule #3: FAC is too high
         saltChlorineMessage = `<div class="chem-card fac">${t.sanitizer.saltChlorineHigh}</div>`;
