@@ -199,6 +199,42 @@ function formatNumberWithCommas(num) {
 function removeCommas(str) {
     return str.replace(/,/g, "");
 } 
+
+function sanitizeHtml(html) {
+    if (window.DOMPurify) {
+        return window.DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
+    }
+    return html;
+}
+
+function buildIconSpan(iconName, className, styles = {}) {
+    const icon = document.createElement('span');
+    icon.className = className;
+    icon.textContent = iconName;
+    Object.assign(icon.style, styles);
+    return icon;
+}
+
+function renderError(resultsElement, message) {
+    const error = document.createElement('p');
+    error.className = 'error';
+    error.textContent = message;
+    resultsElement.replaceChildren(error);
+}
+
+function renderLoading(resultsElement, message) {
+    const loading = document.createElement('div');
+    loading.style.textAlign = 'center';
+    loading.style.padding = '2em';
+    loading.style.color = '#1e759d';
+    loading.style.fontSize = '1.2em';
+    loading.textContent = message;
+    resultsElement.replaceChildren(loading);
+}
+
+function renderResultsHtml(resultsElement, html) {
+    resultsElement.innerHTML = sanitizeHtml(html);
+}
 function applyUrlParameters() {
     const params = new URLSearchParams(window.location.search);
 
@@ -323,7 +359,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Training video link - updates the link text based on selected language
         const trainingLink = document.getElementById('training-video-link');
         if (trainingLink) {
-        trainingLink.innerHTML = `<span class="material-icons inline-block align-middle mr-1" style="font-size: 1.25em; vertical-align: text-bottom;">ondemand_video</span> ${t.trainingVideo}`;
+        const icon = buildIconSpan(
+            'ondemand_video',
+            'material-icons inline-block align-middle mr-1',
+            { fontSize: '1.25em', verticalAlign: 'text-bottom' }
+        );
+        trainingLink.replaceChildren(icon, document.createTextNode(` ${t.trainingVideo}`));
         }
         
         // Pool capacity
@@ -390,7 +431,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const calculateBtn = document.querySelector('button[type="submit"]');
         if (calculateBtn) {
             // Keep the icon and update the text
-            calculateBtn.innerHTML = `<span class="material-icons mr-2">calculate</span> ${t.calculate}`;
+            const icon = buildIconSpan('calculate', 'material-icons mr-2');
+            calculateBtn.replaceChildren(icon, document.createTextNode(` ${t.calculate}`));
         }
     }
 
@@ -518,7 +560,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isBlank(formData.state) || isBlank(formData.capacity) || isBlank(formData.ph) || 
             isBlank(formData.alkalinity) || isBlank(formData.calcium) || 
             isBlank(formData.cyanuric) || isBlank(formData.freechlorine)) {
-            resultsElement.innerHTML = `<p class="error">${t.errorRequired}</p>`;
+            renderError(resultsElement, t.errorRequired);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
@@ -543,7 +585,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Parsed capacity:', capacity);
 
         if ([capacity, ph, alkalinity, calcium, cyanuric, freeChlorine, tds, saltCurrent, saltDesired, temperature].some(Number.isNaN)) {
-            resultsElement.innerHTML = `<p class="error">${t.errorRequired}</p>`;
+            renderError(resultsElement, t.errorRequired);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
@@ -551,67 +593,67 @@ document.addEventListener('DOMContentLoaded', function() {
         // Validate ranges
         if (Number.isNaN(capacity) || capacity < 500 || capacity > 50000) {
             console.log('Capacity validation failed:', capacity);
-            resultsElement.innerHTML = `<p class="error">${t.errorRangeCapacity}</p>`;
+            renderError(resultsElement, t.errorRangeCapacity);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
         
         if (ph < 6.5 || ph > 8.5) {
-            resultsElement.innerHTML = `<p class="error">${t.errorRangePh}</p>`;
+            renderError(resultsElement, t.errorRangePh);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
         
         if (alkalinity === 0) {
-            resultsElement.innerHTML = `<p class="error">${t.alkalinityZeroNote}</p>`;
+            renderError(resultsElement, t.alkalinityZeroNote);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
 
         if (alkalinity < 10 || alkalinity > 300) {
-            resultsElement.innerHTML = `<p class="error">${t.errorRangeAlkalinity}</p>`;
+            renderError(resultsElement, t.errorRangeAlkalinity);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
         
         if (calcium < 0 || calcium > 1000) {
-            resultsElement.innerHTML = `<p class="error">${t.errorRangeCalcium}</p>`;
+            renderError(resultsElement, t.errorRangeCalcium);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
         
         if (cyanuric < 0 || cyanuric > 300) {
-            resultsElement.innerHTML = `<p class="error">${t.errorRangeCyanuric}</p>`;
+            renderError(resultsElement, t.errorRangeCyanuric);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
 
         if (freeChlorine < 0 || freeChlorine > 30) {
-            resultsElement.innerHTML = `<p class="error">${t.errorRangeFreeChlorine}</p>`;
+            renderError(resultsElement, t.errorRangeFreeChlorine);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
 
         if (tds < 0 || tds > 10000) {
-            resultsElement.innerHTML = `<p class="error">${t.errorRangeTds}</p>`;
+            renderError(resultsElement, t.errorRangeTds);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
         
         if (saltCurrent < 0 || saltCurrent > 10000 || saltDesired < 0 || saltDesired > 10000) {
-            resultsElement.innerHTML = `<p class="error">${t.errorRangeSalt}</p>`;
+            renderError(resultsElement, t.errorRangeSalt);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
         
         if (temperature < 33 || temperature > 104) {
-            resultsElement.innerHTML = `<p class="error">${t.errorRangeTemperature}</p>`;
+            renderError(resultsElement, t.errorRangeTemperature);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
         }
         
         // Show calculating message
-        resultsElement.innerHTML = `<div style="text-align: center; padding: 2em; color: #1e759d; font-size: 1.2em;">${t.calculating}</div>`;
+        renderLoading(resultsElement, t.calculating);
         resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         
         try {
@@ -631,7 +673,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Server response received:', data);
             
             if (data.html) {
-                resultsElement.innerHTML = data.html;
+                renderResultsHtml(resultsElement, data.html);
                 // Ensure we scroll to results after they're displayed
                 setTimeout(() => {
                     resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -639,17 +681,17 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (data.error) {
                 const errorLang = data.lang || getSelectedLanguage();
                 const t = translations[errorLang];
-                resultsElement.innerHTML = `<p class="error">${t.serverError}</p>`;
+                renderError(resultsElement, t.serverError);
                 resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             } else {
-                resultsElement.innerHTML = `<p class="error">No results returned from server.</p>`;
+                renderError(resultsElement, "No results returned from server.");
                 resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         } catch (err) {
             console.error('Fetch error:', err);
             const lang = getSelectedLanguage();
             const t = translations[lang];
-            resultsElement.innerHTML = `<p class="error">${t.serverError}</p>`;
+            renderError(resultsElement, t.serverError);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     });
@@ -707,7 +749,7 @@ function clearAllFormData() {
             
             const resultsElement = document.getElementById('results');
             if (resultsElement) {
-                resultsElement.innerHTML = '';
+                resultsElement.replaceChildren();
             }
             
             const firstInput = document.getElementById('capacity');
