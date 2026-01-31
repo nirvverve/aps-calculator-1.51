@@ -547,8 +547,6 @@ document.addEventListener('DOMContentLoaded', function() {
             lang: getSelectedLanguage()
         };
         
-        console.log('Form data being submitted:', formData);
-        console.log('Capacity value:', formData.capacity);
         
         const resultsElement = document.getElementById('results');
         const lang = getSelectedLanguage();
@@ -582,7 +580,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const saltDesired = parseFloat(formData['salt-desired']);
         const temperature = parseFloat(formData.temperature);
         
-        console.log('Parsed capacity:', capacity);
 
         if ([capacity, ph, alkalinity, calcium, cyanuric, freeChlorine, tds, saltCurrent, saltDesired, temperature].some(Number.isNaN)) {
             renderError(resultsElement, t.errorRequired);
@@ -592,7 +589,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Validate ranges
         if (Number.isNaN(capacity) || capacity < 500 || capacity > 50000) {
-            console.log('Capacity validation failed:', capacity);
             renderError(resultsElement, t.errorRangeCapacity);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
@@ -663,14 +659,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(formData)
             });
             
-            console.log('Response status:', response.status);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
             const data = await response.json();
-            console.log('Server response received:', data);
             
             if (data.html) {
                 renderResultsHtml(resultsElement, data.html);
@@ -688,7 +682,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         } catch (err) {
-            console.error('Fetch error:', err);
             const lang = getSelectedLanguage();
             const t = translations[lang];
             renderError(resultsElement, t.serverError);
