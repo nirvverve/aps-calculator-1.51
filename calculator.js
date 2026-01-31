@@ -1,11 +1,14 @@
 // Add the 'fs' module for file system operations and 'path' for constructing file paths
 const fs = require('fs');
+const fsPromises = fs.promises;
 const path = require('path'); 
 
 // Define the path for the log file (outside the served directory for security)
 const LOG_DIR = path.join(__dirname, '..', 'aps_logs');
 const LOG_FILE_PATH = path.join(LOG_DIR, 'user_activity.log');
-fs.mkdirSync(LOG_DIR, { recursive: true });
+const ensureLogDir = fsPromises.mkdir(LOG_DIR, { recursive: true }).catch((err) => {
+    console.error('Failed to create log directory:', err);
+});
 
 // Function to log data
 function logUserData(dataToLog) {
@@ -16,13 +19,13 @@ function logUserData(dataToLog) {
     const logString = JSON.stringify(logEntry) + '\n'; // Convert to JSON string and add a newline
 
     // Append to the log file
-    fs.appendFile(LOG_FILE_PATH, logString, (err) => {
-        if (err) {
+    ensureLogDir
+        .then(() => fsPromises.appendFile(LOG_FILE_PATH, logString))
+        .catch((err) => {
             // Log an error to the console if writing to the file fails
             // In a production app, you might use a more robust error logging mechanism
             console.error('Failed to write to user activity log:', err);
-        }
-    });
+        });
 } 
 const translations = {
     en: {
@@ -1171,4 +1174,4 @@ return {html};
 }
 
 
-module.exports = { calculateLSIAndAdvice };
+module.exports = { calculateLSIAndAdvice, translations };
