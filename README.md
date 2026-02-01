@@ -1,3 +1,10 @@
+## v1.15.8 (Feb 1, 2026)
+1 - Hardened calculation security: CSP headers + local DOMPurify, sanitized results rendering, and stricter API payload validation.
+2 - Fixed correctness issues: GOLDEN_NUMBERS mutation, stray salt advice tag, translation fixes with stable header selectors, and free chlorine range validation.
+3 - Reduced UBS findings: resolved division warnings, removed addEventListener usage, guarded DOM queries, and removed debug logs.
+4 - UI cleanup: removed legacy Inter font includes.
+5 - Deployment readiness: added Vercel serverless `/api/calculate`, static routing config, `.vercelignore`, and deployed to Vercel.
+
 ## v1.14.1
 1 - corrected small typo errors
 
@@ -144,7 +151,6 @@ Regional Product Differences:
 
 LSI:
     The calculator provides LSI calculations to determine if water is balanced, corrosive, or scale-forming. This helps protect pool surfaces and equipment from damage while maintaining water clarity.
-
 
 
 
