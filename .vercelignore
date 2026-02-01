@@ -1,0 +1,11 @@
+.beads/
+.claude/
+.ntm/
+.ruff_cache/
+.vscode/
+APS_Brand/
+AGENTS.md
+INVESTIGATION_REPORT.md
+a.out
+node_modules/
+package-lock.json
