@@ -320,7 +320,7 @@ function applyUrlParameters() {
 
 
 
-document.addEventListener('DOMContentLoaded', function() {
+function onDomReady() {
     // Language selection logic
     const autoPopulateVolume = localStorage.getItem('calculatedPoolVolumeGallons');
     if (autoPopulateVolume) {
@@ -337,9 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Clear form functionality
     const clearFormBtn = getById('clear-form-btn');
     if (clearFormBtn) {
-        clearFormBtn.addEventListener('click', function() {
-            clearAllFormData();
-        });
+        clearFormBtn.onclick = clearAllFormData;
     }
     
     // Set initial language button state
@@ -355,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle language button clicks
     languageButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
+        const onLanguageClick = function() {
             languageButtons.forEach(b => {
                 b.classList.remove('btn-active');
                 b.classList.add('btn-inactive');
@@ -364,7 +362,8 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.classList.add('btn-active');
             localStorage.setItem('selectedLanguage', btn.dataset.lang);
             setLanguage(btn.dataset.lang);
-        });
+        };
+        btn.onclick = onLanguageClick;
     });
 
     // Function to update UI text - FIXED VERSION
@@ -503,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     stateButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
+        const onStateClick = function() {
             stateButtons.forEach(b => {
                 b.classList.remove('btn-active');
                 b.classList.add('btn-inactive');
@@ -512,7 +511,8 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.classList.add('btn-active');
             if (stateInput) stateInput.value = btn.dataset.state;
             localStorage.setItem('selectedState', btn.dataset.state);
-        });
+        };
+        btn.onclick = onStateClick;
     });
 
     setLanguage(savedLang);
@@ -521,15 +521,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const capacityInput = getById('capacity');
     if (capacityInput) {
         // Only allow digits during input
-        capacityInput.addEventListener('input', function(e) {
+        const onCapacityInput = function(e) {
             let value = e.target.value;
             // Remove all non-digit characters
             let cleanValue = value.replace(/[^\d]/g, '');
             e.target.value = cleanValue;
-        });
+        };
+        capacityInput.oninput = onCapacityInput;
         
         // Format with commas when user finishes typing (on blur)
-        capacityInput.addEventListener('blur', function(e) {
+        const onCapacityBlur = function(e) {
             let value = e.target.value;
             if (value && value.trim() !== '') {
                 const numValue = parseInt(value, 10);
@@ -537,21 +538,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     e.target.value = formatNumberWithCommas(numValue);
                 }
             }
-        });
+        };
+        capacityInput.onblur = onCapacityBlur;
         
         // Remove commas when user starts typing again (on focus)
-        capacityInput.addEventListener('focus', function(e) {
+        const onCapacityFocus = function(e) {
             let value = e.target.value;
             if (value) {
                 e.target.value = removeCommas(value);
             }
-        });
+        };
+        capacityInput.onfocus = onCapacityFocus;
     }
 
     // Form submission handler - IMPROVED VERSION
     const form = getById('pool-form');
     if (form) {
-        form.addEventListener('submit', async function(e) {
+        const onSubmit = async function(e) {
             e.preventDefault();
             e.stopPropagation();
             
@@ -718,10 +721,13 @@ document.addEventListener('DOMContentLoaded', function() {
             renderError(resultsElement, t.serverError);
             resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-    });
+        };
+        form.onsubmit = onSubmit;
+    }
+    applyUrlParameters();
 }
-applyUrlParameters();
-});
+
+onDomReady();
 
 
 
