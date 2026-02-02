@@ -7,22 +7,32 @@ process.on('uncaughtException', (err) => {
    
 const express = require('express');
 const path = require('path');
+const { z } = require('zod');
 const { calculateLSIAndAdvice, translations } = require('./calculator');
 const app = express();
-const PORT = 3000; // or whatever port you use
+const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
 app.use('/assets', express.static(path.join(__dirname, 'assets'), { fallthrough: false }));
 
 const VALID_STATES = new Set(['arizona', 'texas', 'florida', 'jacksonville']);
 const VALID_LANGS = new Set(['en', 'es', 'it']);
-
-const hasValue = (value) => value !== undefined && value !== null && String(value).trim() !== '';
-const isNumberish = (value) => {
-    if (!hasValue(value)) return false;
-    const numberValue = Number(value);
-    return Number.isFinite(numberValue);
-};
+const calculateSchema = z
+    .object({
+        capacity: z.coerce.number().finite(),
+        ph: z.coerce.number().finite(),
+        alkalinity: z.coerce.number().finite(),
+        calcium: z.coerce.number().finite(),
+        cyanuric: z.coerce.number().finite(),
+        freechlorine: z.coerce.number().finite(),
+        temperature: z.coerce.number().finite().optional(),
+        tds: z.coerce.number().finite().optional(),
+        'salt-current': z.coerce.number().finite().optional(),
+        'salt-desired': z.coerce.number().finite().optional(),
+        state: z.string(),
+        lang: z.string().optional()
+    })
+    .passthrough();
 
 const normalizeLang = (value) => {
     const lower = typeof value === 'string' ? value.toLowerCase() : '';
@@ -35,30 +45,50 @@ const getErrorRequired = (lang) => {
 };
 
 const buildErrorHtml = (message) => `<p class="error">${message}</p>`;
+const sanitizeHtml = (input) => {
+    if (typeof input !== 'string') return '';
+    return input
+        .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+        .replace(/\son\w+=(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+        .replace(/\sjavascript:/gi, '');
+};
+
+const buildValidatedPayload = (payload, lang, state) => {
+    const sanitized = {
+        lang,
+        state,
+        capacity: payload.capacity,
+        ph: payload.ph,
+        alkalinity: payload.alkalinity,
+        calcium: payload.calcium,
+        cyanuric: payload.cyanuric,
+        freechlorine: payload.freechlorine
+    };
+
+    if (payload.temperature !== undefined) sanitized.temperature = payload.temperature;
+    if (payload.tds !== undefined) sanitized.tds = payload.tds;
+    if (payload['salt-current'] !== undefined) sanitized['salt-current'] = payload['salt-current'];
+    if (payload['salt-desired'] !== undefined) sanitized['salt-desired'] = payload['salt-desired'];
+
+    return sanitized;
+};
 
 const validateCalculateRequest = (req, res, next) => {
-    const payload = req.body;
-    const lang = normalizeLang(payload?.lang);
-    const state = typeof payload?.state === 'string' ? payload.state.toLowerCase() : '';
-    const requiredFields = ['capacity', 'ph', 'alkalinity', 'calcium', 'cyanuric', 'freechlorine'];
-    const optionalFields = ['temperature', 'tds', 'salt-current', 'salt-desired'];
-
-    if (!payload || typeof payload !== 'object' || !VALID_STATES.has(state)) {
+    const parseResult = calculateSchema.safeParse(req.body);
+    if (!parseResult.success) {
+        const lang = normalizeLang(req.body?.lang);
         return res.status(400).json({ html: buildErrorHtml(getErrorRequired(lang)) });
     }
 
-    if (requiredFields.some((field) => !isNumberish(payload[field]))) {
+    const payload = parseResult.data;
+    const lang = normalizeLang(payload.lang);
+    const state = typeof payload.state === 'string' ? payload.state.toLowerCase() : '';
+
+    if (!VALID_STATES.has(state)) {
         return res.status(400).json({ html: buildErrorHtml(getErrorRequired(lang)) });
     }
 
-    for (const field of optionalFields) {
-        if (hasValue(payload[field]) && !isNumberish(payload[field])) {
-            return res.status(400).json({ html: buildErrorHtml(getErrorRequired(lang)) });
-        }
-    }
-
-    payload.lang = lang;
-    payload.state = state;
+    req.validatedPayload = buildValidatedPayload(payload, lang, state);
     return next();
 };
 
@@ -98,11 +128,14 @@ app.get(Object.keys(PUBLIC_FILES), (req, res) => {
 
 app.post('/api/calculate', validateCalculateRequest, (req, res) => {
     try {
-        const result = calculateLSIAndAdvice(req.body);
-        res.json(result);
+        const result = calculateLSIAndAdvice(req.validatedPayload);
+        res.json({
+            ...result,
+            html: sanitizeHtml(result?.html)
+        });
     } catch (err) {
         console.error("Calculation error:", err);
-        const lang = req.body.lang || 'en';
+        const lang = req.validatedPayload?.lang || 'en';
         res.status(500).json({
             error: 'Calculation error.',
             lang: lang
