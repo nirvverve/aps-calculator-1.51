@@ -102,11 +102,11 @@ app.use((req, res, next) => {
     res.setHeader(
         'Content-Security-Policy',
         "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; " +
-        "script-src 'self' https://cdn.tailwindcss.com https://cloud.google.com; " +
+        "script-src 'self' https://cdn.tailwindcss.com https://cloud.google.com https://www.gstatic.com; " +
         "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; " +
         "font-src 'self' https://fonts.gstatic.com data:; " +
         "img-src 'self' data:; " +
-        "connect-src 'self' https://cloud.google.com"
+        "connect-src 'self' https://cloud.google.com https://www.gstatic.com"
     );
     next();
 });
