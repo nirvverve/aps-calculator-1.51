@@ -93,20 +93,34 @@ const validateCalculateRequest = (req, res, next) => {
 };
 
 app.use((req, res, next) => {
+    const isAiSearch = req.path === '/ai_search.html';
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader(
         'Permissions-Policy',
         'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()'
     );
-    res.setHeader(
-        'Content-Security-Policy',
+    const baseCsp =
         "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; " +
         "script-src 'self' https://cdn.tailwindcss.com https://cloud.google.com https://www.gstatic.com; " +
         "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; " +
         "font-src 'self' https://fonts.gstatic.com data:; " +
         "img-src 'self' data:; " +
-        "connect-src 'self' https://cloud.google.com https://www.gstatic.com"
+        "connect-src 'self' https://cloud.google.com https://www.gstatic.com";
+    const aiSearchCsp =
+        "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; " +
+        "script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.tailwindcss.com " +
+        "https://cloud.google.com https://www.gstatic.com https://www.google.com https://www.recaptcha.net; " +
+        "style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; " +
+        "font-src 'self' https://fonts.gstatic.com data:; " +
+        "img-src 'self' data:; " +
+        "connect-src 'self' https://cloud.google.com https://www.gstatic.com " +
+        "https://content-discoveryengine.googleapis.com https://www.google.com https://www.recaptcha.net; " +
+        "frame-src https://www.google.com https://www.recaptcha.net; " +
+        "worker-src 'self' blob:";
+    res.setHeader(
+        'Content-Security-Policy',
+        isAiSearch ? aiSearchCsp : baseCsp
     );
     next();
 });
